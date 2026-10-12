@@ -1,0 +1,384 @@
+/*
+ * Listas de jugadores (Task 11): Goleadores (podio + ranking) y Sancionados, más el selector de curso
+ * de la barra de filtros. Mobile-first; reutiliza .podium (css/standings.css), .pos, .crest, .filters,
+ * .cycle-block y .more-row (css/sections.css).
+ */
+
+/* ===================== Filtros: chips de ciclo + selector de curso =====================
+ * Bajo 1024px .filters-line no genera caja (display: contents): la tira de chips sigue siendo fija
+ * respecto a la sección y el selector queda en su propia línea debajo. En PC van en una fila.
+ */
+.filters-line { display: contents; }
+.filter-select {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: calc(-1 * clamp(0.5rem, 0.25rem + 1vw, 1rem)) 0 clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+}
+.filter-select__label {
+  font-family: var(--font-text);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.filter-select__input {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: var(--tap);
+  min-width: 11rem;
+  max-width: 100%;
+  padding: 0 2.4rem 0 1.1rem;
+  border: 1.5px solid var(--gold-200);
+  border-radius: var(--radius-pill);
+  /* flecha: chevron en gold-700 */
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238a6210' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 1rem center / 11px 8px;
+  box-shadow: var(--shadow-1);
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.filter-select__input:hover { border-color: var(--gold-400); background-color: var(--gold-50); color: var(--ink); }
+.filter-select__input.is-active {
+  border-color: var(--gold-600);
+  background-color: var(--gold-100);
+  color: var(--ink);
+  font-weight: 700;
+}
+@media (max-width: 767px) {
+  .filter-select__input { flex: 1; }
+}
+@media (min-width: 1024px) {
+  .filters-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  }
+  .filters-line > .filters, .filters-line > .filter-select { margin: 0; }
+}
+
+/* ===================== Podio de goleadores ===================== */
+.scorers-block { display: grid; gap: clamp(1.75rem, 1.25rem + 2vw, 2.75rem); }
+.scorers-block > .cycle-block__title { margin-bottom: 0; }
+.scorer-podium .podium__places { max-width: 780px; }
+.scorer-podium.podium--n1 .podium__places { grid-template-columns: minmax(0, 1fr); max-width: 300px; }
+.scorer-podium.podium--n2 .podium__places { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 540px; }
+/* Altura, color y retraso por medalla (no por hueco): los empatados comparten escalón */
+.scorer-podium .podium__place.is-gold { --h: 8.25rem; --delay: 360ms; }
+.scorer-podium .podium__place.is-silver { --h: 6.25rem; --delay: 180ms; }
+.scorer-podium .podium__place.is-bronze { --h: 4.75rem; --delay: 0ms; }
+.scorer-podium .podium__place.is-gold .podium__step {
+  background: var(--grad-gold);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.55), inset 0 -10px 12px -10px rgb(99 70 16 / 0.3), var(--shadow-gold);
+}
+.scorer-podium .podium__place.is-silver .podium__step {
+  background: linear-gradient(160deg, var(--silver-100) 0%, var(--silver-300) 45%, var(--silver-500) 100%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.7), inset 0 -10px 12px -10px rgb(60 66 76 / 0.2), 0 10px 24px rgb(60 66 76 / 0.18);
+}
+.scorer-podium .podium__place.is-bronze .podium__step {
+  background: linear-gradient(160deg, var(--bronze-100) 0%, var(--bronze-300) 45%, var(--bronze-500) 100%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.6), inset 0 -10px 12px -10px rgb(99 60 26 / 0.25), 0 10px 24px rgb(185 122 69 / 0.22);
+}
+/* el brillo del podio de equipos va en el hueco 1; aquí va en los oros */
+.scorer-podium .podium__place--1:not(.is-gold) .podium__step::after { display: none; }
+.scorer-podium .podium__place.is-gold .podium__step::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grad-gold-sheen);
+  transform: translateX(-120%);
+  animation: podium-shine 3.4s var(--ease-in-out) 1.6s 3; /* celebración breve, no un bucle infinito */
+}
+.scorer-podium .podium__place--1 .crest { box-shadow: none; }
+.scorer-podium .podium__step { flex-direction: column; align-items: center; gap: 0.15rem; }
+.scorer-podium .podium__num { font-size: 2.4rem; font-variant-numeric: tabular-nums; }
+.podium__unit {
+  font-family: var(--font-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.scorer-avatar { position: relative; display: inline-grid; margin-bottom: 0.15rem; }
+.crest--avatar { --crest: 68px; border-width: 2px; }
+.is-gold .crest--avatar { --crest: 80px; border-color: var(--gold-400); box-shadow: 0 0 0 3px var(--gold-200), var(--shadow-gold); }
+.is-silver .crest--avatar { border-color: var(--silver-500); box-shadow: 0 0 0 3px var(--silver-100), 0 8px 20px rgb(60 66 76 / 0.18); }
+.is-bronze .crest--avatar { border-color: var(--bronze-500); box-shadow: 0 0 0 3px var(--bronze-100), 0 8px 20px rgb(185 122 69 / 0.2); }
+.crest--avatar .crest__img { padding: 0; object-fit: cover; }
+.scorer-avatar__pos {
+  position: absolute;
+  right: -0.3rem;
+  bottom: -0.2rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  font-size: 0.875rem;
+}
+
+.scorer-team {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  margin-top: 0.1rem;
+  text-align: left;
+}
+.scorer-team .crest { --crest: 26px; }
+.scorer-team .crest__mono { font-size: 0.6rem; }
+.scorer-team__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.scorer-team__name {
+  font-family: var(--font-text);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+.scorer-team__course { font-size: 0.6875rem; color: var(--gray); }
+
+@media (max-width: 479px) {
+  /* tres columnas de ~110px: escudo del equipo fuera, el nombre basta */
+  .scorer-team .crest { display: none; }
+  .scorer-team { text-align: center; }
+}
+
+@media (min-width: 768px) {
+  .scorer-podium .podium__place.is-gold { --h: 11rem; }
+  .scorer-podium .podium__place.is-silver { --h: 8.5rem; }
+  .scorer-podium .podium__place.is-bronze { --h: 6.5rem; }
+  .scorer-podium .podium__num { font-size: 3.6rem; }
+  .podium__unit { font-size: var(--fs-xs); }
+  .crest--avatar { --crest: 104px; border-width: 3px; }
+  .is-gold .crest--avatar { --crest: 124px; }
+  .scorer-avatar__pos { width: 2.25rem; height: 2.25rem; font-size: 1.05rem; right: -0.1rem; bottom: 0; }
+  .scorer-team { gap: 0.5rem; }
+  .scorer-team .crest { --crest: 32px; }
+  .scorer-team__name, .scorer-team__course { font-size: var(--fs-xs); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scorer-podium .podium__place.is-gold .podium__step::after { animation: none; }
+}
+
+/* ===================== Tabla de jugadores (ranking / sanciones) =====================
+ * Una sola marca <table>. Móvil (<768px): cada fila es una tarjeta. PC: tabla con encabezado fijo.
+ */
+.roster-wrap { width: 100%; max-width: 940px; margin-inline: auto; }
+.roster { width: 100%; border-collapse: separate; border-spacing: 0; }
+.roster .num { font-variant-numeric: tabular-nums; }
+.ro-player { text-align: left; }
+.ro-player__name {
+  display: block;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: break-word;
+}
+.ro-player__meta {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-text);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--gray);
+}
+.ro-team__inner { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+.ro-team .crest { --crest: 36px; }
+.ro-team__name {
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+.ro-num .num {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold-text);
+}
+.ro-num__unit {
+  font-family: var(--font-text);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+/* Tarjetas (icono) */
+.card-ico {
+  display: inline-block;
+  flex: none;
+  width: 0.7rem;
+  height: 0.95rem;
+  border-radius: 2px;
+  transform: rotate(-8deg);
+  box-shadow: 0 1px 2px rgb(31 26 20 / 0.25);
+}
+.card-ico--red { background: var(--red); }
+.card-ico--yellow { background: var(--card-yellow); box-shadow: inset 0 0 0 1px var(--gold-500), 0 1px 2px rgb(31 26 20 / 0.25); }
+.ro-stat .num { font-weight: 700; color: var(--gray); }
+td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
+.ro-stat.is-on .num { color: var(--ink); }
+.ro-stat[data-stat="rojas"].is-on .num { color: var(--red); }
+.ro-stat--susp.is-on .num {
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--red-50);
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+  .roster, .roster tbody { display: block; }
+  .roster thead { display: none; }
+  .roster tbody { display: grid; gap: 0.6rem; }
+  .roster__row {
+    display: grid;
+    align-items: center;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .roster__row > * { display: block; padding: 0; }
+  .roster .ro-course { display: none; }
+
+  /* Ranking: posición · jugador (+ curso) / equipo · goles */
+  .roster--scorers .roster__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "pos player num" "pos team num";
+    column-gap: 0.8rem;
+    row-gap: 0.4rem;
+  }
+  .roster--scorers .ro-pos { grid-area: pos; align-self: center; }
+  .roster--scorers .ro-player { grid-area: player; }
+  .roster--scorers .ro-team { grid-area: team; }
+  .roster--scorers .ro-num {
+    grid-area: num;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+  }
+  .roster--scorers .ro-num .num { font-size: 2rem; }
+  .roster--scorers .ro-player__name { font-size: var(--fs-base); }
+  .roster--scorers .ro-player__meta { display: inline; margin-left: 0.4rem; }
+  .roster--scorers .ro-player__name { display: inline; }
+  .roster .ro-team .crest { --crest: 28px; }
+  .roster .ro-team__name { font-size: var(--fs-xs); }
+
+  /* Sanciones: jugador (+ curso) / equipo / rojas · amarillas · suspensión */
+  .roster--sanctions .roster__row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 0.45rem;
+  }
+  .roster--sanctions .ro-player, .roster--sanctions .ro-team { grid-column: 1 / -1; }
+  .roster--sanctions .ro-player__name { display: inline; font-size: var(--fs-base); }
+  .roster--sanctions .ro-player__meta { display: inline; margin-left: 0.4rem; }
+  .roster--sanctions .ro-stat {
+    grid-row: 3;
+    align-self: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem 0.4rem;
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-base);
+  }
+  .roster--sanctions .ro-stat::before {
+    content: attr(data-label);
+    flex-basis: 100%;
+    text-align: center;
+    font-family: var(--font-text);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .roster--sanctions .roster__row.has-red { border-color: rgb(175 16 26 / 0.4); background: rgb(175 16 26 / 0.04); }
+}
+
+@media (min-width: 768px) {
+  .roster {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .roster .ro-player__meta { display: none; }
+  .roster th, .roster td {
+    padding: 0.75rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: middle;
+  }
+  .roster tbody tr:last-child > * { border-bottom: 0; }
+  .roster thead th {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 2;
+    padding-block: 0.85rem;
+    background: var(--gold-900);
+    font-family: var(--font-text);
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-100);
+    white-space: nowrap;
+  }
+  .roster thead th:first-child { border-top-left-radius: calc(var(--radius) - 1px); }
+  .roster thead th:last-child { border-top-right-radius: calc(var(--radius) - 1px); }
+  .roster abbr { text-decoration: none; cursor: help; }
+  .roster th:first-child, .roster td:first-child { padding-left: 1rem; }
+  .roster th:last-child, .roster td:last-child { padding-right: 1rem; }
+  .ro-pos { width: 4rem; }
+  .ro-course { font-size: var(--fs-sm); color: var(--gray); white-space: nowrap; }
+  .roster .ro-num { width: 6rem; text-align: center; background: var(--gold-50); }
+  .roster thead th.ro-num { background: var(--gold-900); color: var(--gold-300); }
+  .ro-num .num { font-size: 1.6rem; }
+  .ro-num__unit { display: none; }
+  .roster .ro-stat { width: 7.5rem; text-align: center; white-space: nowrap; }
+  .ro-stat .card-ico { margin-right: 0.45rem; vertical-align: -0.1em; }
+  td.ro-stat .card-ico { display: none; }
+  .ro-stat .num { font-size: var(--fs-lg); }
+  .roster--sanctions .ro-player { width: 26%; }
+  .roster tbody tr.has-red > :first-child { box-shadow: inset 4px 0 0 var(--red); }
+  .roster__row { transition-property: opacity, transform, background-color; }
+  @media (hover: hover) {
+    .roster tbody tr:hover > * { background-color: var(--gold-50); }
+    .roster tbody tr:hover > .ro-num { background-color: var(--gold-100); }
+  }
+}
+
+/* Tamaño del nombre por medalla (no por hueco): empatados iguales */
+.scorer-podium .podium__name { font-size: var(--fs-sm); }
+.scorer-podium .is-gold .podium__name { font-size: var(--fs-lg); }
+@media (min-width: 768px) {
+  .scorer-podium .podium__name { font-size: var(--fs-lg); }
+  .scorer-podium .is-gold .podium__name { font-size: var(--fs-xl); }
+}

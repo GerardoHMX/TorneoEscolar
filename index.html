@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; frame-src https://drive.google.com https://script.google.com https://script.googleusercontent.com; form-action https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'">
+    <title>Torneo Escolar - Al-Ándalus</title>
+    <meta name="description" content="Torneo escolar de Fútbol Sala Al-Ándalus">
+    <meta name="keywords" content="Torneo escolar, Fútbol Sala, Al-Ándalus, Colegio San Francisco de Asís">
+    <meta name="author" content="Gerardo Huizar Castro">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="theme-color" content="#d19b22">
+
+    <link rel="canonical" href="https://gerardohmx.github.io/TorneoAl-Andalus/">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Torneo escolar de Fútbol Sala Al-Ándalus">
+    <meta property="og:description" content="Torneo escolar de Fútbol Sala Al-Ándalus del Colegio San Francisco de Asís">
+    <meta property="og:url" content="https://gerardohmx.github.io/TorneoAl-Andalus/">
+    <meta property="og:image" content="https://colegiosanfranciscodeasis.com/wp-content/uploads/2023/03/logo-ColegioSanFranciscodeAsis.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Torneo escolar de Fútbol Sala Al-Ándalus">
+
+    <!-- Fuentes autoalojadas (woff2) -->
+    <link rel="preload" href="fonts/LALIGAHeadlineVF.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/Roboto-VF-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Tailwind + tokens + base (npm run build-css) -->
+    <link rel="stylesheet" href="dist/output.css">
+    <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
+    <link rel="preconnect" href="https://docs.google.com">
+    <link rel="preconnect" href="https://drive.google.com">
+    <link rel="preload" href="img/pattern.svg" as="image" type="image/svg+xml">
+
+    <!-- Favicons: se rellenan desde la hoja CONFIGURACION -->
+    <link rel="icon" href="img/logo-192.png" sizes="32x32" data-config="colegio-favicon-32">
+    <link rel="icon" href="img/logo-192.png" sizes="192x192" data-config="colegio-favicon-192">
+    <link rel="apple-touch-icon" href="img/logo-192.png" data-config="colegio-favicon-apple">
+    <!-- Sin JavaScript: ni pantalla de carga ni esqueleto, solo el aviso de <main> -->
+    <noscript><style>.loader-static, #app > :not(noscript) { display: none !important; }</style></noscript>
+</head>
+
+<body>
+    <a class="skip-link" href="#app" data-translate="skip_to_content">Saltar al contenido</a>
+
+    <!-- Loader: pantalla dorada estática (solo CSS) hasta que js/ui/loader.js monta el animado y la sustituye.
+         Si el JS no llegara a ejecutarse, css/loader.css la desvanece sola a los pocos segundos. -->
+    <div id="loader-root">
+        <div class="loader-static" aria-hidden="true">
+            <div class="loader-static__medal"><img src="img/logo-192.png" alt="" width="96" height="96"></div>
+            <p class="loader__name">Al-Ándalus</p>
+        </div>
+    </div>
+
+    <header id="site-header">
+        <div class="header-bar">
+            <a class="brand" href="#inicio">
+                <img class="brand__logo" src="img/logo-192.png" alt="" width="48" height="48">
+                <span class="brand__name">
+                    <span data-config="torneo-nombre">Al-Ándalus</span>
+                    <span class="brand__season" data-config="torneo-anio">2026-2027</span>
+                </span>
+                <!-- El nombre accesible contiene el texto visible (WCAG 2.5.3) y añade el destino -->
+                <span class="sr-only" data-translate="brand_home_hint">(inicio)</span>
+            </a>
+
+            <!-- Logo del colegio (src y enlace desde CONFIGURACION: COLEGIO_LOGO_URL, COLEGIO_URL); oculto hasta que cargue -->
+            <a class="header-school" href="#" target="_blank" rel="noopener noreferrer" data-config="colegio-link" hidden>
+                <img src="data:," alt="Colegio San Francisco de Asís" width="48" height="48" data-config="colegio-logo">
+            </a>
+
+            <!-- Navegación en línea (PC); enlaces generados por js/ui/nav.js -->
+            <nav id="desktopNav" aria-label="Secciones" data-translate-aria-label="nav_sections_label"></nav>
+
+            <div class="header-tools">
+                <div class="lang-switch" role="group" aria-label="Idioma / Language">
+                    <button type="button" data-lang="es" aria-pressed="true" lang="es">ES</button>
+                    <button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button>
+                </div>
+                <a class="icon-btn" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" data-config="instagram-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+                        <circle cx="12" cy="12" r="4.2"></circle>
+                        <circle cx="17.4" cy="6.6" r="0.6" fill="currentColor"></circle>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main id="app" tabindex="-1" aria-busy="true">
+        <noscript>
+            <div class="section"><div class="empty-state">
+                <p class="empty-state__title">El sitio del torneo necesita JavaScript para mostrar sus datos. · <span lang="en">This tournament site needs JavaScript to show its data.</span></p>
+            </div></div>
+        </noscript>
+        <!-- Contenido provisional mientras carga; js/main.js lo sustituye por las secciones -->
+        <div class="band band--gold">
+            <div class="section section--tight stack" aria-hidden="true">
+                <span class="skeleton skeleton--line w-2/5 max-w-[280px]"></span>
+                <span class="skeleton h-[clamp(3rem,10vw,6rem)] w-4/5 max-w-[640px]"></span>
+                <span class="skeleton skeleton--line w-1/4 max-w-[160px]"></span>
+            </div>
+        </div>
+        <div class="section grid-auto" aria-hidden="true">
+            <span class="skeleton skeleton--card"></span>
+            <span class="skeleton skeleton--card"></span>
+            <span class="skeleton skeleton--card"></span>
+        </div>
+        <p class="sr-only" role="status" data-translate="loading">Cargando el torneo…</p>
+    </main>
+
+    <!-- Pie (lo rellena la sección footer) -->
+    <footer id="site-footer"></footer>
+
+    <!-- Barra inferior (móvil) y hoja «Más»; generadas por js/ui/nav.js -->
+    <nav id="bottomNav" aria-label="Navegación principal" data-translate-aria-label="nav_main_label"></nav>
+    <div id="moreSheet" class="is-closed" role="dialog" aria-modal="true" aria-label="Más secciones" inert></div>
+
+    <div id="modal-root"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "torneo-al-andalus",
+  "version": "1.0.0",
+  "description": "Torneo escolar de Fútbol Sala Al-Ándalus",
+  "type": "module",
+  "scripts": {
+    "build-css": "tailwindcss -c tailwind.config.cjs -i ./src/input.css -o ./dist/output.css --minify",
+    "watch-css": "tailwindcss -c tailwind.config.cjs -i ./src/input.css -o ./dist/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47"
+  }
+}

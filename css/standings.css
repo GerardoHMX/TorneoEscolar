@@ -1,0 +1,586 @@
+/*
+ * Secciones de competición (Task 10): Clasificación, Clasificación grupal, Bracket y Podio.
+ * Mobile-first; tokens de css/tokens.css. Reutiliza .crest, .cycle-block*, .filters y .empty-state
+ * de css/sections.css.
+ */
+
+/* ===================== Medalla de posición ===================== */
+.pos {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--gold-50);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.pos--gold {
+  border-color: var(--gold-600);
+  background: var(--grad-gold);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.55), var(--shadow-gold);
+}
+.pos--silver {
+  border-color: var(--silver-500);
+  background: linear-gradient(135deg, var(--silver-100) 0%, var(--silver-300) 100%);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7), 0 4px 12px rgb(80 90 104 / 0.22);
+}
+.pos--bronze {
+  border-color: var(--bronze-500);
+  background: linear-gradient(135deg, var(--bronze-100) 0%, var(--bronze-300) 100%);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 4px 12px rgb(185 122 69 / 0.25);
+}
+
+/* ===================== Tabla de posiciones =====================
+ * Una sola marca <table>. Móvil (<768px): cada fila es una tarjeta (posición · escudo + nombre ·
+ * total grande, y debajo J/G/E/P/GF/GC/DG con su etiqueta). PC: tabla con encabezado fijo.
+ */
+.standings { width: 100%; border-collapse: separate; border-spacing: 0; }
+.standings .num { font-variant-numeric: tabular-nums; }
+.st-team__inner { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+.st-team__text { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.st-team__name {
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.st-team__meta {
+  font-family: var(--font-text);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.standings abbr { text-decoration: none; cursor: help; }
+
+@media (max-width: 767px) {
+  .standings, .standings tbody { display: block; }
+  .standings thead { display: none; }
+  .standings tbody { display: grid; gap: 0.65rem; }
+  .standings__row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    align-items: center;
+    row-gap: 0.7rem;
+    padding: 0.8rem 0.75rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .standings__row > * { display: block; padding: 0; }
+  .standings__row.is-gold {
+    border-color: var(--gold-300);
+    background: linear-gradient(180deg, var(--gold-50) 0, var(--surface) 64px);
+  }
+  .standings__row .st-pos { grid-row: 1; grid-column: 1; }
+  .standings__row .st-team { grid-row: 1; grid-column: 2 / 7; padding-inline: 0.15rem 0.35rem; text-align: left; }
+  .standings__row .st-total {
+    grid-row: 1;
+    grid-column: 7;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1;
+  }
+  .st-total .num {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" var(--display-wdth, 480);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold-text);
+  }
+  .st-total::after {
+    content: attr(data-label);
+    margin-top: 0.2rem;
+    font-family: var(--font-text);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .standings__row .st {
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .standings__row .st::before {
+    content: attr(data-label);
+    font-family: var(--font-text);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+  }
+  .standings__row .st--wide { display: none; }
+}
+
+@media (min-width: 768px) {
+  .standings {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .st-team__meta { display: none; }
+  .standings th, .standings td {
+    padding: 0.7rem 0.45rem;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .standings tbody tr:last-child > * { border-bottom: 0; }
+  /* Encabezado fijo bajo la cabecera del sitio */
+  .standings thead th {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 2;
+    padding-block: 0.85rem;
+    background: var(--gold-900);
+    font-family: var(--font-text);
+    font-size: var(--fs-xs);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-100);
+  }
+  .standings thead th:first-child { border-top-left-radius: calc(var(--radius) - 1px); }
+  .standings thead th:last-child { border-top-right-radius: calc(var(--radius) - 1px); }
+  .standings thead .st-total { color: var(--gold-300); }
+  .standings .st-pos { width: 3.75rem; padding-left: 0.9rem; }
+  .standings .st-team { text-align: left; }
+  .standings tbody .st-team { min-width: 12rem; }
+  .standings tbody .st { width: 3rem; font-size: var(--fs-base); color: var(--ink-soft); }
+  .standings thead .st { width: 3rem; }
+  .standings .st-total { width: 4.75rem; padding-right: 0.9rem; }
+  .standings tbody .st-total {
+    background: var(--gold-50);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" var(--display-wdth, 480);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold-text);
+  }
+  .standings tbody tr:last-child .st-total { border-bottom-right-radius: calc(var(--radius) - 1px); }
+  .standings__row { transition-property: opacity, transform, background-color; }
+  .standings__row.is-gold > :not(.st-total) { background-color: rgb(250 239 210 / 0.4); }
+  @media (hover: hover) {
+    .standings tbody tr:hover > * { background-color: var(--gold-50); }
+  }
+}
+@media (min-width: 1024px) {
+  .standings .st-team__name { font-size: var(--fs-base); }
+  .standings th, .standings td { padding-inline: 0.6rem; }
+}
+
+/* Leyenda de abreviaturas */
+.standings-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem) 0 0;
+  padding: 0;
+  font-size: var(--fs-xs);
+  color: var(--gray);
+}
+.standings-legend div { display: flex; gap: 0.35rem; }
+.standings-legend dt { font-weight: 700; color: var(--ink-soft); letter-spacing: 0.06em; }
+.standings-legend dd { margin: 0; }
+
+/* ===================== Clasificación grupal ===================== */
+.group-tables { display: grid; gap: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem); }
+.group-table__title {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.85rem;
+  font-size: var(--fs-xl);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.group-table__letter {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--grad-gold);
+  font-size: 1.35rem;
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 -2px 0 rgb(99 70 16 / 0.25);
+}
+/* PC ancho: dos grupos por fila; las columnas de PTS/FPY pasan a la línea del nombre para que quepa */
+@media (min-width: 1200px) {
+  .group-tables { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.75rem; }
+  /* PTS y FPY pasan a la línea bajo el nombre (como en móvil) para que dos tablas quepan lado a lado */
+  .group-tables .standings .st--wide { display: none; }
+  .group-tables .standings .st-team__meta { display: block; }
+  .group-tables .standings .st { width: 2.4rem; }
+  .group-tables .standings tbody .st { font-size: var(--fs-sm); }
+  .group-tables .standings th, .group-tables .standings td { padding-inline: 0.35rem; }
+  .group-tables .standings tbody .st-team { min-width: 0; }
+  .group-tables .standings .st-team__name { font-size: var(--fs-sm); }
+  .group-tables .standings .st-pos { width: 3rem; padding-left: 0.7rem; }
+  .group-tables .standings .st-total { width: 3.75rem; padding-right: 0.7rem; }
+  .group-tables .standings tbody .st-total { font-size: 1.3rem; }
+}
+
+/* ===================== Bracket ===================== */
+.bracket {
+  --bk-line: var(--gold-300);
+  position: relative;
+  display: grid;
+  gap: 1.75rem;
+  padding-left: 1.4rem;
+}
+/* Móvil/tableta: rondas apiladas sobre un raíl dorado (de cuartos a la final) */
+.bracket::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 0.9rem;
+  bottom: 1rem;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--gold-200), var(--gold-500));
+}
+.bracket__head {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.65rem;
+  margin: 0 0 0.85rem;
+  font-size: var(--fs-xl);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.bracket__head::before {
+  content: "";
+  position: absolute;
+  left: calc(-1.4rem - 1px);
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--grad-gold);
+  box-shadow: 0 0 0 4px var(--surface), var(--shadow-gold);
+}
+.band--ivory .bracket__head::before { box-shadow: 0 0 0 4px var(--gold-50), var(--shadow-gold); }
+.bracket__trophy { font-size: 1.2em; }
+.bracket__stack, .bracket__pair { margin: 0; padding: 0; list-style: none; }
+.bracket__stack { display: grid; gap: 0.75rem; }
+.bracket__pair { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); }
+.bracket__finals { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); }
+.bracket__final, .bracket__third { display: grid; gap: 0.75rem; }
+
+/* Tarjeta de eliminatoria */
+.bt {
+  position: relative;
+  padding: 0.65rem 0.8rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.bt__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.2rem 0.6rem;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-text);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+/* En las columnas de ronda la fase ya está en el encabezado; en la final se mantiene (Final / 3.er puesto) */
+.bracket__col--l .bt__phase, .bracket__col--r .bt__phase { display: none; }
+.bt__teams { margin: 0; padding: 0; list-style: none; }
+.bt__team {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "crest name score" "crest pasa score";
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+.bt__team > .crest { grid-area: crest; }
+.bt__name { grid-area: name; grid-row: 1 / -1; }
+.bt__team:has(.bt__pasa) .bt__name { grid-row: 1; align-self: end; }
+.bt__pasa { grid-area: pasa; justify-self: start; align-self: start; margin-top: 0.2rem; }
+.bt__score { grid-area: score; }
+.bt__team + .bt__team { border-top: 1px solid var(--line); }
+.bt .crest--sm { --crest: 38px; }
+.bt__name {
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.bt__score {
+  min-width: 1.6em;
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: right;
+  color: var(--ink-soft);
+}
+.bt__team.is-win .bt__name { font-weight: 700; color: var(--ink); }
+.bt__team.is-win .bt__score { color: var(--gold-text); }
+.bt__team.is-loss .bt__name, .bt__team.is-loss .bt__score { color: var(--gray); }
+.bt__team.is-loss .crest { opacity: 0.75; filter: saturate(0.6); }
+.bt__team.is-tbd .bt__name { color: var(--gray); font-style: italic; }
+.bt__pasa {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--grad-gold);
+  font-family: var(--font-text);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.bt--final {
+  border: 2px solid var(--gold-400);
+  background: linear-gradient(180deg, var(--gold-50) 0, var(--surface) 70px);
+  box-shadow: var(--shadow-gold), var(--shadow-1);
+}
+.bt--final .bt__phase { font-weight: 700; color: var(--gold-text); }
+
+/* PC: cuadro en árbol (ESO a la izquierda, BCH en espejo, final al centro) con conectores */
+@media (min-width: 1200px) {
+  .bracket {
+    --bk-gap: 2rem;
+    grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr));
+    grid-template-rows: minmax(33rem, auto);
+    column-gap: var(--bk-gap);
+    padding-left: 0;
+  }
+  .bracket::before, .bracket__head::before { display: none; }
+  .bracket__col { grid-column: var(--col); grid-row: 1; display: flex; flex-direction: column; min-width: 0; }
+  .bracket__head {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 4.75rem;
+    margin-bottom: 1rem;
+    font-size: var(--fs-lg);
+    text-align: center;
+  }
+  .bracket__head .cycle-block__badge { order: -1; }
+  .bracket__head--final .bracket__trophy { display: none; }
+  .bracket__stack { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 2rem; }
+  .bracket__pair {
+    --pg: 3.5rem;
+    position: relative;
+    flex: 1;
+    grid-template-columns: none;
+    grid-auto-rows: 1fr;
+    align-items: center;
+    row-gap: var(--pg);
+  }
+  /* corchete que une los dos partidos de una pareja (centro a centro) */
+  .bracket__pair.is-pair::after {
+    content: "";
+    position: absolute;
+    top: calc((100% - var(--pg)) / 4);
+    bottom: calc((100% - var(--pg)) / 4);
+    width: calc(var(--bk-gap) / 2);
+    border: 2px solid var(--bk-line);
+    pointer-events: none;
+  }
+  .bracket__col--l .bracket__pair.is-pair::after { right: calc(var(--bk-gap) / -2); border-left: 0; border-radius: 0 12px 12px 0; }
+  .bracket__col--r .bracket__pair.is-pair::after { left: calc(var(--bk-gap) / -2); border-right: 0; border-radius: 12px 0 0 12px; }
+  /* tramo de entrada (desde el corchete de la ronda anterior) */
+  .bracket__col.is-feed .bt::before,
+  .bracket__col.is-last .bt::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    background: var(--bk-line);
+    pointer-events: none;
+  }
+  .bracket__col--l.is-feed .bt::before { right: 100%; width: calc(var(--bk-gap) / 2); }
+  .bracket__col--r.is-feed .bt::before { left: 100%; width: calc(var(--bk-gap) / 2); }
+  /* tramo de salida de la última ronda de cada lado hacia la final */
+  .bracket__col--l.is-last .bt::after { left: 100%; width: var(--bk-gap); }
+  .bracket__col--r.is-last .bt::after { right: 100%; width: var(--bk-gap); }
+  .bracket__col--l.is-last .bt::after { margin-left: 1px; }
+  /* Columna central: final exactamente a media altura (alineada con las semifinales); 3.er puesto debajo */
+  .bracket__finals { flex: 1; grid-template-columns: none; grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr); gap: 0; }
+  .bracket__final { grid-row: 2; }
+  .bracket__third { grid-row: 3; align-self: start; margin-top: 2.25rem; }
+  .bt { padding-inline: 0.7rem; }
+  .bt .crest--sm { --crest: 32px; }
+  .bt__team { column-gap: 0.5rem; }
+  .bt__name { font-size: var(--fs-xs); letter-spacing: 0; -webkit-line-clamp: 3; line-clamp: 3; }
+  .bt__score { min-width: 1.1em; }
+  .bt--final { z-index: 1; }
+  .bt--final .bt__score { font-size: 1.85rem; }
+  .bracket__col--c.is-solo { grid-column: 1 / -1; max-width: 420px; justify-self: center; width: 100%; }
+}
+
+/* ===================== Podio ===================== */
+.podium { position: relative; padding-top: 0.5rem; }
+.podium__confetti {
+  position: absolute;
+  inset: -1.5rem 0 0;
+  z-index: 3;
+  width: 100%;
+  height: calc(100% + 1.5rem);
+  pointer-events: none;
+}
+.podium__places {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.4rem;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.podium__place { display: flex; flex-direction: column; min-width: 0; }
+.podium__place--1 { order: 2; --h: 9.5rem; --delay: 360ms; }
+.podium__place--2 { order: 1; --h: 6.75rem; --delay: 180ms; }
+.podium__place--3 { order: 3; --h: 5rem; --delay: 0ms; }
+.podium__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.15rem 0.85rem;
+  text-align: center;
+  transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--delay) + 520ms);
+}
+.podium__crown { font-size: 1.75rem; line-height: 1; filter: drop-shadow(0 4px 8px rgb(209 155 34 / 0.45)); }
+.podium__place--1 .crest { box-shadow: 0 0 0 3px var(--gold-300), var(--shadow-gold); }
+.podium__label {
+  font-family: var(--font-script);
+  font-size: 1.05rem;
+  line-height: 1.1;
+  color: var(--gold-text);
+}
+.podium__name {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+.podium__place--1 .podium__name { font-size: var(--fs-lg); }
+.podium__step {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: var(--h);
+  padding-top: 0.6rem;
+  overflow: hidden;
+  border-radius: 14px 14px 4px 4px;
+  transform-origin: 50% 100%;
+  transition: transform 900ms var(--ease-out);
+  transition-delay: var(--delay);
+}
+.podium__place--1 .podium__step {
+  background: var(--grad-gold);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.55), inset 0 -10px 12px -10px rgb(99 70 16 / 0.3), var(--shadow-gold);
+}
+.podium__place--2 .podium__step {
+  background: linear-gradient(160deg, var(--silver-100) 0%, var(--silver-300) 45%, var(--silver-500) 100%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.7), inset 0 -10px 12px -10px rgb(60 66 76 / 0.2), 0 10px 24px rgb(60 66 76 / 0.18);
+}
+.podium__place--3 .podium__step {
+  background: linear-gradient(160deg, var(--bronze-100) 0%, var(--bronze-300) 45%, var(--bronze-500) 100%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.6), inset 0 -10px 12px -10px rgb(99 60 26 / 0.25), 0 10px 24px rgb(185 122 69 / 0.22);
+}
+.podium__num {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" var(--display-wdth, 480);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.45);
+}
+/* Brillo dorado que cruza el escalón del campeón */
+.podium__place--1 .podium__step::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--grad-gold-sheen);
+  transform: translateX(-120%);
+  animation: podium-shine 3.4s var(--ease-in-out) 1.6s 3; /* celebración breve, no un bucle infinito */
+}
+@keyframes podium-shine {
+  0% { transform: translateX(-120%); }
+  45%, 100% { transform: translateX(120%); }
+}
+/* Subida: hasta que el observer marca .is-visible, escalones aplastados y equipos abajo (solo con JS) */
+.js-reveal .podium:not(.is-visible) .podium__step { transform: scaleY(0.04); }
+.js-reveal .podium:not(.is-visible) .podium__team { opacity: 0; transform: translateY(28px); }
+/* El contenedor no se desplaza: la entrada la hacen los escalones */
+.js-reveal .podium.reveal:not(.is-visible) { opacity: 1; transform: none; }
+/* El brillo del campeón espera a que el podio esté a la vista (son solo 3 pasadas). */
+.js-reveal .podium:not(.is-visible) .podium__step::after { animation-play-state: paused; }
+
+@media (min-width: 768px) {
+  .podium__places { gap: 0.75rem; }
+  .podium__place--1 { --h: 12.5rem; }
+  .podium__place--2 { --h: 9rem; }
+  .podium__place--3 { --h: 6.75rem; }
+  .podium__name { font-size: var(--fs-lg); }
+  .podium__place--1 .podium__name { font-size: var(--fs-xl); }
+  .podium__label { font-size: 1.3rem; }
+  .podium__num { font-size: 4rem; }
+  .podium__crown { font-size: 2.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .podium:not(.is-visible) .podium__step,
+  .js-reveal .podium:not(.is-visible) .podium__team { opacity: 1; transform: none; }
+  .podium__place--1 .podium__step::after { animation: none; }
+}

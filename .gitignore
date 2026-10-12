@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.xlsx
+~$*
+__pycache__/
+
+# Solo lo indispensable en el repositorio
+tests/
+tools/
+docs/

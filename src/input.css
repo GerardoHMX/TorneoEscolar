@@ -1,0 +1,13 @@
+/* Orden: preflight de Tailwind → tokens → base/componentes propios → UI (nav, modal, acordeón) → loader → secciones (sections, standings, roster, home) → utilidades (que pueden sobrescribir). */
+@import "tailwindcss/base";
+@import "../css/tokens.css";
+@import "../css/base.css";
+@import "../css/ui.css";
+@import "../css/loader.css";
+@import "../css/sections.css";
+@import "../css/standings.css";
+@import "../css/roster.css";
+@import "../css/home.css";
+@import "../css/feedback.css";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";

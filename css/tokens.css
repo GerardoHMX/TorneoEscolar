@@ -1,0 +1,130 @@
+/*
+ * Torneo Al-Ándalus — design tokens (temporada 2026-27)
+ *
+ * Dorado = color protagonista (hero, acentos, botones, cifras, bordes).
+ * Rojo  = solo acción / tensión (CTA secundario, tarjetas rojas, próximo partido).
+ * Blanco en superficies de tarjeta; gris cálido para texto secundario.
+ *
+ * Los pares de contraste se verifican con `node tools/contrast.mjs`
+ * (lee este archivo; cualquier par < 4.5:1 hace fallar el script).
+ */
+:root {
+  /* ---- Escala dorada: champán → oro profundo ---- */
+  --gold-50: #fdf8ec;
+  --gold-100: #faefd2;
+  --gold-200: #f3dea3;
+  --gold-300: #eac871;
+  --gold-400: #e0b444;
+  --gold-500: #d19b22;
+  --gold-600: #b07f14;
+  --gold-700: #8a6210;
+  --gold-800: #634610;
+  --gold-900: #3f2d0c;
+
+  /* ---- Medallas (posiciones 2.ª y 3.ª, escalones del podio); el oro es la escala dorada ---- */
+  --silver-100: #f3f4f6;
+  --silver-300: #cfd4db;
+  --silver-500: #9aa3ae;
+  --bronze-100: #f8e6d4;
+  --bronze-300: #e2b48a;
+  --bronze-500: #b97a45;
+
+  /* ---- Tarjeta amarilla (icono decorativo de Sancionados; nunca texto) ---- */
+  --card-yellow: #f6c536;
+
+  /* ---- Acción / tensión ---- */
+  --red: #af101a;
+  --red-600: #8f0d15;
+  --red-50: #fdecec;
+
+  /* ---- Neutros cálidos ---- */
+  --ink: #1f1a14;          /* texto principal; texto sobre dorado */
+  --ink-soft: #3a3128;     /* titulares secundarios */
+  --gray: #6b6258;         /* texto secundario sobre blanco */
+  --gray-300: #c9bfb1;     /* iconos / separadores fuertes (no texto) */
+  --line: #ece3d3;         /* bordes suaves */
+  --surface: #ffffff;      /* tarjetas */
+  --bg: #ffffff;           /* fondo de página: blanco; el color lo ponen las bandas (oro, champán, oro profundo) */
+  --white: #ffffff;
+
+  /* Texto dorado legible sobre blanco (cifras, enlaces) */
+  --gold-text: var(--gold-700);
+  --focus: var(--gold-700);
+
+  /* ---- Degradados metálicos ---- */
+  --grad-gold: linear-gradient(135deg, var(--gold-300) 0%, var(--gold-400) 30%, var(--gold-500) 62%, var(--gold-600) 100%);
+  --grad-gold-sheen: linear-gradient(115deg, transparent 20%, rgb(255 255 255 / 0.55) 45%, transparent 70%);
+  --grad-champagne: linear-gradient(180deg, var(--gold-50) 0%, #fffdf8 100%);
+  /* Hero: solo paradas donde ink cumple AA (contrast.mjs lee las var(--gold-N) de aquí).
+   * Sin velos oscuros: la profundidad la dan el brillo superior y pattern.svg. */
+  --grad-hero:
+    radial-gradient(120% 90% at 85% 0%, rgb(255 246 214 / 0.65) 0%, transparent 55%),
+    linear-gradient(160deg, var(--gold-300) 0%, var(--gold-400) 45%, var(--gold-500) 100%);
+  --hero-pattern-opacity: 0.45; /* pattern.svg (negro 15%) en multiply sobre el hero */
+  --grad-deep: linear-gradient(160deg, var(--gold-800) 0%, var(--gold-900) 100%);
+
+  /* ---- Tipografía ---- */
+  --font-display: "LaLiga Headline", "Roboto", system-ui, sans-serif;
+  --font-text: "LaLiga Text", "Roboto", system-ui, sans-serif;
+  --font-script: "Pattaya", "Brush Script MT", cursive;
+  --display-wdth: 480;   /* LaLiga Headline VF: 300 condensada · 440 std · 600 ancha */
+  --font-body: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --fs-xs: 0.8125rem;   /* 13px — solo etiquetas, nunca párrafos */
+  --fs-sm: 0.9375rem;   /* 15px */
+  --fs-base: 1rem;      /* 16px — mínimo para texto de lectura */
+  --fs-lg: 1.125rem;
+  --fs-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --fs-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+  --fs-3xl: clamp(2.25rem, 1.6rem + 3vw, 4rem);
+  --fs-hero: clamp(2.5rem, 0.75rem + 8.5vw, 7.5rem);
+
+  /* ---- Espaciado y layout ---- */
+  --gutter: 16px;
+  --max-w: 1200px;
+  --space-section: clamp(3rem, 2rem + 5vw, 6rem);
+  --header-h: 64px;
+  --bottomnav-h: 64px;
+  --tap: 44px;             /* objetivo táctil mínimo */
+
+  /* ---- Radios ---- */
+  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  /* ---- Sombras (tinte cálido, no gris frío) ---- */
+  --shadow-1: 0 1px 2px rgb(63 45 12 / 0.06), 0 4px 14px rgb(63 45 12 / 0.06);
+  --shadow-2: 0 2px 6px rgb(63 45 12 / 0.08), 0 16px 36px rgb(63 45 12 / 0.12);
+  --shadow-3: 0 4px 10px rgb(63 45 12 / 0.10), 0 28px 60px rgb(63 45 12 / 0.18);
+  --shadow-gold: 0 6px 20px rgb(209 155 34 / 0.38);
+
+  /* ---- Movimiento ---- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 600ms;
+  --dur-xslow: 1000ms;
+  --stagger: 70ms;
+
+  /* ---- Capas ---- */
+  --z-header: 40;
+  --z-bottomnav: 45;
+  --z-sheet: 60;
+  --z-modal: 80;
+  --z-loader: 100;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --header-h: 76px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --gutter: 48px;
+  }
+}
