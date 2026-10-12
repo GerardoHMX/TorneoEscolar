@@ -49,7 +49,7 @@
   color: var(--ink);
   font-weight: 700;
 }
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .filter-select__input { flex: 1; }
 }
 @media (min-width: 1024px) {
@@ -61,14 +61,17 @@
     margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
   }
   .filters-line > .filters, .filters-line > .filter-select { margin: 0; }
+  .filters-line > .filters { flex: 1 1 0; min-width: min(100%, 22rem); }
+  /* misma altura que la barra de chips en la misma línea */
+  .filters-line { align-items: stretch; }
+  .filters-line > .filter-select .filter-select__input { height: 100%; }
 }
 
 /* ===================== Podio de goleadores ===================== */
 .scorers-block { display: grid; gap: clamp(1.75rem, 1.25rem + 2vw, 2.75rem); }
 .scorers-block > .cycle-block__title { margin-bottom: 0; }
-.scorer-podium .podium__places { max-width: 780px; }
-.scorer-podium.podium--n1 .podium__places { grid-template-columns: minmax(0, 1fr); max-width: 300px; }
-.scorer-podium.podium--n2 .podium__places { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 540px; }
+.scorer-podium.podium--n1 .podium__places { grid-template-columns: minmax(0, 1fr); max-width: 300px; margin-inline: auto; }
+.scorer-podium.podium--n2 .podium__places { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 540px; margin-inline: auto; }
 /* Altura, color y retraso por medalla (no por hueco): los empatados comparten escalón */
 .scorer-podium .podium__place.is-gold { --h: 8.25rem; --delay: 360ms; }
 .scorer-podium .podium__place.is-silver { --h: 6.25rem; --delay: 180ms; }
@@ -97,10 +100,10 @@
 }
 .scorer-podium .podium__place--1 .crest { box-shadow: none; }
 .scorer-podium .podium__step { flex-direction: column; align-items: center; gap: 0.15rem; }
-.scorer-podium .podium__num { font-size: 2.4rem; font-variant-numeric: tabular-nums; }
+.scorer-podium .podium__num { font-size: calc(2.4rem * var(--fs-scale)); font-variant-numeric: tabular-nums; }
 .podium__unit {
   font-family: var(--font-text);
-  font-size: 0.6875rem;
+  font-size: calc(0.75rem * var(--fs-scale));
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -119,7 +122,7 @@
   bottom: -0.2rem;
   width: 1.7rem;
   height: 1.7rem;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--fs-scale));
 }
 
 .scorer-team {
@@ -131,18 +134,18 @@
   margin-top: 0.1rem;
   text-align: left;
 }
-.scorer-team .crest { --crest: 26px; }
-.scorer-team .crest__mono { font-size: 0.6rem; }
+.scorer-team .crest { --crest: 36px; }
+.scorer-team .crest__mono { font-size: calc(0.6rem * var(--fs-scale)); }
 .scorer-team__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
 .scorer-team__name {
   font-family: var(--font-text);
-  font-size: 0.6875rem;
+  font-size: calc(0.75rem * var(--fs-scale));
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-soft);
   overflow-wrap: break-word;
 }
-.scorer-team__course { font-size: 0.6875rem; color: var(--gray); }
+.scorer-team__course { font-size: calc(0.75rem * var(--fs-scale)); color: var(--gray); }
 
 @media (max-width: 479px) {
   /* tres columnas de ~110px: escudo del equipo fuera, el nombre basta */
@@ -154,13 +157,13 @@
   .scorer-podium .podium__place.is-gold { --h: 11rem; }
   .scorer-podium .podium__place.is-silver { --h: 8.5rem; }
   .scorer-podium .podium__place.is-bronze { --h: 6.5rem; }
-  .scorer-podium .podium__num { font-size: 3.6rem; }
+  .scorer-podium .podium__num { font-size: calc(3.6rem * var(--fs-scale)); }
   .podium__unit { font-size: var(--fs-xs); }
   .crest--avatar { --crest: 104px; border-width: 3px; }
   .is-gold .crest--avatar { --crest: 124px; }
-  .scorer-avatar__pos { width: 2.25rem; height: 2.25rem; font-size: 1.05rem; right: -0.1rem; bottom: 0; }
+  .scorer-avatar__pos { width: 2.25rem; height: 2.25rem; font-size: calc(1.05rem * var(--fs-scale)); right: -0.1rem; bottom: 0; }
   .scorer-team { gap: 0.5rem; }
-  .scorer-team .crest { --crest: 32px; }
+  .scorer-team .crest { --crest: 44px; }
   .scorer-team__name, .scorer-team__course { font-size: var(--fs-xs); }
 }
 
@@ -171,7 +174,7 @@
 /* ===================== Tabla de jugadores (ranking / sanciones) =====================
  * Una sola marca <table>. Móvil (<768px): cada fila es una tarjeta. PC: tabla con encabezado fijo.
  */
-.roster-wrap { width: 100%; max-width: 940px; margin-inline: auto; }
+.roster-wrap { width: 100%; }
 .roster { width: 100%; border-collapse: separate; border-spacing: 0; }
 .roster .num { font-variant-numeric: tabular-nums; }
 .ro-player { text-align: left; }
@@ -197,7 +200,7 @@
   color: var(--gray);
 }
 .ro-team__inner { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
-.ro-team .crest { --crest: 36px; }
+.ro-team .crest { --crest: 50px; }
 .ro-team__name {
   font-family: var(--font-text);
   font-size: var(--fs-sm);
@@ -217,7 +220,7 @@
 }
 .ro-num__unit {
   font-family: var(--font-text);
-  font-size: 0.6875rem;
+  font-size: calc(0.75rem * var(--fs-scale));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gray);
@@ -229,7 +232,7 @@
   flex: none;
   width: 0.7rem;
   height: 0.95rem;
-  border-radius: 2px;
+  border-radius: 0;
   transform: rotate(-8deg);
   box-shadow: 0 1px 2px rgb(31 26 20 / 0.25);
 }
@@ -280,11 +283,11 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     align-items: flex-end;
     gap: 0.2rem;
   }
-  .roster--scorers .ro-num .num { font-size: 2rem; }
+  .roster--scorers .ro-num .num { font-size: calc(2rem * var(--fs-scale)); }
   .roster--scorers .ro-player__name { font-size: var(--fs-base); }
   .roster--scorers .ro-player__meta { display: inline; margin-left: 0.4rem; }
   .roster--scorers .ro-player__name { display: inline; }
-  .roster .ro-team .crest { --crest: 28px; }
+  .roster .ro-team .crest { --crest: 40px; }
   .roster .ro-team__name { font-size: var(--fs-xs); }
 
   /* Sanciones: jugador (+ curso) / equipo / rojas · amarillas · suspensión */
@@ -314,7 +317,7 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     flex-basis: 100%;
     text-align: center;
     font-family: var(--font-text);
-    font-size: 0.6875rem;
+    font-size: calc(0.75rem * var(--fs-scale));
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--gray);
@@ -360,7 +363,7 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
   .ro-course { font-size: var(--fs-sm); color: var(--gray); white-space: nowrap; }
   .roster .ro-num { width: 6rem; text-align: center; background: var(--gold-50); }
   .roster thead th.ro-num { background: var(--gold-900); color: var(--gold-300); }
-  .ro-num .num { font-size: 1.6rem; }
+  .ro-num .num { font-size: calc(1.6rem * var(--fs-scale)); }
   .ro-num__unit { display: none; }
   .roster .ro-stat { width: 7.5rem; text-align: center; white-space: nowrap; }
   .ro-stat .card-ico { margin-right: 0.45rem; vertical-align: -0.1em; }
@@ -373,6 +376,17 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     .roster tbody tr:hover > * { background-color: var(--gold-50); }
     .roster tbody tr:hover > .ro-num { background-color: var(--gold-100); }
   }
+}
+
+/* Tableta (768–1023px): con la escala de texto mayor, la tabla de sanciones (6 columnas) no cabía:
+   cabeceras más compactas y celdas algo más estrechas para que no haya desplazamiento horizontal. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .roster thead th { letter-spacing: 0.04em; }
+  .roster th, .roster td { padding-inline: 0.45rem; }
+  .roster .ro-stat { width: auto; }
+  /* el curso pasa bajo el nombre (como en móvil) y su columna se oculta */
+  .roster .ro-course { display: none; }
+  .roster .ro-player__meta { display: block; }
 }
 
 /* Tamaño del nombre por medalla (no por hueco): empatados iguales */

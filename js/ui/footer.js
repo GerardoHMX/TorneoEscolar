@@ -1,12 +1,10 @@
-// Pie de página (#site-footer), portado del <footer> de index.html antiguo (466da58, l.483-533): logo y
-// datos del colegio desde CONFIGURACION, nombre y temporada del torneo, Instagram y el crédito
+// Pie de página (#site-footer), portado del <footer> de index.html antiguo (466da58, l.483-533): logo del
+// colegio (archivo local img/logo-colegio.svg) y sus datos desde CONFIGURACION, nombre y temporada del torneo, Instagram y el crédito
 // «Realizado por Gerardo Huizar Castro» con la licencia CC BY-NC-SA 4.0. Junto a Instagram, el icono
 // «Compartir este sitio» ([data-share]; lo cablea js/ui/share.js tras cada repintado del pie).
-// Seguridad: todo pasa por `html` (escape); imágenes por driveImg, enlaces por safeUrl (solo https);
+// Seguridad: todo pasa por `html` (escape); enlaces por safeUrl (solo https);
 // tel: solo con dígitos; mailto: solo con un email de forma válida; enlaces externos con noopener noreferrer.
 import { html, safeUrl } from '../core/dom.js';
-import { driveImg } from '../core/drive.js';
-import { bindMediaFallback } from './media.js';
 
 const txt = (v) => String(v ?? '').trim();
 const EXT = 'noopener noreferrer';
@@ -46,7 +44,6 @@ export function renderFooter(config, t, opts = {}) {
   const c = config ?? {};
   const base = typeof opts.assetBase === 'string' && !/[:"'<>]/.test(opts.assetBase) ? opts.assetBase : '';
   const nombre = txt(c.COLEGIO_NOMBRE);
-  const logo = driveImg(txt(c.COLEGIO_LOGO_URL), 400);
   const web = safeUrl(txt(c.COLEGIO_URL));
   const maps = safeUrl(txt(c.COLEGIO_MAPS_URL));
   const insta = safeUrl(txt(c.REDES_INSTAGRAM_URL));
@@ -77,7 +74,7 @@ export function renderFooter(config, t, opts = {}) {
   return html`<div class="footer section">
     <div class="footer__grid">
       <div class="footer__school">
-        ${logo ? html`<span class="footer__logo" data-media><img src="${logo}" alt="${nombre || t('footer_school_logo', 'Logo del colegio')}" width="96" height="96" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>` : ''}
+        <span class="footer__logo"><img src="${base}img/logo-colegio.svg" alt="${nombre || t('footer_school_logo', 'Logo del colegio')}" width="100" height="92" loading="lazy" decoding="async"></span>
         <div class="footer__school-text">
           ${nombre ? html`<p class="footer__name">${nombre}</p>` : ''}
           <ul class="footer__contact">${contact}</ul>
@@ -85,7 +82,7 @@ export function renderFooter(config, t, opts = {}) {
       </div>
       <div class="footer__brand">
         <p class="footer__kicker">${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')}</p>
-        <p class="footer__torneo">${torneo}</p>
+        <p class="footer__torneo wordmark">${torneo}</p>
         ${anio ? html`<p class="footer__season num">${anio}</p>` : ''}
         <div class="footer__links">
           ${insta ? html`<a class="footer__social" href="${insta}" target="_blank" rel="${EXT}">${ICON.insta}<span>Instagram</span></a>` : ''}
@@ -103,9 +100,4 @@ export function renderFooter(config, t, opts = {}) {
       </p>
     </div>
   </div>`;
-}
-
-/** Opcional: oculta el logo del colegio si no carga (el pie no tiene más interacción). */
-export function bindFooter(root) {
-  bindMediaFallback(root);
 }

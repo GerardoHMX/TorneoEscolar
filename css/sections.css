@@ -10,8 +10,7 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%; /* mismo ancho que el contenedor de la sección; los chips se reparten la barra */
   margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
   padding: 2px;
   overflow-x: auto;
@@ -30,7 +29,9 @@
 }
 /* Una sola franja desplazable (ciclo | grupo/fase): la barra fija ocupa una fila también en móvil.
  * Las filas no recortan (overflow visible) y conservan el hueco para el anillo de foco. */
-.filters > .chip-row { flex: none; margin: 0; padding: 6px; overflow: visible; }
+.filters > .chip-row { flex: 1 0 auto; margin: 0; padding: 6px; overflow: visible; }
+/* Chips a partes iguales (base 0); nunca por debajo de su texto: si no caben, la barra se desplaza en horizontal. */
+.filters .chip { flex: 1 0 0; }
 .filters > .chip-row + .chip-row { position: relative; padding-left: 0.85rem; }
 .filters > .chip-row + .chip-row::before {
   content: "";
@@ -43,17 +44,24 @@
 }
 
 /* ===================== Rejillas ===================== */
+/* Misma altura por fila y misma línea interna: cada tarjeta (.match) es un subgrid de 5 filas
+ * (cabecera · marcador · «Pasa» · botón de goles · panel), así cabecera, escudos/marcador y el botón
+ * «Goles» quedan a la misma altura que en las tarjetas vecinas aunque un nombre o una etiqueta ocupe
+ * 2 líneas. Separación entre filas de tarjetas con margen (row-gap 0: el hueco del padre partiría el subgrid). */
 .match-grid {
   display: grid;
-  gap: 1rem;
+  column-gap: 1rem;
+  row-gap: 0;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-  align-items: start;
+  align-items: stretch;
+  margin-bottom: -1rem;
 }
+.match-grid > .match { margin-bottom: 1rem; }
 .cycles { display: grid; gap: clamp(2.75rem, 2rem + 2.5vw, 4rem); }
 
 /* ===================== Escudo ===================== */
 .crest {
-  --crest: 52px;
+  --crest: 72px; /* escudos ≈ +40 % (antes 52px; sm 44, lg 72) */
   position: relative;
   display: grid;
   place-items: center;
@@ -66,8 +74,8 @@
   border: 1px solid var(--gold-200);
   box-shadow: inset 0 -2px 6px rgb(176 127 20 / 0.12);
 }
-.crest--sm { --crest: 44px; }
-.crest--lg { --crest: 72px; }
+.crest--sm { --crest: 60px; }
+.crest--lg { --crest: 100px; }
 .match__board .crest--md { --crest: var(--crest-md); }
 .crest__mono {
   font-family: var(--font-display);
@@ -90,11 +98,18 @@
 
 /* ===================== Tarjeta de partido ===================== */
 .match {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: subgrid;
+  grid-row: span 5;
+  row-gap: 0;
   padding: 0.95rem 0.85rem 0.9rem;
 }
+.match > .match__meta { grid-row: 1; align-self: start; } /* etiqueta arriba aunque la vecina ocupe 2 líneas */
+.match > .match__board { grid-row: 2; margin-top: 0.9rem; }
+.match > .match__advances { grid-row: 3; margin-top: 0.9rem; align-self: start; }
+.match > .goals-toggle { grid-row: 4; margin-top: 0.9rem; align-self: end; } /* al fondo, en línea con las vecinas */
+.match > .goals-panel { grid-row: 5; }
 @media (min-width: 768px) { .match { padding: 1.15rem 1.25rem 1.1rem; } }
 .match.is-open { box-shadow: var(--shadow-2); border-color: var(--gold-300); }
 
@@ -116,7 +131,7 @@
 }
 
 .match__board {
-  --crest-md: 52px;
+  --crest-md: 72px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: start;
@@ -132,8 +147,10 @@
 }
 .match__name {
   font-family: var(--font-text);
-  font-size: 0.875rem;
+  font-size: var(--fs-xs); /* 14,3px en móvil: nombres largos de una palabra junto al escudo grande */
   line-height: 1.2;
+  min-height: calc(2 * 1.2em); /* reserva 2 líneas: 1 o 2 líneas ocupan lo mismo */
+  text-wrap: balance;
   text-transform: uppercase;
   /* solo parte una palabra si no cabe entera en la línea (sin guionado automático: «RA-BINERO») */
   overflow-wrap: break-word;
@@ -144,7 +161,7 @@
 .match__team.is-loss .match__name { color: var(--gray); }
 .match__team.is-loss .crest { filter: saturate(0.55); }
 
-@media (min-width: 768px) { .match__board { --crest-md: 60px; } }
+@media (min-width: 768px) { .match__board { --crest-md: 84px; } }
 .match__score,
 .match__vs {
   /* centrado con el escudo (no con escudo + nombre, que puede ocupar 1-3 líneas) */
@@ -159,7 +176,7 @@
   padding: 0.3rem 0.75rem;
   border-radius: var(--radius-sm);
   background: var(--gold-50);
-  font-size: clamp(1.9rem, 1.6rem + 1.2vw, 2.5rem);
+  font-size: calc(clamp(1.9rem, 1.6rem + 1.2vw, 2.5rem) * var(--fs-scale));
   line-height: 1;
   color: var(--ink);
 }
@@ -167,8 +184,10 @@
 .match__vs { flex-direction: column; gap: 0.1rem; }
 .match__hour { font-size: var(--fs-xl); line-height: 1; color: var(--gold-text); }
 .match__vs-label {
-  font-family: var(--font-script);
-  font-size: 1.15rem;
+  font-family: var(--font-text);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   line-height: 1;
   color: var(--gray);
 }
@@ -208,12 +227,12 @@
 .goals-panel {
   display: grid;
   grid-template-rows: 0fr;
-  margin-top: -0.9rem; /* anula el gap de .match mientras está cerrado */
+  margin-top: 0; /* cerrado no ocupa nada; abierto se separa del botón */
   transition:
     grid-template-rows var(--dur-base) var(--ease-out),
     margin-top var(--dur-base) var(--ease-out);
 }
-.goals-toggle[aria-expanded="true"] + .goals-panel { grid-template-rows: 1fr; margin-top: 0; }
+.goals-toggle[aria-expanded="true"] + .goals-panel { grid-template-rows: 1fr; margin-top: 0.9rem; }
 .goals-panel__inner { min-height: 0; overflow: hidden; }
 .goals-panel__inner > * {
   opacity: 0;
@@ -269,7 +288,7 @@
   top: 0.5rem;
   bottom: 0.6rem;
   width: 2px;
-  border-radius: 2px;
+  border-radius: 0;
   background: linear-gradient(180deg, var(--gold-300), var(--gold-100));
 }
 .goal { position: relative; }
@@ -342,7 +361,6 @@
   grid-template-columns: var(--tap) minmax(0, 1fr) var(--tap);
   align-items: center;
   gap: 0.5rem;
-  max-width: 460px;
   margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
   padding: 6px;
   border: 1px solid var(--line);
@@ -414,7 +432,7 @@
 .group-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); /* auto-fit: 2 grupos (un ciclo) ocupan todo el ancho */
   align-items: stretch;
 }
 .group-card { padding: 0; overflow: hidden; }
@@ -425,18 +443,6 @@
   padding: 1rem 1.1rem;
   border-bottom: 1px solid var(--line);
   background: var(--grad-champagne);
-}
-.group-card__letter {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: var(--grad-gold);
-  font-size: 1.6rem;
-  color: var(--ink);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), inset 0 -2px 0 rgb(99 70 16 / 0.25);
 }
 .group-card__title { margin: 0; font-size: var(--fs-xl); line-height: 1.05; text-transform: uppercase; }
 .group-card__sub {
@@ -455,7 +461,15 @@
   padding: 0.6rem 0.5rem;
 }
 .team + .team { border-top: 1px solid var(--line); }
-.team__text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.team__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 0;
+  /* reserva nombre en 2 líneas + curso: todas las filas miden igual y los escudos quedan alineados entre grupos */
+  min-height: calc(2 * 1.2 * var(--fs-sm) + 0.1rem + 1.6 * var(--fs-xs));
+}
 .team__name {
   font-family: var(--font-text);
   font-size: var(--fs-sm);
@@ -521,10 +535,12 @@
 .phase__group + .phase__group { margin-top: 1.5rem; }
 .phase__group-title {
   margin: 0 0 0.6rem;
-  font-family: var(--font-script);
-  font-size: 1.35rem;
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--gold-text);
 }
 

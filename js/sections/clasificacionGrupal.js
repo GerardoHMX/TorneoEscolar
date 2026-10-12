@@ -47,7 +47,7 @@ export function render(model, state = {}, t) {
     return html`<section class="cycle-block" aria-labelledby="${id}-${c}">
       <h3 class="cycle-block__title reveal" id="${id}-${c}"><span class="cycle-block__badge">${c}</span>${cycleName(c, t)}</h3>
       <div class="group-tables">${groups.map(([g, rows]) => html`<div class="group-table" data-group="${c}-${g}">
-        <h4 class="group-table__title reveal"><span class="group-table__letter" aria-hidden="true">${g}</span>${grupoLbl} ${g}</h4>
+        <h4 class="group-table__title reveal">${grupoLbl} ${g}</h4>
         ${standingsTable(rows, t, { caption: html`${c} · ${grupoLbl} ${g}`, logoOf })}
       </div>`)}</div>
     </section>`;

@@ -20,18 +20,17 @@
 .hero__copy > * { margin: 0; }
 .hero__kicker {
   max-width: calc(100% - 92px); /* deja sitio al balón en móvil */
-  font-family: var(--font-script);
-  font-size: clamp(1.35rem, 1.1rem + 1.2vw, 2rem);
-  line-height: 1.15;
+  font-family: var(--font-text);
+  font-size: calc(clamp(0.9375rem, 0.85rem + 0.4vw, 1.125rem) * var(--fs-scale));
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--ink);
 }
+/* «Al-Ándalus» en Pattaya (.wordmark): +20 % para equilibrarla con la sans; una sola línea, sin partir */
 .hero__title {
-  font-size: var(--fs-hero);
-  line-height: 0.88;
-  text-transform: uppercase;
-  --display-wdth: 600;
-  letter-spacing: -0.005em;
-  overflow-wrap: anywhere;
+  font-size: calc(var(--fs-hero) * var(--wordmark-boost));
+  line-height: 1.15;
 }
 .hero__season {
   display: flex;
@@ -104,7 +103,7 @@
   text-align: center;
 }
 .hero__stat + .hero__stat { border-left: 1px solid rgb(31 26 20 / 0.16); }
-.hero__stat-value { margin: 0; font-size: clamp(2rem, 1.4rem + 2.6vw, 3.5rem); line-height: 1; }
+.hero__stat-value { margin: 0; font-size: calc(clamp(2rem, 1.4rem + 2.6vw, 3.5rem) * var(--fs-scale)); line-height: 1; }
 .hero__stat-label {
   font-size: var(--fs-xs);
   font-weight: 700;
@@ -114,6 +113,7 @@
 }
 
 @media (max-width: 767.98px) {
+  .hero__ctas > * { flex: 1 1 0; padding-inline: 0.75rem; } /* los CTA ocupan el ancho del contenedor, a partes iguales (relleno menor: «Clasificación» cabe a 360px) */
   .hero__ball { top: 0.5rem; width: 78px; }
   .hero__ball-shadow { display: none; }
 }
@@ -123,7 +123,7 @@
   .hero__stat { padding: 1.1rem 1rem; }
 }
 @media (min-width: 1024px) {
-  .hero__title { font-size: min(var(--fs-hero), 6.5vw); }
+  .hero__title { font-size: calc(min(var(--fs-hero), 6.5vw) * var(--wordmark-boost)); }
   .hero__inner {
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
     align-items: center;
@@ -136,11 +136,11 @@
     top: auto;
     right: auto;
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     justify-self: center;
     width: clamp(240px, 24vw, 340px);
   }
-  .hero__stats { grid-column: 1; max-width: 640px; }
+  .hero__stats { grid-column: 1 / -1; }
 }
 
 /* ===================== Banner (carrusel) ===================== */
@@ -191,7 +191,7 @@
   border-radius: 50%;
   background: var(--gold-50);
   box-shadow: inset 0 0 0 1px var(--gold-200);
-  font-size: 1.2rem;
+  font-size: calc(1.2rem * var(--fs-scale));
 }
 .slide__body { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; color: var(--ink-soft); }
 .slide__body > * { margin: 0; }
@@ -214,14 +214,7 @@
 .slide--brand .slide__body { align-items: center; justify-content: center; color: var(--ink); }
 .slide__media--logo { max-height: 180px; }
 .slide__media--logo img { max-height: 180px; filter: drop-shadow(0 8px 16px rgb(63 45 12 / 0.3)); }
-.slide__brand {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 600;
-  font-size: var(--fs-2xl);
-  font-weight: 700;
-  line-height: 1;
-  text-transform: uppercase;
-}
+.slide__brand { font-size: calc(var(--fs-2xl) * var(--wordmark-boost)); line-height: 1.15; } /* .wordmark */
 .slide__season { font-size: var(--fs-lg); }
 .slide--poster { background: var(--grad-champagne); }
 .slide__media--poster { max-height: 300px; }
@@ -267,7 +260,7 @@
   content: "";
   width: 8px;
   height: 8px;
-  border-radius: var(--radius-pill);
+  border-radius: 4px; /* punto redondo (píldora al activarse); no depende de --radius-pill */
   background: var(--gray-300);
   transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
 }
@@ -337,7 +330,7 @@
   text-transform: uppercase;
   color: var(--ink);
 }
-.rules__prizes li span { font-size: 1.3rem; line-height: 1; }
+.rules__prizes li span { font-size: calc(1.3rem * var(--fs-scale)); line-height: 1; }
 .rules__poster { margin: 0; justify-self: center; max-width: 320px; }
 .rules__poster img { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow-2); }
 .rules__poster figcaption { margin-top: 0.6rem; font-size: var(--fs-sm); color: var(--gray); text-align: center; }
@@ -566,9 +559,10 @@
 /* ===================== Pie de página ===================== */
 .footer.section { padding-block: clamp(2.5rem, 2rem + 3vw, 4.5rem) clamp(1.5rem, 1rem + 2vw, 2.5rem); }
 .footer__grid { display: grid; gap: 2.25rem; }
-@media (min-width: 768px) {
+/* Dos columnas solo desde 1024px (a 768 el email y la web se partían a media palabra); la columna del
+   torneo, alineada a la izquierda como ya se veía (el flex-end anterior lo anulaba la regla base). */
+@media (min-width: 1024px) {
   .footer__grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
-  .footer__brand { align-items: flex-end; text-align: right; }
 }
 .footer__school { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; min-width: 0; }
 @media (min-width: 480px) { .footer__school { flex-direction: row; } }
@@ -578,13 +572,9 @@
   flex: none;
   width: 76px;
   height: 76px;
-  padding: 8px;
-  border-radius: var(--radius);
-  background: var(--gold-50);
-  box-shadow: 0 0 0 1px rgb(234 200 113 / 0.4), var(--shadow-2);
+  padding: 8px; /* sin baldosa (fondo, borde ni sombra): decisión del usuario */
 }
 .footer__logo img { width: 100%; height: 100%; object-fit: contain; }
-.footer__logo.is-broken { display: none; }
 @media (min-width: 768px) { .footer__logo { width: 96px; height: 96px; } }
 .footer__school-text { min-width: 0; }
 .footer__name {
@@ -607,16 +597,8 @@
 .footer__addr { display: flex; flex-direction: column; }
 .footer__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
 .footer__brand > * { margin: 0; }
-.footer__kicker { font-family: var(--font-script); font-size: var(--fs-lg); color: var(--gold-300); }
-.footer__torneo {
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 600;
-  font-size: var(--fs-3xl);
-  font-weight: 700;
-  line-height: 0.95;
-  text-transform: uppercase;
-  color: var(--gold-100);
-}
+.footer__kicker { font-family: var(--font-text); font-size: var(--fs-sm); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-300); }
+.footer__torneo { font-size: calc(var(--fs-3xl) * var(--wordmark-boost)); line-height: 1.15; color: var(--gold-100); } /* .wordmark */
 .footer__season { font-size: var(--fs-lg); color: var(--gold-300); }
 /* Instagram y «Compartir» (solo icono) en una fila */
 .footer__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem !important; }

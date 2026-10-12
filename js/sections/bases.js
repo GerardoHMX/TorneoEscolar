@@ -104,7 +104,7 @@ function bannerSlides(config, t) {
   const anio = anioDe(config);
   const media = (src, alt, cls) => (src ? html`<span class="slide__media ${cls}" data-media><img src="${src}" alt="${alt}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>` : '');
   return [
-    { kind: 'brand', title: t('footer_tournament_title', 'Torneo escolar de Fútbol Sala'), body: html`${media(logo, nombre, 'slide__media--logo')}<p class="slide__brand">${nombre}</p>${anio ? html`<p class="slide__season num">${anio}</p>` : ''}` },
+    { kind: 'brand', title: t('footer_tournament_title', 'Torneo escolar de Fútbol Sala'), body: html`${media(logo, nombre, 'slide__media--logo')}<p class="slide__brand wordmark">${nombre}</p>${anio ? html`<p class="slide__season num">${anio}</p>` : ''}` },
     { kind: 'poster', title: t('banner_poster', 'Cartel del torneo'), body: media(cartel, t('banner_poster', 'Cartel del torneo'), 'slide__media--poster') },
     ...BASES.map((b) => ({ kind: b.key, title: b.title, icon: b.icon, body: body(b), lang: 'es' })),
   ];

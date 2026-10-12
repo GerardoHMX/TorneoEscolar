@@ -29,10 +29,10 @@ export function initials(name) {
  * @param {string} name @param {string} logo @param {{size?: 'sm'|'md'|'lg'}} [o]
  */
 export function crest(name, logo, { size = 'md' } = {}) {
-  // Miniatura de Drive a 160px (driveImg pide w2000: excesivo para un escudo de 44-72px).
-  const src = driveImg(logo).replace(/^(https:\/\/drive\.google\.com\/thumbnail\?[^#]*[?&]sz=)w\d+/, '$1w160');
+  // Miniatura de Drive a 240px (≥ 2× el escudo más grande, 100px; driveImg pide w2000: excesivo para un escudo).
+  const src = driveImg(logo).replace(/^(https:\/\/drive\.google\.com\/thumbnail\?[^#]*[?&]sz=)w\d+/, '$1w240');
   return html`<span class="crest crest--${size}"><span class="crest__mono" aria-hidden="true">${initials(name)}</span>${
-    src ? html`<img class="crest__img" src="${src}" alt="" loading="lazy" decoding="async" width="64" height="64">` : ''
+    src ? html`<img class="crest__img" src="${src}" alt="" loading="lazy" decoding="async" width="96" height="96">` : ''
   }</span>`;
 }
 

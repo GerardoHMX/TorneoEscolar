@@ -4,7 +4,6 @@
 // Cada sección guarda su estado; setState re-renderiza TODO su contenido y vuelve a llamar a bind.
 // Resiliencia: si no llegan datos se muestra Inicio + aviso; una sección que falla se registra y se omite.
 import { html, safeUrl, setHTML } from './core/dom.js';
-import { driveImg } from './core/drive.js';
 import { createI18n, pickLang, storedLang } from './core/i18n.js';
 import { failureMemo, navigationType, safeDecodeHash, shouldBypassCache } from './core/boot.js';
 import { SECTIONS, diffSections, menuItems, noticeKind, sectionVisibility } from './core/visibility.js';
@@ -14,13 +13,12 @@ import { buildModel, mergeRaw } from './data/buildModel.js';
 import { initLoader } from './ui/loader.js';
 import { observeReveal } from './ui/reveal.js';
 import { renderNav } from './ui/nav.js';
-import { bindFooter, renderFooter } from './ui/footer.js';
+import { renderFooter } from './ui/footer.js';
 import { initFeedback, isFeedbackEnabled } from './ui/feedback.js';
 import { createRefreshControl } from './ui/refresh.js';
 import { bindShare, buildSharePayload } from './ui/share.js';
 import { initAnalytics, shouldLoadAnalytics } from './ui/analytics.js';
 import { focusables, setUiTranslator, stableSelector } from './ui/focus.js';
-import { shouldShowLogo } from './ui/header.js';
 import { emptyState } from './sections/common.js';
 import * as hero from './sections/hero.js';
 import { banner, bases } from './sections/bases.js';
@@ -262,23 +260,14 @@ function applyConfig(config) {
   if (v('TORNEO_ANIO')) qa('[data-config="torneo-anio"]').forEach((el) => { el.textContent = v('TORNEO_ANIO'); });
   if (v('TORNEO_DESCRIPCION')) setAttr(q('meta[name="description"]'), 'content', v('TORNEO_DESCRIPCION'));
 
-  // Logo y enlace del colegio en la cabecera (ocultos hasta tener una imagen https válida).
+  // Logo del colegio en la cabecera: archivo local (img/logo-colegio.svg), siempre visible; la hoja solo
+  // aporta el enlace (COLEGIO_URL, solo https) y el nombre accesible (COLEGIO_NOMBRE).
   const web = safeUrl(v('COLEGIO_URL'));
-  const logo = driveImg(v('COLEGIO_LOGO_URL'), 200);
   const link = q('[data-config="colegio-link"]');
   const img = q('[data-config="colegio-logo"]');
-  if (link && img) {
-    if (shouldShowLogo(logo, img.dataset.failed)) {
-      if (img.getAttribute('src') !== logo) {
-        img.addEventListener('error', () => { img.dataset.failed = logo; link.hidden = true; }, { once: true });
-        img.src = logo;
-      }
-      if (v('COLEGIO_NOMBRE')) img.alt = v('COLEGIO_NOMBRE');
-      if (web) setAttr(link, 'href', web); else link.removeAttribute('href');
-      link.hidden = false;
-    } else {
-      link.hidden = true;
-    }
+  if (img && v('COLEGIO_NOMBRE')) setAttr(img, 'alt', v('COLEGIO_NOMBRE'));
+  if (link) {
+    if (web) setAttr(link, 'href', web); else link.removeAttribute('href');
   }
 
   // Favicons del sitio del colegio (como el sitio anterior); sin COLEGIO_URL, el logo local.
@@ -314,7 +303,6 @@ function paintFooter() {
   const hadFocus = !!refreshCtl && refreshCtl.el.contains(document.activeElement);
   try {
     setHTML(footer, renderFooter(model.config, t));
-    bindFooter(footer);
     bindShare(footer, { t, getPayload: sharePayload });
   } catch (err) {
     console.error('[main] el pie falló:', err);

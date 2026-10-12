@@ -37,7 +37,6 @@ module.exports = {
       fontFamily: {
         display: ['"LaLiga Headline"', 'Roboto', 'system-ui', 'sans-serif'],
         text: ['"LaLiga Text"', 'Roboto', 'system-ui', 'sans-serif'],
-        script: ['Pattaya', 'cursive'],
         body: ['Roboto', 'system-ui', 'sans-serif'],
       },
       borderRadius: {

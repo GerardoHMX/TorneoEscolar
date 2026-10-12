@@ -71,7 +71,7 @@ function markup() {
         </g>
       </svg>
     </div>
-    <p class="loader__name">Al-Ándalus</p>
+    <p class="loader__name wordmark">Al-Ándalus</p>
   </div>
 </div>`;
 }

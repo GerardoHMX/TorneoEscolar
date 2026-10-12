@@ -117,10 +117,9 @@
   animation: loader-spin 14s linear 900ms infinite;
 }
 
-.loader__name {
-  font-family: var(--font-script);
+.loader__name { /* .wordmark (Pattaya): ya era script; mismo tamaño */
   font-size: clamp(2.25rem, 1.6rem + 3vw, 3.25rem);
-  line-height: 1;
+  line-height: 1.2;
   color: var(--ink);
   text-shadow: 0 1px 0 rgb(255 248 224 / 0.45);
   opacity: 0;

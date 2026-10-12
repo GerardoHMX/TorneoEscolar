@@ -56,7 +56,6 @@ export function render(model, state = {}, t) {
   let i = 0;
   const card = (b) => html`<article class="group-card card reveal" style="--i:${Math.min(i++, 8)}">
     <header class="group-card__head">
-      <span class="group-card__letter num" aria-hidden="true">${b.grupo}</span>
       <div>
         <h3 class="group-card__title">${t('group', 'Grupo')} ${b.grupo}</h3>
         <p class="group-card__sub">${b.ciclo} · ${b.equipos.length} ${t('teams_count', 'equipos')}</p>

@@ -87,9 +87,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-@media (min-width: 1024px) {
-  body { font-size: 1.0625rem; } /* 17px en PC: lectura cómoda para adultos */
-}
+/* Texto de lectura: --fs-body (17px móvil, 18px PC) en css/tokens.css */
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
@@ -108,6 +106,20 @@ h1, h2, h3, h4,
 }
 
 p { text-wrap: pretty; }
+
+/* Marca: la palabra «Al-Ándalus» (nombre del torneo) en Pattaya. ÚNICO uso de --font-wordmark.
+   Sin mayúsculas ni tracking (el script se lee mal así); interlineado holgado para ascendentes y tildes. */
+.wordmark {
+  font-family: var(--font-wordmark);
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: normal;
+  font-synthesis: none;
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
 
 a {
   color: inherit;
@@ -129,7 +141,6 @@ img { height: auto; }
   letter-spacing: 0;
 }
 .text-gold { color: var(--gold-text); }
-.font-script { font-family: var(--font-script); font-weight: 400; }
 
 /* ===================== Accesibilidad ===================== */
 :focus { outline: none; }
@@ -263,20 +274,20 @@ img { height: auto; }
   color: var(--ink);
   flex-shrink: 0;
 }
-.brand__logo { width: 40px; height: 40px; object-fit: contain; }
 .brand__name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1.25rem; /* lockup de cabecera: fuera de --fs-scale (cabe a 360px) */
   line-height: 1;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
+.brand__name .wordmark { display: block; font-size: calc(1.25rem * var(--wordmark-boost)); line-height: 1.1; } /* +20 % también en móvil: sin el logo del torneo hay sitio */
 .brand__season {
   display: block;
-  font-family: var(--font-script);
+  font-family: var(--font-display);
   font-size: 0.9rem;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: var(--gold-text);
   line-height: 1.2;
@@ -284,10 +295,11 @@ img { height: auto; }
 .header-school {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   min-width: var(--tap);
   min-height: var(--tap);
 }
-.header-school img { width: 40px; height: 40px; object-fit: contain; }
+.header-school img { width: auto; height: 44px; aspect-ratio: 100 / 92; object-fit: contain; } /* escudo vectorial 100×92; único logo de la cabecera */
 .header-tools {
   margin-left: auto;
   display: flex;
@@ -309,7 +321,7 @@ img { height: auto; }
     margin-inline: auto;
   }
   .header-tools { margin-left: 0; }
-  .brand__logo, .header-school img { width: 48px; height: 48px; }
+  .header-school img { height: 52px; }
 }
 
 .lang-switch {
@@ -340,7 +352,7 @@ img { height: auto; }
   place-items: center;
   width: var(--tap);
   height: var(--tap);
-  border-radius: var(--radius-pill);
+  border-radius: 50%; /* botón de icono circular (no depende de --radius-pill) */
   color: var(--ink);
   transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
@@ -432,12 +444,12 @@ body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); }
 }
 .section-title__kicker {
   order: -1;
-  font-family: var(--font-script);
-  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+  font-family: var(--font-text);
+  font-size: var(--fs-sm);
   font-weight: 400;
-  line-height: 1.1;
-  text-transform: none;
-  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
   color: var(--gold-text);
 }
 .section-title--center { align-items: center; text-align: center; }
@@ -559,7 +571,7 @@ body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); }
   padding: 0 1.6rem;
   border-radius: var(--radius-pill);
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: calc(1rem * var(--fs-scale));
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;

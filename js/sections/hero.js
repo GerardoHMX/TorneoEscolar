@@ -99,7 +99,7 @@ export function render(model, state = {}, t) {
     <div class="hero__inner">
       <div class="hero__copy">
         <p class="hero__kicker reveal" style="--i:0">${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')}</p>
-        <h1 class="hero__title reveal" style="--i:1">${nombre}</h1>
+        <h1 class="hero__title wordmark reveal" style="--i:1">${nombre}</h1>
         ${anio ? html`<p class="hero__season reveal" style="--i:2"><span>${t('hero_season', 'Temporada')}</span> <span class="num">${anio}</span></p>` : ''}
         <p class="hero__tagline reveal" style="--i:3">${t('hero_tagline', 'Más que una competición: inclusión, respeto y deporte en cada recreo.')}${colegio ? html` <span class="hero__school">${colegio}</span>` : ''}</p>
         ${ctas.length ? html`<div class="hero__ctas reveal" style="--i:4">${ctas.map(([sid, key, fb], i) => html`<a class="${i === 0 ? 'btn-gold' : 'btn-ghost'}" href="#${sid}">${t(key, fb)}</a>`)}</div>` : ''}

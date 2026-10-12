@@ -27,6 +27,8 @@
     <!-- Fuentes autoalojadas (woff2) -->
     <link rel="preload" href="fonts/LALIGAHeadlineVF.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/Roboto-VF-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Pattaya: solo la marca «Al-Ándalus» (cabecera, hero, pantalla de carga): visible en la primera pantalla -->
+    <link rel="preload" href="fonts/Pattaya-latin.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Tailwind + tokens + base (npm run build-css) -->
     <link rel="stylesheet" href="dist/output.css">
     <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
@@ -50,25 +52,24 @@
     <div id="loader-root">
         <div class="loader-static" aria-hidden="true">
             <div class="loader-static__medal"><img src="img/logo-192.png" alt="" width="96" height="96"></div>
-            <p class="loader__name">Al-Ándalus</p>
+            <p class="loader__name wordmark">Al-Ándalus</p>
         </div>
     </div>
 
     <header id="site-header">
         <div class="header-bar">
+            <!-- Logo del colegio (único logo de la cabecera, a la izquierda): archivo local img/logo-colegio.svg;
+                 enlace a la web del colegio y nombre desde CONFIGURACION (COLEGIO_URL, COLEGIO_NOMBRE) -->
+            <a class="header-school" target="_blank" rel="noopener noreferrer" data-config="colegio-link">
+                <img src="img/logo-colegio.svg" alt="Colegio San Francisco de Asís" width="52" height="48" data-config="colegio-logo">
+            </a>
             <a class="brand" href="#inicio">
-                <img class="brand__logo" src="img/logo-192.png" alt="" width="48" height="48">
                 <span class="brand__name">
-                    <span data-config="torneo-nombre">Al-Ándalus</span>
+                    <span class="wordmark" data-config="torneo-nombre">Al-Ándalus</span>
                     <span class="brand__season" data-config="torneo-anio">2026-2027</span>
                 </span>
                 <!-- El nombre accesible contiene el texto visible (WCAG 2.5.3) y añade el destino -->
                 <span class="sr-only" data-translate="brand_home_hint">(inicio)</span>
-            </a>
-
-            <!-- Logo del colegio (src y enlace desde CONFIGURACION: COLEGIO_LOGO_URL, COLEGIO_URL); oculto hasta que cargue -->
-            <a class="header-school" href="#" target="_blank" rel="noopener noreferrer" data-config="colegio-link" hidden>
-                <img src="data:," alt="Colegio San Francisco de Asís" width="48" height="48" data-config="colegio-logo">
             </a>
 
             <!-- Navegación en línea (PC); enlaces generados por js/ui/nav.js -->

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 92" width="100" height="92" role="img" aria-labelledby="t">
+  <title id="t">Colegio San Francisco de Asís</title>
+  <!-- Escudo del Colegio San Francisco de Asís: redibujo vectorial del logo oficial (87×80 px).
+       Textos editables: «Educación con raíces» y «Desde 1974» (ver los <text> al final). -->
+  <defs>
+    <clipPath id="c"><circle cx="43.4" cy="40.6" r="31.2"/></clipPath>
+    <linearGradient id="w" x1="0" y1="41" x2="0" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d6e7f7"/>
+      <stop offset="1" stop-color="#aed1f0"/>
+    </linearGradient>
+  </defs>
+  <g transform="scale(1.2987) translate(-4 -5.2)">
+    <!-- Fondo: círculo pálido y agua azul -->
+    <circle cx="43.4" cy="40.6" r="31.2" fill="#f2f5fb"/>
+    <path clip-path="url(#c)" fill="url(#w)" d="M10 43.2C22 41.6 36 44.4 50 42.6S70 41.2 80 42V80H10Z"/>
+    <path fill="url(#w)" d="M64.5 42.2C70.5 41 76.6 41.4 78.6 44.6L79.4 47.6L72.8 50.6C72.2 47.4 69.6 44 64.5 42.2Z"/>
+    <path fill="#f2f5fb" d="M65.6 43C70.2 43.6 73.2 45.8 74.4 49.2L71.6 50.2C70.8 47.2 69 44.8 65.6 43Z"/>
+    <!-- Sol -->
+    <circle cx="58.6" cy="23.2" r="8.9" fill="#ebe162"/>
+    <!-- Castillo -->
+    <path fill="#e5af24" d="M17 28.2H22V31.2H24V28.2H27.6V31.2H29.6V28.2H33V31.2H35V28.2H41V18H45V21.6H47.6V18H50.6V21.8H57.4L43.4 42.6L43 43.6H21V40.2H17Z"/>
+    <path fill="none" stroke="#f2f5fb" stroke-width="1.3" stroke-linecap="round" d="M20.4 41.3Q24 40.3 27.6 41.4"/>
+    <!-- Velas y mástil -->
+    <path fill="#fff" d="M59.6 15.4L43.2 38.8L56.4 37.1Z"/>
+    <path fill="#fff" d="M61 16L57.9 37.1H70.6Z"/>
+    <path fill="#b92930" d="M60 15.1H60.7L57.5 37.7H56.1Z"/>
+    <!-- Casco y estela -->
+    <path fill="#b92930" d="M42.4 39.4L56 37.4H72.4L74.2 37.9C68.6 39.6 64.4 41.6 58.6 41.8H46C44 41.6 42.8 40.8 42.4 39.4Z"/>
+    <path fill="#b92930" d="M62.8 40.8C61 43.2 57.2 44.6 51.6 43.9C51.4 43.6 51.6 43.2 52 43.1C55.6 43.1 58.4 42.4 60.4 41.2Z"/>
+    <!-- Banda roja -->
+    <path fill="#b92930" d="M5.8 62.3C7 60.6 9.6 56 12.6 54.2C16.4 51.8 20.6 50.6 25 50.3C31 49.6 37 49.7 42 50.1C47 50.6 51.6 51 56 50.8C61 50.6 65 49.4 69 48.6C73 47.9 76.6 47.4 79.4 46.9C78.4 48.8 77 50.8 75 53.3C72.6 56.2 69.6 58.6 66.6 59.7C63.6 60.8 60.4 61.4 56 61.9C51 62.4 46 62.5 41.6 62.4C33 62.2 20 62 12 62.1C9.6 62.2 7.4 62.3 5.8 62.3Z"/>
+    <!-- Lema (editable). textLength mantiene el ancho con cualquier fuente del sistema. -->
+    <text x="43.5" y="57.7" text-anchor="middle" textLength="50.4" lengthAdjust="spacingAndGlyphs" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="4.6" fill="#fff"><tspan font-weight="700">Educación</tspan> con raíces</text>
+    <!-- Año (editable; pendiente de confirmar) -->
+    <text x="42.6" y="68.6" text-anchor="middle" textLength="20.2" lengthAdjust="spacingAndGlyphs" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="4" fill="#b8323e">Desde <tspan font-weight="700">1974</tspan></text>
+  </g>
+</svg>
