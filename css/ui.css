@@ -170,14 +170,14 @@ html.has-overlay { overflow: hidden; }
   box-sizing: content-box;
   transition: transform var(--dur-base) var(--ease-out);
 }
-/* pastilla dorada detrás del icono activo */
+/* pastilla de acento detrás del icono Y la etiqueta del elemento activo */
 .bnav__item::before {
   content: "";
   position: absolute;
-  top: 5px;
+  top: 4px;
+  bottom: 4px;
   left: 50%;
-  width: 56px;
-  height: 30px;
+  width: calc(100% - 8px);
   border-radius: var(--radius-pill);
   background: var(--grad-gold);
   transform: translateX(-50%) scaleX(0.4);

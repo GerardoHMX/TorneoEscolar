@@ -673,7 +673,7 @@ body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); }
 
 /* ===================== Movimiento reducido =====================
  * Desactiva animaciones largas y desplazamientos en todo el sitio.
- * Excepción opt-in: .rm-fade conserva un fundido corto (loader, modal).
+ * Excepciones: .rm-fade conserva un fundido corto (loader, modal) y el loader mantiene un rebote suave sin giro.
  */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -687,6 +687,12 @@ body { padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom)); }
   .rm-fade, .rm-fade::before, .rm-fade::after {
     transition-property: opacity !important;
     transition-duration: 200ms !important;
+  }
+  /* Excepción: el rebote del loader (sin giro, más bajo) sigue en bucle para indicar actividad */
+  .loader.is-static .loader__ball,
+  .loader.is-static .loader__shadow {
+    animation-duration: 2.6s !important;
+    animation-iteration-count: infinite !important;
   }
   .js-reveal .reveal:not(.is-visible) { opacity: 1; transform: none; }
   .skeleton { animation: none; }

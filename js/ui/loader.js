@@ -1,7 +1,7 @@
-// Loader de entrada (spec §4): balón de futsal dorado que ensambla sus paneles (siluetas del SVG
-// histórico de index.html), anillo de progreso y «Al-Ándalus»; sale con una cortina dorada que se abre
-// hacia el hero. Con prefers-reduced-motion: balón ya montado y fundido simple (.rm-fade).
-// Estilos en css/loader.css. El marcado lo crea este módulo dentro de #loader-root.
+// Loader de entrada: como el del sitio original, un balón ámbar (el mismo del hero) que gira y rebota con fuerza decreciente sobre
+// el fondo rojo del hero, con su sombra en el suelo. Sin texto ni cortinas: sale con un fundido corto cuando llegan los datos (mínimo 2 s, máximo 4 s).
+// Con prefers-reduced-motion: balón quieto y fundido simple (.rm-fade). Estilos en css/loader.css.
+// El marcado lo crea este módulo dentro de #loader-root.
 
 import { html, setHTML } from '../core/dom.js';
 import { afterMotion, lockScroll, prefersReducedMotion } from './focus.js';
@@ -42,36 +42,30 @@ const PANELS = [
 export { C as BALL, PANELS as BALL_PANELS };
 
 function markup() {
-  const panels = PANELS.map(([d, dx, dy, p]) => html`<path class="loader__panel" d="${d}" style="--dx:${dx}px;--dy:${dy}px;--p:${p}"></path>`);
+  const panels = PANELS.map(([d]) => html`<path d="${d}"></path>`);
   const box = `${C.x - C.r - 1} ${C.y - C.r - 1} ${2 * C.r + 2} ${2 * C.r + 2}`;
   return html`<div class="loader rm-fade" aria-hidden="true">
-  <div class="loader__curtain loader__curtain--l"></div>
-  <div class="loader__curtain loader__curtain--r"></div>
   <div class="loader__stage">
-    <div class="loader__medal">
-      <svg class="loader__ring" viewBox="0 0 100 100" focusable="false">
-        <circle class="loader__ring-track" cx="50" cy="50" r="46"></circle>
-        <circle class="loader__ring-bar" cx="50" cy="50" r="46" pathLength="100"></circle>
-      </svg>
-      <svg class="loader__ball" viewBox="${box}" focusable="false">
-        <defs>
-          <linearGradient id="loaderGold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#f3dea3"></stop>
-            <stop offset=".45" stop-color="#e0b444"></stop>
-            <stop offset="1" stop-color="#b07f14"></stop>
-          </linearGradient>
-          <radialGradient id="loaderBody" cx=".38" cy=".3" r=".8">
-            <stop offset="0" stop-color="#634610"></stop>
-            <stop offset="1" stop-color="#3f2d0c"></stop>
-          </radialGradient>
-        </defs>
-        <g class="loader__spin">
-          <circle class="loader__body" cx="${C.x}" cy="${C.y}" r="${C.r}" pathLength="100"></circle>
-          ${panels}
-        </g>
-      </svg>
-    </div>
-    <p class="loader__name wordmark">Al-Ándalus</p>
+    <svg class="loader__ball" viewBox="${box}" focusable="false">
+      <defs>
+        <radialGradient id="loaderBallBody" cx=".36" cy=".3" r=".85">
+          <stop offset="0" stop-color="#8a6210"></stop>
+          <stop offset=".55" stop-color="#634610"></stop>
+          <stop offset="1" stop-color="#3f2d0c"></stop>
+        </radialGradient>
+        <linearGradient id="loaderBallGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#faefd2"></stop>
+          <stop offset=".45" stop-color="#eac871"></stop>
+          <stop offset="1" stop-color="#b07f14"></stop>
+        </linearGradient>
+      </defs>
+      <g class="loader__spin">
+        <circle cx="${C.x}" cy="${C.y}" r="${C.r}" fill="url(#loaderBallBody)"></circle>
+        <g fill="url(#loaderBallGold)">${panels}</g>
+        <circle cx="${C.x}" cy="${C.y}" r="${C.r - 1}" fill="none" stroke="#f3dea3" stroke-opacity=".35" stroke-width="2"></circle>
+      </g>
+    </svg>
+    <span class="loader__shadow"></span>
   </div>
 </div>`;
 }
@@ -82,50 +76,26 @@ const now = () => (typeof performance !== 'undefined' ? performance.now() : Date
 /**
  * Monta el loader en #loader-root.
  * @param {{minMs?: number, maxMs?: number}} [opts]
- * @returns {{ done(): Promise<void> }} `done()` (datos listos) espera al mínimo, abre la cortina y retira
- *   el nodo; si nunca se llama, el loader sale solo a `maxMs`. Llamadas repetidas comparten la salida.
+ * @returns {{ done(): Promise<void> }} `done()` (datos listos) espera al mínimo y funde el loader; si nunca se
+ *   llama, el loader sale solo a `maxMs`. Llamadas repetidas comparten la salida.
  */
-export function initLoader({ minMs = 1000, maxMs = 4000 } = {}) {
+export function initLoader({ minMs = 2000, maxMs = 4000 } = {}) {
   const root = document.getElementById('loader-root');
   if (!root) return { done: () => Promise.resolve() };
 
   const start = now();
-  const reduced = prefersReducedMotion();
   setHTML(root, markup());
   const el = root.firstElementChild;
-  if (reduced) el.classList.add('is-static');
+  if (prefersReducedMotion()) el.classList.add('is-static');
   const unlock = lockScroll();
-
-  // Anillo: avanza hasta ~85 % durante maxMs (no hay progreso real que medir); done() lo completa.
-  const bar = el.querySelector('.loader__ring-bar');
-  let ringAnim = null;
-  if (!reduced && typeof bar.animate === 'function') {
-    ringAnim = bar.animate([{ strokeDashoffset: 100 }, { strokeDashoffset: 15 }],
-      { duration: Math.max(maxMs, 1), easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
-  }
 
   let exiting = null;
   const exit = () => {
     if (exiting) return exiting;
     exiting = (async () => {
       clearTimeout(forced);
-      if (reduced) {
-        el.classList.add('is-fading');
-        await afterMotion(el, 400, 'opacity');
-      } else {
-        // 1) el anillo se completa
-        if (ringAnim) {
-          const from = parseFloat(getComputedStyle(bar).strokeDashoffset) || 15;
-          ringAnim.cancel();
-          bar.animate([{ strokeDashoffset: from }, { strokeDashoffset: 0 }],
-            { duration: 260, easing: 'ease-out', fill: 'forwards' });
-        }
-        el.classList.add('is-complete');
-        await sleep(280);
-        // 2) la medalla se retira y la cortina dorada se abre
-        el.classList.add('is-opening');
-        await afterMotion(el.querySelector('.loader__curtain--r'), 1400, 'transform');
-      }
+      el.classList.add('is-fading');
+      await afterMotion(el, 450, 'opacity');
       el.remove();
       unlock();
     })();

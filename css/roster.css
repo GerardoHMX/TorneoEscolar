@@ -221,6 +221,7 @@
 .ro-num__unit {
   font-family: var(--font-text);
   font-size: calc(0.75rem * var(--fs-scale));
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gray);
@@ -318,6 +319,7 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     text-align: center;
     font-family: var(--font-text);
     font-size: calc(0.75rem * var(--fs-scale));
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--gray);
@@ -348,7 +350,7 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     background: var(--gold-900);
     font-family: var(--font-text);
     font-size: var(--fs-xs);
-    font-weight: 400;
+    font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--gold-100);

@@ -1,4 +1,4 @@
-/* Orden: preflight de Tailwind → tokens → base/componentes propios → UI (nav, modal, acordeón) → loader → secciones (sections, standings, roster, home) → utilidades (que pueden sobrescribir). */
+/* PRUEBA DE COLOR: theme-sport.css va el último de los propios; para volver al dorado, quitar su @import. Orden: preflight de Tailwind → tokens → base/componentes propios → UI (nav, modal, acordeón) → loader → secciones (sections, standings, roster, home) → utilidades (que pueden sobrescribir). */
 @import "tailwindcss/base";
 @import "../css/tokens.css";
 @import "../css/base.css";
@@ -9,5 +9,6 @@
 @import "../css/roster.css";
 @import "../css/home.css";
 @import "../css/feedback.css";
+@import "../css/theme-sport.css";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";

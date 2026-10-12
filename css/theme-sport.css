@@ -1,0 +1,193 @@
+/*
+ * PRUEBA DE COLOR — tema deportivo: rojo + blanco + gris neutro, con ámbar solo como acento puntual.
+ *
+ * Esta hoja se carga la última (src/input.css) y reasigna los tokens de css/tokens.css y los
+ * roles de color de los componentes. Para volver al tema dorado: quitar la línea
+ * `@import "../css/theme-sport.css";` de src/input.css y recompilar (`npm run build-css`).
+ *
+ * Reparto de colores:
+ *   rojo   = identidad y acción (hero, cabeceras de tabla, botones principales, filtros activos, bandas profundas)
+ *   ámbar  = destacar algo puntual (rótulos pequeños sobre rojo, barra bajo los títulos, medalla de oro, cifras clave)
+ *   blanco/gris neutro = superficies y texto
+ */
+:root {
+  /* ---- Rojo de equipo (de la portada del sitio original) ---- */
+  --red-300: #e0585d;
+  --red-400: #d13b41;
+  --red-500: #c1272d;     /* base del hero */
+  --red: #a30f14;         /* acción principal / cabeceras de tabla (blanco encima: 8,4:1) */
+  --red-600: #8a0c11;
+  --red-700: #6c090e;
+  --red-800: #4b0609;
+  --red-50: #fdecec;
+
+  /* ---- Ámbar: solo acentos ---- */
+  --amber-200: #ffe3a3;
+  --amber-300: #ffd166;
+  --amber-400: #fbb93a;
+  --amber-500: #f5a31a;
+  --amber-600: #d98a0b;
+  --amber-700: #a86400;   /* texto ámbar sobre blanco (4,6:1) */
+
+  /* La escala «gold» sigue siendo el acento: ahora es ámbar saturado; los tintes claros pasan a gris neutro */
+  --gold-50: #f6f6f7;
+  --gold-100: #eeeef0;
+  --gold-200: #e1e1e5;
+  --gold-300: var(--amber-300);
+  --gold-400: var(--amber-400);
+  --gold-500: var(--amber-500);
+  --gold-600: var(--amber-600);
+  --gold-700: var(--amber-700);
+  --gold-800: #5a3a05;
+  --gold-900: #3a2403;
+
+  /* ---- Neutros (sin tinte cálido) ---- */
+  --ink: #16161a;
+  --ink-soft: #2c2c33;
+  --gray: #5a5e66;
+  --gray-300: #c6c8ce;
+  --line: #e4e5e9;
+
+  /* Texto de rótulo/enlace sobre blanco: rojo (sobre bandas oscuras se reasigna a ámbar más abajo) */
+  --gold-text: var(--red);
+  --focus: var(--red);
+
+  /* ---- Degradados ---- */
+  --grad-gold: linear-gradient(135deg, var(--amber-300) 0%, var(--amber-400) 45%, var(--amber-500) 100%);   /* acento/medalla */
+  --grad-red: linear-gradient(135deg, var(--red-500) 0%, var(--red) 100%);                                  /* acción */
+  --grad-champagne: linear-gradient(180deg, #f6f6f7 0%, #ffffff 100%);
+  --grad-hero:
+    radial-gradient(110% 80% at 90% 0%, rgb(255 255 255 / 0.12) 0%, transparent 55%),
+    linear-gradient(160deg, var(--red-500) 0%, #b0191f 50%, var(--red) 100%);
+  --hero-pattern-opacity: 0.55; /* pattern.svg multiplica: formas rojas más oscuras como en la portada original */
+  --grad-deep: linear-gradient(160deg, var(--red-600) 0%, var(--red-800) 100%);
+
+  /* ---- Sombras neutras: efecto flotante ----
+   * --shadow-1: la usan todas las tarjetas, tablas, filtros, noticias, carrusel y bracket (borde sobre fondo blanco).
+   * --shadow-2: estados elevados (hover de noticia, partido abierto, bloque de final). */
+  --shadow-1: 0 8px 32px rgb(0 0 0 / 0.15);
+  --shadow-2: 0 14px 40px rgb(0 0 0 / 0.22);
+  --shadow-3: 0 4px 10px rgb(20 20 30 / 0.10), 0 28px 60px rgb(20 20 30 / 0.18);
+  --shadow-gold: 0 6px 20px rgb(245 163 26 / 0.35);
+  --shadow-red: 0 6px 20px rgb(163 15 20 / 0.32);
+}
+
+/* ===================== Bandas oscuras (hero rojo, bandas profundas, pie) ===================== */
+.band--gold,
+.slide--brand {
+  --ink: #ffffff;
+  --ink-soft: rgb(255 255 255 / 0.9);
+  --gray: rgb(255 255 255 / 0.8);
+  --gold-text: var(--amber-400);
+  --focus: #ffffff;
+  background-color: var(--red-500);
+  background-image: var(--grad-hero);
+  color: #fff;
+}
+.band--deep,
+#site-footer,
+.cycle-block--final {
+  --gold-text: var(--amber-400);
+  --focus: #ffffff;
+  color: var(--gold-100);
+}
+.band--deep h1, .band--deep h2, .band--deep h3 { color: #fff; }
+
+/* Hero: rótulo en ámbar (acento), nombre en blanco, cifras clave en ámbar */
+/* ámbar claro: el rótulo es texto pequeño y debe cumplir 4,5:1 sobre el rojo (el ámbar fuerte queda para cifras grandes) */
+.hero__kicker { color: #ffe08a; font-weight: 700; }
+.hero__title { color: #fff; text-shadow: 0 3px 14px rgb(60 0 5 / 0.38); }
+/* «Temporada 2025-2026» en ámbar: la etiqueta pequeña en ámbar claro (cumple 4,5:1), la cifra grande en ámbar */
+.hero__season { color: #ffe08a; }
+.hero__season .num { color: var(--amber-400); }
+.hero__tagline, .hero__school { color: #fff; }
+.hero__stats {
+  border-color: rgb(255 255 255 / 0.28);
+  background: rgb(60 0 5 / 0.22);
+  box-shadow: none;
+}
+.hero__stat + .hero__stat { border-left-color: rgb(255 255 255 / 0.28); }
+.hero__stat-value { color: var(--amber-400); }
+.hero__stat-label { color: #fff; }
+.hero__ball-svg { filter: drop-shadow(0 14px 18px rgb(60 0 5 / 0.45)); }
+.hero__ball-shadow { background: radial-gradient(closest-side, rgb(60 0 5 / 0.45), transparent); }
+
+/* Botones: principal rojo con texto blanco; sobre el hero, blanco con texto rojo */
+.btn-gold {
+  color: #fff;
+  background: var(--grad-red);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 0 rgb(60 0 5 / 0.35), var(--shadow-red);
+}
+@media (hover: hover) {
+  .btn-gold:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 10px 28px rgb(163 15 20 / 0.5); }
+}
+.btn-ghost { color: var(--ink); border-color: var(--red); }
+@media (hover: hover) {
+  .btn-ghost:hover { background: var(--red-50); border-color: var(--red-600); }
+}
+.band--gold .btn-gold { background: #fff; color: var(--red); box-shadow: 0 6px 18px rgb(60 0 5 / 0.35); }
+.band--gold .btn-gold::after { display: none; }
+@media (hover: hover) {
+  .band--gold .btn-gold:hover { background: var(--amber-300); color: var(--red-700); box-shadow: 0 10px 26px rgb(60 0 5 / 0.45); }
+}
+.band--gold .btn-ghost { border-color: #fff; color: #fff; }
+.band--gold .btn-ghost:hover { background: rgb(255 255 255 / 0.16); }
+
+/* ===================== Estados activos = rojo ===================== */
+.chip:hover { border-color: var(--red); background: var(--red-50); }
+.chip[aria-pressed="true"],
+.chip[aria-selected="true"],
+.chip[aria-current="page"],
+.chip[aria-current="true"] {
+  background: var(--grad-red);
+  border-color: var(--red-600);
+  color: #fff;
+}
+.lang-switch button[aria-pressed="true"] { background: var(--grad-red); color: #fff; }
+.nav-link[aria-current="page"] { background: var(--grad-red); border-color: var(--red-600); color: #fff; }
+.goals-toggle:hover { border-color: var(--red); background: var(--red-50); }
+.goals-toggle[aria-expanded="true"] { background: var(--grad-red); border-color: var(--red-600); color: #fff; }
+.acc-trigger[aria-expanded="true"] .acc-trigger__icon { background: var(--grad-red); color: #fff; }
+.icon-btn:hover { background: var(--red-50); color: var(--red); }
+.filter-select__input:hover { border-color: var(--red); background-color: var(--red-50); }
+.filter-select__input.is-active { border-color: var(--red); }
+.nav-link--more[aria-expanded="true"] { background: var(--red-50); border-color: var(--red); }
+.carousel__btn:hover:not(:disabled),
+.daynav__btn:hover:not(:disabled) { background: var(--red-50); border-color: var(--red); }
+.carousel__dot[aria-current="true"]::before { background: var(--red); }
+.carousel__dot:hover::before { background: var(--red-300); }
+
+/* ===================== Cabeceras de tabla en rojo (como la portada original) ===================== */
+.standings thead th,
+.roster thead th { background: var(--red); color: #fff; }
+.standings thead .st-total { color: var(--amber-300); }
+.roster thead th.ro-num { background: var(--red); color: var(--amber-300); }
+.standings tbody .st-total,
+.roster .ro-num { background: var(--gold-50); }
+.standings__row.is-gold > :not(.st-total) { background-color: rgb(245 163 26 / 0.12); }
+.ro-stat--susp.is-on .num { background: var(--red); }
+
+/* ===================== Acentos ámbar (puntuales) ===================== */
+#site-header::after { background: var(--grad-red); }
+.section-title::after { background: var(--grad-gold); box-shadow: var(--shadow-gold); }
+.match__sep { color: var(--amber-500); }
+.pos--gold, .podium__place--1 .podium__step, .scorer-podium .podium__place.is-gold .p { background: var(--grad-gold); color: var(--ink); }
+.cycle-block__badge--gold { background: var(--grad-gold); color: var(--ink); }
+.bt__pasa { background: var(--grad-gold); color: var(--ink); }
+.bt--final { border-color: var(--red); box-shadow: var(--shadow-red), var(--shadow-1); }
+.bracket__head::before { background: var(--grad-red); box-shadow: 0 0 0 4px var(--surface), var(--shadow-red); }
+.rules__list li::before { background: var(--grad-gold); }
+#site-footer { border-image: var(--grad-gold) 1; }
+.card-ico--yellow { box-shadow: inset 0 0 0 1px var(--amber-500), 0 1px 3px rgb(20 20 30 / 0.2); }
+
+
+/* Tarjeta de marca del carrusel (fondo rojo): el logo del torneo es rojo/dorado y se perdería; va sobre panel blanco */
+.slide--brand .slide__media { padding: 1rem; background: #fff; box-shadow: 0 6px 18px rgb(60 0 5 / 0.35); }
+
+/* Tarjeta roja de Sancionados: el rojo del encabezado la hacía desaparecer.
+ * Rojo más encendido en todas partes + borde blanco cuando va sobre el encabezado rojo. */
+.card-ico--red { background: #f0252b; }
+.roster thead .card-ico--red { background: #ff2a30; box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgb(60 0 5 / 0.5); }
+
+/* La cabecera fija también flota sobre el contenido */
+#site-header { box-shadow: 0 8px 32px rgb(0 0 0 / 0.15); }

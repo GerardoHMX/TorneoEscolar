@@ -47,13 +47,10 @@
 <body>
     <a class="skip-link" href="#app" data-translate="skip_to_content">Saltar al contenido</a>
 
-    <!-- Loader: pantalla dorada estática (solo CSS) hasta que js/ui/loader.js monta el animado y la sustituye.
+    <!-- Loader: pantalla blanca estática (solo CSS) hasta que js/ui/loader.js monta el balón animado y la sustituye.
          Si el JS no llegara a ejecutarse, css/loader.css la desvanece sola a los pocos segundos. -->
     <div id="loader-root">
-        <div class="loader-static" aria-hidden="true">
-            <div class="loader-static__medal"><img src="img/logo-192.png" alt="" width="96" height="96"></div>
-            <p class="loader__name wordmark">Al-Ándalus</p>
-        </div>
+        <div class="loader-static" aria-hidden="true"></div>
     </div>
 
     <header id="site-header">
