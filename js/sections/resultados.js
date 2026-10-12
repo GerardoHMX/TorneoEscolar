@@ -46,7 +46,7 @@ export function render(model, state = {}, t) {
   };
 
   const finales = scoped.filter((p) => p.interciclo);
-  const body = html`${ciclo === 'TODOS' ? block('final', 'ESO · BCH', t('final_block_title', 'Final y tercer puesto'), finales, ' cycle-block--final') : ''}${
+  const body = html`${ciclo === 'TODOS' ? html`<span class="diag-sentinel reveal" aria-hidden="true"></span>${block('final', 'ESO · BCH', t('final_block_title', 'Final y tercer puesto'), finales, ' cycle-block--final')}` : ''}${
     (ciclo === 'TODOS' ? ['ESO', 'BCH'] : [ciclo]).map((c) => block(c, c, t(`cycle_${c.toLowerCase()}_name`, c === 'ESO' ? 'Secundaria' : 'Bachillerato'), scoped.filter((p) => !p.interciclo && p.ciclo === c)))}`;
 
   return html`${title}<div class="filters">${cicloChips(ciclo, t)}</div>

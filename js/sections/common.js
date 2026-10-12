@@ -2,6 +2,8 @@
 // filtro por ciclo y restauración del foco tras el re-render completo que hace el orquestador.
 import { html } from '../core/dom.js';
 import { createTabs } from '../ui/tabs.js';
+import { attachSlider } from '../ui/slider.js';
+import { markSwap, runSwap } from '../ui/swap.js';
 import { bindCrests, bindGoalToggles } from '../ui/matchCard.js';
 
 /** @typedef {import('../data/models.js').Partido} Partido */
@@ -89,17 +91,21 @@ const escAttr = (v) => (typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(v)
  * devolverle el foco tras el re-render y llama a setState({[filtro]: valor, ...extra(filtro, valor)}).
  */
 export function bindFilters(root, ctx, id, extra = () => ({})) {
+  runSwap(root, id); // si este pintado viene de un filtro, las tarjetas entran con fundido y deslizamiento
   root.querySelectorAll('[data-filter]').forEach((row) => {
     const name = row.dataset.filter;
     createTabs(row, (value) => {
       rememberFocus(id, `[data-filter="${escAttr(name)}"] [data-value="${escAttr(value)}"]`);
+      markSwap(id);
       ctx.setState({ [name]: value, ...extra(name, value) });
     });
+    attachSlider(row, `${id}:${name}`); // la pastilla se desliza hasta el chip elegido
   });
   root.querySelectorAll('select[data-filter-select]').forEach((sel) => {
     const name = sel.dataset.filterSelect;
     sel.addEventListener('change', () => {
       rememberFocus(id, `select[data-filter-select="${escAttr(name)}"]`);
+      markSwap(id);
       ctx.setState({ [name]: sel.value, ...extra(name, sel.value) });
     });
   });

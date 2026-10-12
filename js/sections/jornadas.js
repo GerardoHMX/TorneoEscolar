@@ -72,7 +72,7 @@ export function render(model, state = {}, t) {
 
   const finales = list.filter((p) => p.interciclo);
   const finalBlock = finales.length
-    ? html`<section class="cycle-block cycle-block--final" aria-labelledby="${id}-final">
+    ? html`<span class="diag-sentinel reveal" aria-hidden="true"></span><section class="cycle-block cycle-block--final" aria-labelledby="${id}-final">
         <h3 class="cycle-block__title reveal" id="${id}-final"><span class="cycle-block__badge cycle-block__badge--gold">ESO · BCH</span>${t(...FASE_LABEL.FINAL)}</h3>
         ${cards(finales)}
       </section>`

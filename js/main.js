@@ -11,6 +11,7 @@ import { translations } from './translations.js';
 import { loadAllWithStatus, loadOutcome, onUpdate } from './data/sheets.js';
 import { buildModel, mergeRaw } from './data/buildModel.js';
 import { initLoader } from './ui/loader.js';
+import { initScrollProgress } from './ui/progress.js';
 import { observeReveal } from './ui/reveal.js';
 import { renderNav } from './ui/nav.js';
 import { renderFooter } from './ui/footer.js';
@@ -215,7 +216,7 @@ function refreshChrome({ force = false } = {}) {
       console.error('[main] renderNav falló:', err);
     }
   }
-  observeReveal(app);
+  observeReveal(document.body); // incluye el pie (fuera de #app), que se revela en diagonal
 }
 
 /**
@@ -364,6 +365,9 @@ function jumpToHash() {
 }
 
 async function boot() {
+  // Salvaguarda: si algo impide llegar a loader.done(), el hero no se queda a medio revelar.
+  setTimeout(() => document.documentElement.classList.add('app-ready'), 7000);
+  initScrollProgress();
   i18n.apply(document);
   bindLanguage();
   // Un loader que falla nunca debe impedir la carga de datos.
@@ -392,6 +396,7 @@ async function boot() {
   rebuild(first ?? {});
   app.setAttribute('aria-busy', 'false');
   await loader.done();
+  document.documentElement.classList.add('app-ready'); // el hero se revela en diagonal cuando el loader ya salió
   jumpToHash();
   // `initial`: un cambio durante el primer intervalo también se notifica (Task 5).
   onUpdate((next) => {

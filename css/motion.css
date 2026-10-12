@@ -1,0 +1,193 @@
+/*
+ * CAPA DE MOVIMIENTO — microanimaciones deportivas. Se carga la última de las propias (src/input.css).
+ * Para quitarlas todas: borrar la línea `@import "../css/motion.css";` de src/input.css y recompilar.
+ * Reglas: 150–400 ms, solo transform/translate/scale/opacity, y todo se apaga con «Reducir movimiento»
+ * (la regla global de css/base.css deja las duraciones en ~0; aquí además se anulan los desplazamientos).
+ *
+ *   1. Tarjetas que se elevan al pasar el ratón (y «apretón» al tocar en móvil)
+ *   2. Barra ámbar bajo los títulos que se dibuja + rótulo que entra deslizando
+ *   3. Indicador deslizante de los filtros (js/ui/slider.js)
+ *   4. Barra de progreso de lectura bajo la cabecera (js/ui/progress.js)
+ *   5. Latido en «próximo partido»
+ *   7. Escudos con «pop» (al entrar en pantalla y al pasar el ratón / tocar)
+ */
+
+/* ===================== 1. Tarjetas que se elevan ===================== */
+/* `translate`/`scale` (propiedades individuales) para no chocar con el `transform` del revelado (.reveal). */
+:is(.card, .news-card, .slide, .bt) {
+  transition:
+    opacity var(--dur-slow) var(--ease-out) calc(var(--i, 0) * var(--stagger)),
+    transform var(--dur-slow) var(--ease-out) calc(var(--i, 0) * var(--stagger)),
+    translate 220ms var(--ease-out),
+    scale 140ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
+}
+@media (hover: hover) {
+  :is(.card, .news-card, .slide, .bt):hover {
+    translate: 0 -4px;
+    box-shadow: var(--shadow-2);
+  }
+}
+@media (hover: none) {
+  :is(.card, .news-card, .slide, .bt):active { scale: 0.98; }
+}
+
+/* ===================== 2. Títulos de sección ===================== */
+.section-title::after {
+  transform-origin: left center;
+  transition: transform 700ms var(--ease-out) 180ms;
+}
+.section-title--center::after { transform-origin: center; }
+.section-title__kicker {
+  transition: opacity 500ms var(--ease-out), translate 500ms var(--ease-out);
+}
+/* Mientras la sección no ha entrado en pantalla (solo con JS activo: .js-reveal): barra sin dibujar, rótulo desplazado */
+.js-reveal .reveal:not(.is-visible) .section-title::after { transform: scaleX(0); }
+.js-reveal .reveal:not(.is-visible) .section-title__kicker { opacity: 0; translate: -14px 0; }
+
+/* ===================== 3. Indicador deslizante de filtros ===================== */
+.chip-row.has-slider { position: relative; }
+.chip-row.has-slider > .chip { position: relative; z-index: 1; }
+/* El chip activo deja de pintar su propio fondo: lo pinta la pastilla que se desliza */
+.chip-row.has-slider > .chip[aria-pressed="true"] {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+.chip-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border: 1px solid var(--red-600);
+  background: var(--grad-red);
+  pointer-events: none;
+  transition: transform 320ms var(--ease-out), width 320ms var(--ease-out);
+}
+
+/* ===================== 4. Progreso de lectura ===================== */
+.scroll-progress {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+  height: 3px;
+  background: var(--grad-gold);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* ===================== 5. Latido en «próximo partido» ===================== */
+.match--next .tag--red::before {
+  content: "";
+  flex: none;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: #fff;
+  animation: next-pulse 1.8s ease-out infinite;
+}
+@keyframes next-pulse {
+  0%   { box-shadow: 0 0 0 0 rgb(255 255 255 / 0.75); }
+  70%  { box-shadow: 0 0 0 0.5em rgb(255 255 255 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(255 255 255 / 0); }
+}
+
+/* ===================== 7. Escudos con «pop» ===================== */
+/* Entrada: al revelarse la tarjeta, el escudo rebota (escalonado con --i). `backwards` (no `both`) para que al
+ * terminar no deje un `scale` fijo que anule el efecto del ratón. */
+.js-reveal .reveal.is-visible :is(.match, .group-card, .bt, .standings__row, .roster__row) .crest,
+.js-reveal :is(.match, .group-card, .bt, .standings__row, .roster__row).reveal.is-visible .crest {
+  animation: crest-pop 560ms cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger) + 260ms);
+}
+@keyframes crest-pop-soft {
+  from { scale: 0.85; opacity: 0; }
+  to   { scale: 1;    opacity: 1; }
+}
+@keyframes crest-pop {
+  0%   { scale: 0.55; opacity: 0; }
+  60%  { scale: 1.12; opacity: 1; }
+  100% { scale: 1; opacity: 1; }
+}
+/* Hover / toque: crece un poco y se inclina */
+.crest { transition: scale 220ms cubic-bezier(0.3, 1.6, 0.5, 1), rotate 220ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+@media (hover: hover) {
+  .crest:hover { scale: 1.12; rotate: -5deg; }
+}
+@media (hover: none) {
+  .crest:active { scale: 1.12; rotate: -5deg; }
+}
+
+/* ===================== Movimiento reducido: sin desplazamientos ni pops ===================== */
+@media (prefers-reduced-motion: reduce) {
+  :is(.card, .news-card, .slide, .bt):hover,
+  :is(.card, .news-card, .slide, .bt):active { translate: none; scale: none; }
+  .js-reveal .reveal:not(.is-visible) .section-title__kicker { translate: none; }
+  /* Escudos: sin rebote ni giro, pero conservan un fundido con escala mínima al entrar y un leve «pop» al pasar el ratón
+   * (son pequeños y no se desplazan; así el efecto se aprecia también con «Reducir movimiento» activado). */
+  .js-reveal .reveal.is-visible :is(.match, .group-card, .bt, .standings__row, .roster__row) .crest,
+  .js-reveal :is(.match, .group-card, .bt, .standings__row, .roster__row).reveal.is-visible .crest {
+    animation-name: crest-pop-soft;
+    animation-duration: 380ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: calc(var(--i, 0) * var(--stagger) + 200ms) !important;
+    animation-timing-function: ease-out;
+  }
+  .crest { transition-duration: 200ms !important; }
+  .crest:hover, .crest:active { scale: 1.08; rotate: none; }
+  .match--next .tag--red::before { animation: none; }
+}
+
+/* ===================== 8. Entrada en diagonal de las bandas rojas ===================== */
+/* Hero, bloque «Final y tercer puesto» y pie se revelan con un corte diagonal que barre de izquierda a derecha.
+ * clip-path de 4 puntos (interpolable); los márgenes de 40–60 px dejan pasar las sombras. Solo con JS activo
+ * (.js-reveal): sin JS se ven completos. El hero espera a que el loader haya salido (.app-ready).
+ * OJO: un elemento recortado del todo se considera «no visible» para el IntersectionObserver, así que NO se observa
+ * la banda: se observa un marcador de 1 px (.diag-sentinel) justo antes de ella y la banda reacciona a su estado. */
+.hero.band, .cycle-block--final, #site-footer {
+  --diag-in:  polygon(-40px -40px, calc(130% + 40px) -40px, calc(100% + 40px) calc(100% + 60px), -40px calc(100% + 60px));
+  --diag-out: polygon(-40px -40px, -40px -40px, calc(-30% - 40px) calc(100% + 60px), -40px calc(100% + 60px));
+  clip-path: var(--diag-in);
+  transition: clip-path 900ms var(--ease-out) 120ms;
+}
+.hero.band { transition-duration: 1000ms; transition-delay: 150ms; }
+.diag-sentinel { display: block; height: 1px; margin: 0 0 -1px; pointer-events: none; }
+.js-reveal:not(.app-ready) .hero.band,
+.js-reveal .reveal:not(.is-visible) .hero.band,
+.js-reveal .diag-sentinel:not(.is-visible) + .cycle-block--final,
+.js-reveal .diag-sentinel:not(.is-visible) + #site-footer { clip-path: var(--diag-out); }
+
+/* ===================== 9. Cambio de filtro con respuesta ===================== */
+/* Al elegir un filtro, las tarjetas del nuevo resultado entran con fundido + deslizamiento corto, escalonadas
+ * (js/ui/swap.js marca la sección con .is-swapping solo en ese re-render). Evita el doble efecto del revelado. */
+.is-swapping .reveal:not(.is-visible) { opacity: 1; transform: none; }
+.is-swapping :is(.card, .news-card, .slide, .bt, .gal-tile) {
+  animation: swap-in 320ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+.is-swapping :is(.standings__row, .roster__row) {
+  animation: swap-fade 280ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+@keyframes swap-in   { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+@keyframes swap-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Movimiento reducido: el cambio de filtro conserva un fundido corto (sin deslizamiento) y las bandas se ven completas */
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal:not(.app-ready) .hero.band,
+  .js-reveal .reveal:not(.is-visible) .hero.band,
+  .js-reveal .diag-sentinel:not(.is-visible) + .cycle-block--final,
+  .js-reveal .diag-sentinel:not(.is-visible) + #site-footer { clip-path: var(--diag-in); }
+  .is-swapping :is(.card, .news-card, .slide, .bt, .gal-tile) {
+    animation-name: swap-fade;
+    animation-duration: 260ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: calc(var(--i, 0) * 30ms) !important;
+  }
+  .is-swapping :is(.standings__row, .roster__row) {
+    animation-duration: 240ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: calc(var(--i, 0) * 25ms) !important;
+  }
+}

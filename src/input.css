@@ -10,5 +10,6 @@
 @import "../css/home.css";
 @import "../css/feedback.css";
 @import "../css/theme-sport.css";
+@import "../css/motion.css";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
