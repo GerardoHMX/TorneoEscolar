@@ -2,7 +2,7 @@
 
 Sitio web del torneo escolar de fútbol sala: calendario, resultados, clasificación, goleadores, sancionados, noticias y galería. Los datos se editan en un libro de Google Sheets y la web se actualiza sola.
 
-**Sitio publicado:** https://gerardohmx.github.io/TorneoAl-Andalus/
+**Sitio publicado:** https://gerardohmx.github.io/TorneoEscolar/
 
 **Autor:** Alumno de 1º Bachillerato Gerardo Huizar Castro
 **Licencia:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)

@@ -97,7 +97,7 @@ export function renderFooter(config, t, opts = {}) {
     <div class="footer__credit" xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
       <a class="footer__avatar" rel="noopener noreferrer" href="https://github.com/GerardoHMX" target="_blank" tabindex="-1" aria-hidden="true"><img src="${base}img/profile.jpg" alt="" width="40" height="40" loading="lazy"></a>
       <p class="footer__made">
-        <a property="dct:title" rel="cc:attributionURL noopener noreferrer" href="https://github.com/GerardoHMX/TorneoAl-Andalus" target="_blank">${t('footer_made_by', 'Realizado por')}</a>
+        <a property="dct:title" rel="cc:attributionURL noopener noreferrer" href="https://github.com/GerardoHMX/TorneoEscolar" target="_blank">${t('footer_made_by', 'Realizado por')}</a>
         <a rel="cc:attributionURL dct:creator noopener noreferrer" property="cc:attributionName" href="https://github.com/GerardoHMX" target="_blank">Gerardo Huizar Castro</a>
         <a class="footer__license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer">${t('footer_license', 'bajo licencia')} <span class="footer__cc-name">CC BY-NC-SA 4.0</span><span class="footer__cc" aria-hidden="true">${CC.map((k) => html`<img src="https://mirrors.creativecommons.org/presskit/icons/${k}.svg?ref=chooser-v1" alt="" width="18" height="18" loading="lazy">`)}</span></a>
       </p>
