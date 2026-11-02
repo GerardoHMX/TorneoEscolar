@@ -30,16 +30,15 @@
     <!-- Pattaya: solo la marca «Al-Ándalus» (cabecera, hero, pantalla de carga): visible en la primera pantalla -->
     <link rel="preload" href="fonts/Pattaya-latin.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Tailwind + tokens + base (npm run build-css) -->
-    <link rel="stylesheet" href="dist/output.css">
+    <link rel="stylesheet" href="dist/output.css?v=20261101k">
     <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
     <link rel="preconnect" href="https://docs.google.com">
     <link rel="preconnect" href="https://drive.google.com">
-    <link rel="preload" href="img/pattern.svg" as="image" type="image/svg+xml">
 
-    <!-- Favicons: se rellenan desde la hoja CONFIGURACION -->
-    <link rel="icon" href="img/logo-192.png" sizes="32x32" data-config="colegio-favicon-32">
-    <link rel="icon" href="img/logo-192.png" sizes="192x192" data-config="colegio-favicon-192">
-    <link rel="apple-touch-icon" href="img/logo-192.png" data-config="colegio-favicon-apple">
+    <!-- Favicons: siempre el logo local del colegio (SVG + PNG de respaldo) -->
+    <link rel="icon" href="img/logo-colegio.svg" type="image/svg+xml">
+    <link rel="icon" href="img/logo-192.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="img/logo-192.png">
     <!-- Sin JavaScript: ni pantalla de carga ni esqueleto, solo el aviso de <main> -->
     <noscript><style>.loader-static, #app > :not(noscript) { display: none !important; }</style></noscript>
 </head>
@@ -58,7 +57,7 @@
             <!-- Logo del colegio (único logo de la cabecera, a la izquierda): archivo local img/logo-colegio.svg;
                  enlace a la web del colegio y nombre desde CONFIGURACION (COLEGIO_URL, COLEGIO_NOMBRE) -->
             <a class="header-school" target="_blank" rel="noopener noreferrer" data-config="colegio-link">
-                <img src="img/logo-colegio.svg" alt="Colegio San Francisco de Asís" width="52" height="48" data-config="colegio-logo">
+                <img src="img/logo-colegio.svg" alt="Colegio San Francisco de Asís" width="43" height="48" data-config="colegio-logo">
             </a>
             <a class="brand" href="#inicio">
                 <span class="brand__name">
