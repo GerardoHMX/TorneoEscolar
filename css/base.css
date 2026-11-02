@@ -196,16 +196,27 @@ img { height: auto; }
   background-image: var(--grad-hero);
   color: var(--ink);
 }
-/* Geometría de img/pattern.svg fundida con el oro (multiplica = sombra dorada, no gris) */
+/* Temporada (data-season, p. ej. «26-27») en vertical, fundida con el oro (multiplica = sombra dorada, no gris) */
 .band--gold::after {
-  content: "";
+  content: attr(data-season);
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
   z-index: -1;
-  background: url("../img/pattern.svg") no-repeat right -40px top -60px / min(75vw, 560px) auto;
+  padding-block: 2rem; /* margen arriba y abajo: el texto nunca toca el borde */
+  text-align: center;
+  font: 700 min(34vw, 220px) / 1 "LaLiga Headline Std", "LaLiga Headline", sans-serif;
+  color: rgb(0 0 0 / 0.15);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
   mix-blend-mode: multiply;
   opacity: var(--hero-pattern-opacity);
   pointer-events: none;
+}
+@media (max-width: 767.98px) { /* móvil: el balón está abajo a la derecha; la temporada baja y se centra con él */
+  .band--gold::after { top: auto; bottom: 0; right: 1.75rem; padding-block: 1rem; }
 }
 .band--deep {
   background: var(--grad-deep);
@@ -299,7 +310,7 @@ img { height: auto; }
   min-width: var(--tap);
   min-height: var(--tap);
 }
-.header-school img { width: auto; height: 44px; aspect-ratio: 100 / 92; object-fit: contain; } /* escudo vectorial 100×92; único logo de la cabecera */
+.header-school img { width: auto; height: 60px; aspect-ratio: 213 / 237; object-fit: contain; } /* escudo vectorial 213×237; único logo de la cabecera */
 .header-tools {
   margin-left: auto;
   display: flex;
@@ -321,7 +332,7 @@ img { height: auto; }
     margin-inline: auto;
   }
   .header-tools { margin-left: 0; }
-  .header-school img { height: 52px; }
+  .header-school img { height: 68px; }
 }
 
 .lang-switch {

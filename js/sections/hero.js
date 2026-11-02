@@ -81,6 +81,13 @@ function ball() {
   </svg>`;
 }
 
+/** Temporada abreviada para el fondo del hero: «2026-2027» -> «26-27»; si no son dos años, el texto tal cual. */
+export function seasonShort(anio) {
+  const s = txt(anio);
+  const m = s.match(/(\d{4})\D+(\d{4})/);
+  return m ? `${m[1].slice(2)}-${m[2].slice(2)}` : s;
+}
+
 /** @param {AppModel} model */
 export function render(model, state = {}, t) {
   const config = model?.config ?? {};
@@ -95,7 +102,7 @@ export function render(model, state = {}, t) {
     ['hero_stat_played', 'Partidos jugados', s.jugados],
     ['hero_stat_goals', 'Goles', s.goles],
   ];
-  return html`<div class="hero band band--gold">
+  return html`<div class="hero band band--gold" data-season="${seasonShort(anio)}">
     <div class="hero__inner">
       <div class="hero__copy">
         <p class="hero__kicker reveal" style="--i:0">${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')}</p>
@@ -104,9 +111,15 @@ export function render(model, state = {}, t) {
         <p class="hero__tagline reveal" style="--i:3">${t('hero_tagline', 'Más que una competición: inclusión, respeto y deporte en cada recreo.')}${colegio ? html` <span class="hero__school">${colegio}</span>` : ''}</p>
         ${ctas.length ? html`<div class="hero__ctas reveal" style="--i:4">${ctas.map(([sid, key, fb], i) => html`<a class="${i === 0 ? 'btn-gold' : 'btn-ghost'}" href="#${sid}">${t(key, fb)}</a>`)}</div>` : ''}
       </div>
-      <div class="hero__ball" aria-hidden="true">
-        <div class="hero__ball-float">${ball()}</div>
-        <span class="hero__ball-shadow"></span>
+      <div class="hero__aside">
+        <div class="hero__ball" aria-hidden="true">
+          <div class="hero__ball-float">${ball()}</div>
+          <span class="hero__ball-shadow"></span>
+        </div>
+        <div class="hero__logos">
+          <img class="hero__logo hero__logo--school" src="img/logo-colegio.svg" alt="${colegio || 'Colegio'}" width="213" height="237" decoding="async">
+          <img class="hero__logo hero__logo--tournament" src="img/logo-torneo.png" alt="${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')} ${nombre}" width="760" height="862" decoding="async">
+        </div>
       </div>
       ${s.equipos + s.jugados + s.goles > 0 ? html`<dl class="hero__stats reveal" style="--i:5">${stats.map(([key, fb, n], i) => html`<div class="hero__stat">
         <dt class="hero__stat-label">${t(key, fb)}</dt>

@@ -11,12 +11,13 @@ import { parsePodio } from './models.js';
  * @typedef {import('./models.js').Noticia} Noticia
  * @typedef {import('./models.js').GaleriaItem} GaleriaItem
  * @typedef {import('./models.js').Otro} Otro
+ * @typedef {{torneo: string, web: string, imagen: string}} Cartel
  * @typedef {import('./goals.js').MatchGoals} MatchGoals
  * @typedef {ReturnType<typeof parsePodio>} Podio
  * @typedef {{
  *   equipos: Equipo[], partidos: Partido[], tabla: FilaTabla[], podio: Podio, goles: Gol[],
  *   goalsByMatch: Map<string, MatchGoals>, scorers: Goleador[], lideres: Goleador[],
- *   sanciones: Sancion[], noticias: Noticia[], galeria: GaleriaItem[], otros: Otro[],
+ *   sanciones: Sancion[], noticias: Noticia[], galeria: GaleriaItem[], carteles: Cartel[], otros: Otro[],
  *   config: Record<string, string>
  * }} AppModel
  */
@@ -26,7 +27,7 @@ export function emptyModel() {
   return {
     equipos: [], partidos: [], tabla: [], podio: parsePodio([]), goles: [],
     goalsByMatch: new Map(), scorers: [], lideres: [], sanciones: [], noticias: [],
-    galeria: [], otros: [], config: {},
+    galeria: [], carteles: [], otros: [], config: {},
   };
 }
 

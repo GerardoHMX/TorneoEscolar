@@ -46,6 +46,12 @@
 .hero__school { display: block; margin-top: 0.25rem; font-weight: 700; }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; padding-top: 0.35rem; }
 
+/* Logos del colegio y del torneo bajo el balón (en móvil, una fila propia bajo el texto) */
+.hero__logos { display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.5rem); }
+.hero__logo { width: auto; height: 64px; object-fit: contain; filter: drop-shadow(0 6px 10px rgb(60 0 5 / 0.35)); }
+.hero__logo--school { aspect-ratio: 213 / 237; }
+.hero__logo--tournament { aspect-ratio: 760 / 862; }
+
 /* Balón flotante: arriba a la derecha en móvil; columna propia en PC */
 .hero__ball {
   position: absolute;
@@ -114,7 +120,9 @@
 
 @media (max-width: 767.98px) {
   .hero__ctas > * { flex: 1 1 0; padding-inline: 0.75rem; } /* los CTA ocupan el ancho del contenedor, a partes iguales (relleno menor: «Clasificación» cabe a 360px) */
-  .hero__ball { top: 0.5rem; width: 78px; }
+  /* El balón va a la derecha, a la altura de los logos */
+  .hero__aside { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .hero__ball { position: static; order: 2; width: 72px; animation: none; }
   .hero__ball-shadow { display: none; }
 }
 @media (min-width: 768px) {
@@ -131,15 +139,22 @@
   }
   .hero__copy { grid-column: 1; }
   .hero__kicker { max-width: none; }
+  .hero__aside {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
   .hero__ball {
     position: relative;
     top: auto;
     right: auto;
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: center;
-    width: clamp(240px, 24vw, 340px);
+    width: clamp(160px, 16vw, 230px);
   }
+  .hero__logos { justify-content: center; }
+  .hero__logo { height: clamp(88px, 9vw, 124px); }
   .hero__stats { grid-column: 1 / -1; }
 }
 
@@ -217,8 +232,8 @@
 .slide__brand { font-size: calc(var(--fs-2xl) * var(--wordmark-boost)); line-height: 1.15; } /* .wordmark */
 .slide__season { font-size: var(--fs-lg); }
 .slide--poster { background: var(--grad-champagne); }
-.slide__media--poster { max-height: 300px; }
-.slide__media--poster img { max-height: 300px; border-radius: var(--radius-sm); box-shadow: var(--shadow-2); }
+.slide__media--poster { max-height: 380px; }
+.slide__media--poster img { max-height: 380px; border-radius: var(--radius-sm); box-shadow: var(--shadow-2); }
 .slide__media.is-broken::before { content: "⚽"; font-size: 3rem; opacity: 0.4; }
 
 .carousel__controls {
@@ -270,11 +285,7 @@
 
 /* ===================== Bases (texto común a carrusel y acordeón) ===================== */
 .rules { display: grid; gap: 2rem; }
-@media (min-width: 1024px) {
-  .rules { grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); align-items: start; gap: 3rem; }
-  .rules__poster { position: sticky; top: calc(var(--header-h) + 1.5rem); }
-}
-.rules__body { display: flex; flex-direction: column; gap: 0.75rem; max-width: 68ch; }
+.rules__body { display: flex; flex-direction: column; gap: 0.75rem; }
 .rules__body > * { margin: 0; }
 .rules__p { line-height: 1.6; }
 .rules strong, .slide strong {
@@ -331,10 +342,6 @@
   color: var(--ink);
 }
 .rules__prizes li span { font-size: calc(1.3rem * var(--fs-scale)); line-height: 1; }
-.rules__poster { margin: 0; justify-self: center; max-width: 320px; }
-.rules__poster img { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow-2); }
-.rules__poster figcaption { margin-top: 0.6rem; font-size: var(--fs-sm); color: var(--gray); text-align: center; }
-.rules__poster.is-broken { display: none; }
 
 /* ===================== Noticias ===================== */
 .news-grid {
@@ -597,6 +604,10 @@
 .footer__addr { display: flex; flex-direction: column; }
 .footer__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
 .footer__brand > * { margin: 0; }
+@media (max-width: 767.98px) { /* pantallas pequeñas: bloque del torneo y botones centrados */
+  .footer__brand { align-items: center; text-align: center; }
+  .footer__links { justify-content: center; }
+}
 .footer__kicker { font-family: var(--font-text); font-size: var(--fs-sm); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-300); }
 .footer__torneo { font-size: calc(var(--fs-3xl) * var(--wordmark-boost)); line-height: 1.15; color: var(--gold-100); } /* .wordmark */
 .footer__season { font-size: var(--fs-lg); color: var(--gold-300); }
@@ -690,3 +701,6 @@
   .news-card:hover, .gal-tile__btn:hover { transform: none; }
   .news-card:hover .news-card__media img, .gal-tile__btn:hover img { transform: none; }
 }
+
+.rules__download { margin-top: 1.5rem; text-align: center; }
+.slide__web { margin-top: 0.75rem; display: inline-flex; }

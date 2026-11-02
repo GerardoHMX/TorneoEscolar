@@ -292,6 +292,13 @@ export function parseGaleria(rows) {
   }));
 }
 
+/** @returns {{torneo: string, web: string, imagen: string}[]} filas con TORNEO e IMAGEN_CARTEL. */
+export function parseCarteles(rows) {
+  return tableFromRows(rows, ['TORNEO', 'IMAGEN_CARTEL'])
+    .map((r) => ({ torneo: get(r, 'TORNEO'), web: get(r, 'URL_WEB_ANTERIOR'), imagen: get(r, 'IMAGEN_CARTEL') }))
+    .filter((c) => c.torneo && c.imagen);
+}
+
 /**
  * OTROS contiene dos tablas lado a lado en las mismas filas (avatares de líderes por CICLO/POSICION y
  * menú por SECCION); cada objeto lleva todos los campos y los de la otra tabla pueden venir vacíos.

@@ -243,13 +243,6 @@
 td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
 .ro-stat.is-on .num { color: var(--ink); }
 .ro-stat[data-stat="rojas"].is-on .num { color: var(--red); }
-.ro-stat--susp.is-on .num {
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-pill);
-  background: var(--red-50);
-  color: var(--red);
-  text-transform: uppercase;
-}
 
 @media (max-width: 767px) {
   .roster, .roster tbody { display: block; }

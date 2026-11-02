@@ -74,7 +74,7 @@ export function renderFooter(config, t, opts = {}) {
   return html`<div class="footer section">
     <div class="footer__grid">
       <div class="footer__school">
-        <span class="footer__logo"><img src="${base}img/logo-colegio.svg" alt="${nombre || t('footer_school_logo', 'Logo del colegio')}" width="100" height="92" loading="lazy" decoding="async"></span>
+        <span class="footer__logo"><img src="${base}img/logo-colegio.svg" alt="${nombre || t('footer_school_logo', 'Logo del colegio')}" width="86" height="96" loading="lazy" decoding="async"></span>
         <div class="footer__school-text">
           ${nombre ? html`<p class="footer__name">${nombre}</p>` : ''}
           <ul class="footer__contact">${contact}</ul>

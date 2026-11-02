@@ -5,7 +5,7 @@
 // como en visibility.js; sin fila, ocultas.
 // Carrusel: deslizamiento táctil nativo (scroll-snap), botones, indicadores y teclado (←/→/Inicio/Fin);
 // SIN reproducción automática (el sitio antiguo avanzaba solo cada 4 s).
-import { html } from '../core/dom.js';
+import { html, safeUrl } from '../core/dom.js';
 import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { createAccordion, accordionItem } from '../ui/accordion.js';
@@ -14,9 +14,10 @@ import { bindMediaFallback } from '../ui/media.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel */
 
-// Imágenes por defecto del sitio antiguo (logo del torneo y cartel); CONFIGURACION puede sustituirlas.
-const LOGO_DEFAULT = 'https://drive.google.com/file/d/1NefYP3OCHQ7kie9qQgmy1yUOEnZXvvCA/view?usp=sharing';
-const CARTEL_DEFAULT = 'https://drive.google.com/file/d/1wUqSjzfL4POj_t5pC0_RDkLlsgbyDqXT/view?usp=sharing';
+// Logo del torneo: archivo local (siempre, como el del colegio).
+const LOGO_LOCAL = 'img/logo-torneo.png';
+// Carteles de temporadas anteriores y de la actual (archivos locales) para el carrusel.
+const POSTERS = [['2024-2025', 'img/cartel-2024-2025.webp'], ['2025-2026', 'img/cartel-2025-2026.webp'], ['2026-2027', 'img/cartel-2026-2027.webp']];
 
 /**
  * Texto con énfasis: los tramos entre *asteriscos* van en <strong>; todo se escapa.
@@ -38,12 +39,12 @@ export const BASES = [
   { key: 'participantes', title: 'Participantes', icon: '👟', blocks: [
     { p: 'Abierto a todo el alumnado de *ESO y Bachillerato*. Equipos mixtos sin distinción de género.' },
     { h: 'Equipos' },
-    { list: ['Hasta *seis jugadores* por equipo.', 'Hasta *dos capitanes* por equipo.'] },
+    { list: ['Hasta *seis jugadores* por equipo.'] },
     { h: 'Inscripción' },
-    { p: 'Entregar la hoja de inscripción al profesorado de Educación Física. La fecha límite de inscripción es el *11 de noviembre de 2025*.' },
+    { p: 'Entregar la hoja de inscripción al profesorado de Educación Física. La fecha límite de inscripción es el *6 de noviembre de 2026*.' },
   ] },
   { key: 'calendario', title: 'Calendario', icon: '📅', blocks: [
-    { facts: [['Inicio', '25 de noviembre de 2025'], ['Final', '19 de febrero de 2026'], ['Entrega de trofeos', '20 de febrero (Día de Andalucía)']] },
+    { facts: [['Inicio', '25 de noviembre de 2026'], ['Final', '19 de febrero de 2027'], ['Entrega de trofeos', '20 de febrero (Día de Andalucía)']] },
     { p: 'Partidos en los *recreos* (noviembre–febrero).' },
     { p: 'En caso de lluvia, las finales podrán posponerse a la primera semana posterior a Semana Blanca.', note: true },
   ] },
@@ -65,11 +66,12 @@ export const BASES = [
   { key: 'fairplay', title: 'Fair Play y disciplina', icon: '🤝', blocks: [
     { p: 'Se valora el respeto al árbitro, al rival y a las normas; hay que evitar simulaciones y pérdidas de tiempo.' },
     { p: 'Las conductas antideportivas pueden suponer *0 puntos de Fair Play*, *partido perdido por 0-2* o la *exclusión*.' },
+    { p: 'Los *puntos de Fair Play* ayudan a desempatar en caso de empate a puntos en la fase de grupos.' },
     { p: 'Acumular 2 amarillas o 1 roja supone *un partido* de sanción. Dos rojas suponen la *expulsión del torneo*.' },
     { p: 'Las sanciones disciplinarias del centro pueden inhabilitar para participar.' },
   ] },
   { key: 'premios', title: 'Premios y reconocimientos', icon: '🥇', blocks: [
-    { prizes: [['🥇', 'Campeón'], ['🥈', 'Subcampeón'], ['🥉', 'Tercer puesto'], ['⚽', 'Máximo goleador'], ['🏅', 'Fair Play']] },
+    { prizes: [['🥇', 'Campeón'], ['🥈', 'Subcampeón'], ['🥉', 'Tercer puesto'], ['⚽', 'Máximo goleador']] },
   ] },
 ];
 
@@ -82,10 +84,25 @@ function block(b) {
 }
 const body = (item) => html`${item.blocks.map(block)}`;
 
-/** Logo y cartel: CONFIGURACION (TORNEO_LOGO_URL, TORNEO_CARTEL_URL) o los del sitio antiguo; siempre por driveImg. */
-export function images(config = {}) {
-  const pick = (k, def) => driveImg(String(config?.[k] ?? '').trim() || def, 1000);
-  return { logo: pick('TORNEO_LOGO_URL', LOGO_DEFAULT), cartel: pick('TORNEO_CARTEL_URL', CARTEL_DEFAULT) };
+/** Logo del torneo: archivo local img/logo-torneo.png (TORNEO_LOGO_URL y TORNEO_CARTEL_URL ya no se usan). */
+export function images() {
+  return { logo: LOGO_LOCAL };
+}
+
+/** Enlace de descarga del PDF: una URL de Drive (/file/d/ID o ?id=ID) se convierte en descarga directa; vacío -> ''. */
+export function pdfUrl(url) {
+  const u = String(url ?? '').trim();
+  if (!u) return '';
+  const m = u.match(/drive\.google\.com\/.*?\/d\/([\w-]+)/) || u.match(/drive\.google\.com\/.*[?&]id=([\w-]+)/);
+  return safeUrl(m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u);
+}
+
+/** Carteles de la hoja CARTELES (imagen de Drive y web de la edición); sin filas, los archivos locales. */
+function posters(carteles) {
+  const fromSheet = (Array.isArray(carteles) ? carteles : [])
+    .map((c) => ({ season: c.torneo, src: driveImg(c.imagen, 1200), web: safeUrl(c.web) }))
+    .filter((c) => c.src);
+  return fromSheet.length ? fromSheet : POSTERS.map(([season, src]) => ({ season, src, web: '' }));
 }
 
 const nombreDe = (config) => String(config?.TORNEO_NOMBRE ?? '').trim() || 'Al-Ándalus';
@@ -98,15 +115,18 @@ const CHEVRON = {
   1: html`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
 
-function bannerSlides(config, t) {
-  const { logo, cartel } = images(config);
+function bannerSlides(config, t, carteles = []) {
+  const { logo } = images();
   const nombre = nombreDe(config);
   const anio = anioDe(config);
   const media = (src, alt, cls) => (src ? html`<span class="slide__media ${cls}" data-media><img src="${src}" alt="${alt}" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>` : '');
   return [
     { kind: 'brand', title: t('footer_tournament_title', 'Torneo escolar de Fútbol Sala'), body: html`${media(logo, nombre, 'slide__media--logo')}<p class="slide__brand wordmark">${nombre}</p>${anio ? html`<p class="slide__season num">${anio}</p>` : ''}` },
-    { kind: 'poster', title: t('banner_poster', 'Cartel del torneo'), body: media(cartel, t('banner_poster', 'Cartel del torneo'), 'slide__media--poster') },
-    ...BASES.map((b) => ({ kind: b.key, title: b.title, icon: b.icon, body: body(b), lang: 'es' })),
+    ...posters(carteles).map(({ season, src, web }) => {
+      const title = `${t('banner_poster', 'Cartel del torneo')} ${season}`;
+      const link = web ? html`<a class="slide__web btn-ghost" href="${web}" target="_blank" rel="noopener noreferrer">${t('banner_old_site', 'Ver la web de esa edición')}</a>` : '';
+      return { kind: 'poster', title, body: html`${media(src, title, 'slide__media--poster')}${link}` };
+    }),
   ];
 }
 
@@ -117,10 +137,10 @@ export const banner = {
   initialState() { return {}; },
   /** @param {AppModel} model */
   render(model, state = {}, t) {
-    const slides = bannerSlides(model?.config ?? {}, t);
+    const slides = bannerSlides(model?.config ?? {}, t, model?.carteles);
     const n = slides.length;
-    return html`${sectionTitle(t, ['banner_title', 'El torneo'], ['banner_kicker', 'Bienvenidos'])}
-    <div class="carousel reveal" role="region" aria-roledescription="${t('carousel_roledescription', 'carrusel')}" aria-label="${t('banner_label', 'Presentación del torneo')}" data-carousel>
+    return html`${sectionTitle(t, ['banner_title', 'Carteles'], ['banner_kicker', 'Bienvenidos'])}
+    <div class="carousel reveal" role="region" aria-roledescription="${t('carousel_roledescription', 'carrusel')}" aria-label="${t('banner_label', 'Carteles del torneo')}" data-carousel>
       <div class="carousel__viewport" tabindex="0" data-carousel-track>
         ${slides.map((s, i) => html`<div class="carousel__slide slide slide--${s.kind}" role="group" aria-roledescription="${t('carousel_slide', 'diapositiva')}" aria-label="${i + 1} / ${n}: ${s.title}" data-slide="${i}"${s.lang ? html` lang="${s.lang}"` : ''}>
           <h3 class="slide__title">${s.icon ? html`<span class="slide__icon" aria-hidden="true">${s.icon}</span>` : ''}${s.title}</h3>
@@ -226,14 +246,13 @@ export const bases = {
   initialState() { return {}; },
   /** @param {AppModel} model */
   render(model, state = {}, t) {
-    const config = model?.config ?? {};
-    const { cartel } = images(config);
+    const reglamento = pdfUrl(model?.config?.REGLAMENTO_TORNEO_URL);
     return html`${sectionTitle(t, ['section_bases_title', 'Bases del Torneo'], ['section_bases_kicker', 'Reglamento'])}
     <div class="rules reveal">
       <div class="accordion" data-single data-accordion lang="es">
         ${BASES.map((b, i) => accordionItem(b.title, html`<div class="rules__body">${body(b)}</div>`, { open: i === 0, level: 3 }))}
       </div>
-      ${cartel ? html`<figure class="rules__poster reveal" data-media><img src="${cartel}" width="1000" height="1000" alt="${t('banner_poster', 'Cartel del torneo')} ${nombreDe(config)}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><figcaption>${t('banner_poster', 'Cartel del torneo')}${anioDe(config) ? html` · <span class="num">${anioDe(config)}</span>` : ''}</figcaption></figure>` : ''}
+      ${reglamento ? html`<p class="rules__download"><a class="btn-gold" href="${reglamento}" target="_blank" rel="noopener noreferrer" download>${t('bases_download', 'Descargar reglamento (PDF)')}</a></p>` : ''}
     </div>`;
   },
   /** @param {Element} root */

@@ -271,12 +271,6 @@ function applyConfig(config) {
     if (web) setAttr(link, 'href', web); else link.removeAttribute('href');
   }
 
-  // Favicons del sitio del colegio (como el sitio anterior); sin COLEGIO_URL, el logo local.
-  const base = web.replace(/\/+$/, '');
-  [['colegio-favicon-32', '32x32'], ['colegio-favicon-192', '192x192'], ['colegio-favicon-apple', '180x180']].forEach(([key, size]) => {
-    setAttr(q(`[data-config="${key}"]`), 'href', base ? `${base}/wp-content/uploads/2023/03/cropped-favicon-${size}.png` : 'img/logo-192.png');
-  });
-
   const insta = safeUrl(v('REDES_INSTAGRAM_URL'));
   qa('[data-config="instagram-link"]').forEach((a) => {
     if (insta) setAttr(a, 'href', insta);

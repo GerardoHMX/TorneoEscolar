@@ -41,7 +41,7 @@ const flagged = (v) => !['', '0', 'NO'].includes(txt(v).toUpperCase());
 function table(rows, c, { t, logoOf }) {
   const h = {
     player: t('table_player', 'Jugador'), team: t('table_team_name', 'Equipo'), course: t('table_course', 'Curso'),
-    red: t('table_red_cards', 'Rojas'), yellow: t('table_yellow_cards', 'Amarillas'), susp: t('table_suspended', 'Suspendidos'),
+    red: t('table_red_cards', 'Rojas'), yellow: t('table_yellow_cards', 'Amarillas'), susp: t('table_suspended', 'Partidos de sanción'),
   };
   return html`<table role="table" class="roster roster--sanctions">
     <caption class="sr-only">${t('section_sanctioned_title', 'Sancionados')} · ${cycleName(c, t)}</caption>

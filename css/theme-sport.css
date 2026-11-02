@@ -165,7 +165,6 @@
 .standings tbody .st-total,
 .roster .ro-num { background: var(--gold-50); }
 .standings__row.is-gold > :not(.st-total) { background-color: rgb(245 163 26 / 0.12); }
-.ro-stat--susp.is-on .num { background: var(--red); }
 
 /* ===================== Acentos ámbar (puntuales) ===================== */
 #site-header::after { background: var(--grad-red); }

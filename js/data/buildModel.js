@@ -2,7 +2,7 @@
 // Nunca lanza: una hoja ausente, vacía o con basura deja su parte del modelo vacía (spec §6).
 import {
   parseEquipos, parsePartidos, parseTabla, parsePodio, parseGoles, parseLideres, parseSanciones,
-  parseNoticias, parseGaleria, parseOtros, parseConfig,
+  parseNoticias, parseGaleria, parseCarteles, parseOtros, parseConfig,
 } from './models.js';
 import { goalsByMatch, scorersWithFallback, unknownMatchGoals } from './goals.js';
 import { emptyModel } from './appModel.js';
@@ -10,7 +10,7 @@ import { emptyModel } from './appModel.js';
 /** @typedef {import('./appModel.js').AppModel} AppModel */
 /** @typedef {Record<string, string[][]>} RawData */
 
-export const SHEETS = ['EQUIPOS', 'CLASIFICACION', 'GOLES', 'LIDERES', 'SANCIONES', 'NOTICIAS', 'GALERIA', 'OTROS', 'CONFIGURACION'];
+export const SHEETS = ['EQUIPOS', 'CLASIFICACION', 'GOLES', 'LIDERES', 'SANCIONES', 'NOTICIAS', 'GALERIA', 'OTROS', 'CONFIGURACION', 'CARTELES'];
 
 /** Solo filas que son arrays; cada celda a string (null/undefined -> ''). */
 function rowsOf(v) {
@@ -67,6 +67,7 @@ export function buildModel(raw) {
     sanciones: safe('SANCIONES', () => parseSanciones(rows('SANCIONES'), equipos), base.sanciones),
     noticias: safe('NOTICIAS', () => parseNoticias(rows('NOTICIAS')), base.noticias),
     galeria: safe('GALERIA', () => parseGaleria(rows('GALERIA')), base.galeria),
+    carteles: safe('CARTELES', () => parseCarteles(rows('CARTELES')), base.carteles),
     otros: safe('OTROS', () => parseOtros(rows('OTROS')), base.otros),
     config: safe('CONFIGURACION', () => parseConfig(rows('CONFIGURACION')), base.config),
   };
