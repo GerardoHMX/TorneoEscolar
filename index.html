@@ -30,7 +30,7 @@
     <!-- Pattaya: solo la marca «Al-Ándalus» (cabecera, hero, pantalla de carga): visible en la primera pantalla -->
     <link rel="preload" href="fonts/Pattaya-latin.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Tailwind + tokens + base (npm run build-css) -->
-    <link rel="stylesheet" href="dist/output.css?v=20261101k">
+    <link rel="stylesheet" href="dist/output.css?v=20261108c">
     <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
     <link rel="preconnect" href="https://docs.google.com">
     <link rel="preconnect" href="https://drive.google.com">
@@ -83,6 +83,16 @@
                         <circle cx="17.4" cy="6.6" r="0.6" fill="currentColor"></circle>
                     </svg>
                 </a>
+                <!-- Compartir (solo icono): js/ui/share.js; el mensaje de «enlace copiado» aparece bajo el botón -->
+                <button type="button" class="icon-btn" data-share aria-label="Compartir este sitio" data-translate-aria-label="share_site">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <circle cx="18" cy="5" r="2.6"></circle>
+                        <circle cx="6" cy="12" r="2.6"></circle>
+                        <circle cx="18" cy="19" r="2.6"></circle>
+                        <path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"></path>
+                    </svg>
+                </button>
+                <p class="header-share-status" role="status" aria-live="polite" data-share-status></p>
             </div>
         </div>
         <div class="scroll-progress" aria-hidden="true"></div>
