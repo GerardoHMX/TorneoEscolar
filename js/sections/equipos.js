@@ -4,6 +4,8 @@
 import { html } from '../core/dom.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { crest } from '../ui/matchCard.js';
+import { openModal } from '../ui/modal.js';
+import { driveImg } from '../core/drive.js';
 import { sectionTitle, emptyState, cicloChips, chipRow, normCiclo, bindCommon } from './common.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel */
@@ -24,6 +26,34 @@ export function gruposDe(equipos, ciclo) {
   const c = normCiclo(ciclo);
   return [...new Set((equipos ?? []).filter((e) => c === 'TODOS' || e.ciclo === c).map((e) => e.grupo))]
     .filter(Boolean).sort((a, b) => a.localeCompare(b, 'es'));
+}
+
+/** Escudo del equipo; si tiene logo, es un botón que lo abre ampliado (solo en esta sección). */
+function crestZoom(e, t) {
+  const small = crest(e.equipo, e.logo, { size: 'sm' });
+  const full = driveImg(e.logo, 800);
+  if (!full) return small;
+  return html`<button type="button" class="crest-zoom" data-crest-zoom="${full}" data-team="${e.equipo}" aria-haspopup="dialog" aria-label="${t('team_logo_zoom', 'Ampliar el logo de')} ${e.equipo}">${small}</button>`;
+}
+
+/** Visor del logo ampliado (modal compartido: Esc, clic fuera y botón cerrar; ajustado a móvil por CSS). */
+function openCrestViewer(src, name, t) {
+  openModal(html`<h3 class="crest-viewer__title">${name}</h3>
+    <div class="crest-viewer__stage">
+      <img class="crest-viewer__img" src="${src}" alt="${t('team_logo_alt', 'Logo del equipo')} ${name}" decoding="async" referrerpolicy="no-referrer">
+    </div>`);
+  // «Logo no disponible» solo aparece si la imagen realmente falla (no está en el HTML por defecto).
+  const stage = document.querySelector('#modal-root .crest-viewer__stage');
+  const img = stage?.querySelector('img');
+  if (!img) return;
+  const fail = () => {
+    const p = document.createElement('p');
+    p.className = 'crest-viewer__fallback';
+    p.textContent = t('team_logo_unavailable', 'Logo no disponible');
+    img.replaceWith(p);
+  };
+  img.addEventListener('error', fail, { once: true });
+  if (img.complete && img.naturalWidth === 0 && img.currentSrc) fail();
 }
 
 const TITLE = [['section_teams_title', 'Equipos participantes'], ['section_teams_kicker', 'Los protagonistas']];
@@ -62,7 +92,7 @@ export function render(model, state = {}, t) {
       </div>
     </header>
     <ul class="team-list">${b.equipos.map((e) => html`<li class="team">
-      ${crest(e.equipo, e.logo, { size: 'sm' })}
+      ${crestZoom(e, t)}
       <span class="team__text"><span class="team__name">${e.equipo}</span>${e.curso ? html`<span class="team__course">${e.curso}</span>` : ''}</span>
     </li>`)}</ul>
   </article>`;
@@ -75,4 +105,7 @@ export function render(model, state = {}, t) {
 export function bind(root, ctx) {
   // Al cambiar de ciclo el grupo vuelve a «Todos» (los grupos dependen del ciclo).
   bindCommon(root, ctx, id, (name) => (name === 'ciclo' ? { grupo: 'TODOS' } : {}));
+  root.querySelectorAll('button[data-crest-zoom]').forEach((btn) => {
+    btn.addEventListener('click', () => openCrestViewer(btn.dataset.crestZoom, btn.dataset.team, ctx.t));
+  });
 }

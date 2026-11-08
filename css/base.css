@@ -312,6 +312,7 @@ img { height: auto; }
 }
 .header-school img { width: auto; height: 60px; aspect-ratio: 213 / 237; object-fit: contain; } /* escudo vectorial 213×237; único logo de la cabecera */
 .header-tools {
+  position: relative; /* ancla del mensaje de «Compartir» */
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -322,6 +323,21 @@ img { height: auto; }
   .header-bar { gap: 0.4rem; }
   .header-tools { gap: 0; }
   .brand { gap: 0.4rem; }
+  /* Con el botón de compartir hay un icono más: se compactan escudo, idioma e iconos (objetivos táctiles ≥ 36px) */
+  .header-school img { height: 48px; }
+  .lang-switch button { min-width: 36px; padding: 0 0.35rem; }
+  .header-tools .icon-btn { width: 38px; height: 38px; }
+  .brand__name { font-size: 1.1rem; }
+  .brand__name .wordmark { font-size: calc(1.1rem * var(--wordmark-boost)); }
+}
+@media (max-width: 349.98px) { /* 320px */
+  .header-bar { gap: 0.25rem; }
+  .header-school img { height: 40px; }
+  .brand { gap: 0.25rem; }
+  .brand__name { font-size: 0.9rem; }
+  .brand__name .wordmark { font-size: calc(0.9rem * var(--wordmark-boost)); }
+  .lang-switch button { min-width: 28px; padding: 0 0.15rem; font-size: 0.75rem; letter-spacing: 0.02em; }
+  .header-tools .icon-btn { width: 36px; height: 36px; }
 }
 #desktopNav { display: none; }
 @media (min-width: 1024px) {
@@ -369,6 +385,27 @@ img { height: auto; }
 }
 .icon-btn:hover { background: var(--gold-50); color: var(--gold-text); }
 .icon-btn svg { width: 22px; height: 22px; }
+button.icon-btn { padding: 0; background: transparent; cursor: pointer; }
+button.icon-btn:hover { background: var(--gold-50); }
+/* Aviso de «Compartir» (enlace copiado / error): burbuja bajo el botón, sin mover la cabecera */
+.header-share-status {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 1;
+  width: max-content;
+  max-width: min(16rem, calc(100vw - 2 * var(--gutter)));
+  margin: 0;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-md, 12px);
+  background: var(--ink);
+  color: var(--white);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  box-shadow: var(--shadow-2, 0 6px 18px rgb(0 0 0 / 0.2));
+  pointer-events: none;
+}
+.header-share-status:empty { display: none; }
 
 #app {
   flex: 1 0 auto;

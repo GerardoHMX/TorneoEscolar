@@ -364,6 +364,7 @@ async function boot() {
   initScrollProgress();
   i18n.apply(document);
   bindLanguage();
+  bindShare(q('.header-tools'), { t, getPayload: sharePayload }); // compartir (icono de la cabecera)
   // Un loader que falla nunca debe impedir la carga de datos.
   let loader;
   try {
