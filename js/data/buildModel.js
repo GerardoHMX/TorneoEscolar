@@ -6,6 +6,7 @@ import {
 } from './models.js';
 import { goalsByMatch, scorersWithFallback, unknownMatchGoals } from './goals.js';
 import { emptyModel } from './appModel.js';
+import { applyTeamDisplay } from './teamDisplay.js';
 
 /** @typedef {import('./appModel.js').AppModel} AppModel */
 /** @typedef {Record<string, string[][]>} RawData */
@@ -55,7 +56,7 @@ export function buildModel(raw) {
   const goles = safe('GOLES', () => parseGoles(rows('GOLES'), equipos), base.goles);
   const lideres = safe('LIDERES', () => parseLideres(rows('LIDERES'), equipos), base.lideres);
   warnData(equipos, goles, partidos);
-  return {
+  const model = {
     equipos,
     partidos,
     tabla: safe('tabla', () => parseTabla(clas), base.tabla),
@@ -71,6 +72,7 @@ export function buildModel(raw) {
     otros: safe('OTROS', () => parseOtros(rows('OTROS')), base.otros),
     config: safe('CONFIGURACION', () => parseConfig(rows('CONFIGURACION')), base.config),
   };
+  return safe('teamDisplay', () => applyTeamDisplay(model), model);
 }
 
 /**

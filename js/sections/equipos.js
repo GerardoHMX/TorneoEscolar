@@ -93,7 +93,7 @@ export function render(model, state = {}, t) {
     </header>
     <ul class="team-list">${b.equipos.map((e) => html`<li class="team">
       ${crestZoom(e, t)}
-      <span class="team__text"><span class="team__name">${e.equipo}</span>${e.curso ? html`<span class="team__course">${e.curso}</span>` : ''}</span>
+      <span class="team__text"><span class="team__name">${e.equipo}</span>${e.curso && e.curso !== e.equipo ? html`<span class="team__course">${e.curso}</span>` : ''}</span>
     </li>`)}</ul>
   </article>`;
 

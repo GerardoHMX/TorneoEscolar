@@ -1,6 +1,8 @@
 // Visibilidad automática de secciones (spec §5) y modelo de menú.
 // Solo Inicio y Bases se controlan manualmente desde OTROS (Carteles aparece si CARTELES tiene filas); el resto depende de los datos.
 
+import { driveImg } from './drive.js';
+
 /** @typedef {import('../data/appModel.js').AppModel} AppModel */
 
 /** Orden del spec §4. mobilePrimary: los 4 accesos de la barra inferior móvil (+ «Más» lo pinta nav). */
@@ -18,8 +20,8 @@ export const SECTIONS = [
   { id: 'sancionadosSection', labelKey: 'nav.sancionados', menu: true, mobilePrimary: false },
   { id: 'resultadosSection', labelKey: 'nav.resultados', menu: true, mobilePrimary: false },
   { id: 'noticiasSection', labelKey: 'nav.noticias', menu: true, mobilePrimary: false },
+  { id: 'carouselSection', labelKey: 'nav.banner', menu: true, mobilePrimary: false },
   { id: 'galeriaSection', labelKey: 'nav.galeria', menu: true, mobilePrimary: false },
-  { id: 'carouselSection', labelKey: 'nav.banner', menu: false, mobilePrimary: false },
 ];
 
 const arr = (v) => (Array.isArray(v) ? v : []);
@@ -48,7 +50,7 @@ export function sectionVisibility(model, otros = model?.otros) {
   const podio = m.podio ?? {};
   return {
     inicio: manual(otros, 'inicio', true),
-    carouselSection: arr(m.carteles).some((c) => c && txt(c.torneo) && txt(c.imagen)), // solo con filas en CARTELES
+    carouselSection: arr(m.carteles).some((c) => c && txt(c.torneo) && driveImg(txt(c.imagen))), // solo con filas en CARTELES
     accordionSection: manual(otros, 'accordionSection', false),
     podioSection: !!(podio.primero && podio.tercero),
     proximosPartidos: partidos.some((p) => !jugado(p) && hasBoth(p)),

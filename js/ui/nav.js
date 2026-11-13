@@ -60,6 +60,7 @@ const P = {
   sancionadosSection: 'M8 3h8.5a1.5 1.5 0 011.5 1.5v15a1.5 1.5 0 01-1.5 1.5H8a1.5 1.5 0 01-1.5-1.5v-15A1.5 1.5 0 018 3z',
   resultadosSection: 'M3 6h18v12H3zM12 6v12M7 10.5v3M16 10.5h1.5v3H16z',
   noticiasSection: 'M5 4h12v16H6a1 1 0 01-1-1zM17 8h2v11a1 1 0 01-2 0M8 8h6M8 12h6M8 16h4',
+  carouselSection: 'M3 6h18v12H3zM8 10.5l2.5 3 2-2 3.5 4M16 9.5h.01',
   galeriaSection: 'M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6M15.5 9.5h.01',
   more: 'M5 12h.01M12 12h.01M19 12h.01',
 };

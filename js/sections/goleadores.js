@@ -5,6 +5,7 @@
 import { html } from '../core/dom.js';
 import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
+import { isTeamChoiceEnabled } from '../data/teamDisplay.js';
 import { crest, initials } from '../ui/matchCard.js';
 import { bindCountUps } from '../ui/countUp.js';
 import { sectionTitle, emptyState, bindCommon, rememberFocus } from './common.js';
@@ -67,7 +68,7 @@ function avatar(name, url) {
   }</span>`;
 }
 
-function podium(top, c, { t, logoOf, avatarOf }) {
+function podium(top, c, { t, logoOf, avatarOf, showCurso }) {
   const places = top.map((g, i) => {
     const medal = MEDAL[g.pos] ?? 'bronze';
     const goles = n0(g.goles);
@@ -77,7 +78,7 @@ function podium(top, c, { t, logoOf, avatarOf }) {
         <span class="scorer-avatar">${avatar(g.jugador, avatarOf(i + 1))}<span class="pos pos--${medal} scorer-avatar__pos" aria-hidden="true">${g.pos}</span></span>
         <span class="podium__label">${t(k, fb)}</span>
         <span class="podium__name">${g.jugador}</span>
-        <span class="scorer-team">${crest(g.equipo, logoOf(g.equipoId, g.equipo), { size: 'sm' })}<span class="scorer-team__text"><span class="scorer-team__name">${g.equipo}</span>${g.curso ? html`<span class="scorer-team__course">${g.curso}</span>` : ''}</span></span>
+        <span class="scorer-team">${crest(g.equipo, logoOf(g.equipoId, g.equipo), { size: 'sm' })}<span class="scorer-team__text"><span class="scorer-team__name">${g.equipo}</span>${showCurso && g.curso ? html`<span class="scorer-team__course">${g.curso}</span>` : ''}</span></span>
         <span class="sr-only">${goles} ${golesLabel(goles, t)}</span>
       </div>
       <div class="podium__step" aria-hidden="true">
@@ -91,7 +92,7 @@ function podium(top, c, { t, logoOf, avatarOf }) {
   </div>`;
 }
 
-function rankingTable(rows, c, { t, logoOf }) {
+function rankingTable(rows, c, { t, logoOf, showCurso }) {
   const head = {
     pos: t('table_position', 'Pos'), player: t('table_player', 'Jugador'), team: t('table_team_name', 'Equipo'),
     course: t('table_course', 'Curso'), goals: t('table_goals', 'Goles'),
@@ -102,14 +103,14 @@ function rankingTable(rows, c, { t, logoOf }) {
       <th role="columnheader" scope="col" class="ro-pos"><abbr title="${t('table_position_description', 'Posición')}">${head.pos}</abbr></th>
       <th role="columnheader" scope="col" class="ro-player">${head.player}</th>
       <th role="columnheader" scope="col" class="ro-team">${head.team}</th>
-      <th role="columnheader" scope="col" class="ro-course">${head.course}</th>
+      ${showCurso ? html`<th role="columnheader" scope="col" class="ro-course">${head.course}</th>` : ''}
       <th role="columnheader" scope="col" class="ro-num">${head.goals}</th>
     </tr></thead>
     <tbody role="rowgroup">${rows.map((g, i) => html`<tr role="row" class="roster__row reveal" data-pos="${g.pos}" style="--i:${Math.min(i, 8)}">
       <td role="cell" class="ro-pos"><span class="pos">${g.pos}</span></td>
-      <th role="rowheader" scope="row" class="ro-player"><span class="ro-player__name">${g.jugador}</span>${g.curso ? html`<span class="ro-player__meta">${g.curso}</span>` : ''}</th>
+      <th role="rowheader" scope="row" class="ro-player"><span class="ro-player__name">${g.jugador}</span>${showCurso && g.curso ? html`<span class="ro-player__meta">${g.curso}</span>` : ''}</th>
       <td role="cell" class="ro-team"><span class="ro-team__inner">${crest(g.equipo, logoOf(g.equipoId, g.equipo), { size: 'sm' })}<span class="ro-team__name">${g.equipo}</span></span></td>
-      <td role="cell" class="ro-course">${g.curso}</td>
+      ${showCurso ? html`<td role="cell" class="ro-course">${g.curso}</td>` : ''}
       <td role="cell" class="ro-num" data-stat="goles"><span class="num">${n0(g.goles)}</span><span class="ro-num__unit">${golesLabel(n0(g.goles), t)}</span></td>
     </tr>`)}</tbody>
   </table>`;
@@ -124,6 +125,7 @@ export function render(model, state = {}, t) {
   const f = applyFilters(scorers, state);
   const abiertos = Array.isArray(state?.abiertos) ? state.abiertos : [];
   const logoOf = teamLogo(model.equipos);
+  const showCurso = isTeamChoiceEnabled(model.config?.EQUIPOS_CON_NOMBRE);
   const otros = Array.isArray(model.otros) ? model.otros : [];
 
   const blocks = ciclosDe(f.ciclo).map((c) => {
@@ -134,8 +136,8 @@ export function render(model, state = {}, t) {
     const rest = ranked.slice(3);
     const open = abiertos.includes(c) || rest.length <= LIMITE + 2;
     const shown = open ? rest : rest.slice(0, LIMITE);
-    return cycleBlock(id, c, t, html`${podium(ranked.slice(0, 3), c, { t, logoOf, avatarOf })}
-      ${rest.length ? html`<div class="roster-wrap">${rankingTable(shown, c, { t, logoOf })}
+    return cycleBlock(id, c, t, html`${podium(ranked.slice(0, 3), c, { t, logoOf, avatarOf, showCurso })}
+      ${rest.length ? html`<div class="roster-wrap">${rankingTable(shown, c, { t, logoOf, showCurso })}
         ${open ? '' : html`<div class="more-row"><button type="button" class="btn-ghost more-btn" data-expand="${c}">${t('results_show_all', 'Ver todos')} (${ranked.length})</button></div>`}</div>` : ''}`, ' scorers-block');
   }).filter(Boolean);
 

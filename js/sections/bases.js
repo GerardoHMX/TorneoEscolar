@@ -16,8 +16,6 @@ import { bindMediaFallback } from '../ui/media.js';
 
 // Logo del torneo: archivo local (siempre, como el del colegio).
 const LOGO_LOCAL = 'img/logo-torneo.png';
-// Carteles de temporadas anteriores y de la actual (archivos locales) para el carrusel.
-const POSTERS = [['2024-2025', 'img/cartel-2024-2025.webp'], ['2025-2026', 'img/cartel-2025-2026.webp'], ['2026-2027', 'img/cartel-2026-2027.webp']];
 
 /**
  * Texto con énfasis: los tramos entre *asteriscos* van en <strong>; todo se escapa.
@@ -97,12 +95,12 @@ export function pdfUrl(url) {
   return safeUrl(m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u);
 }
 
-/** Carteles de la hoja CARTELES (imagen de Drive y web de la edición); sin filas, los archivos locales. */
+/** Carteles de la hoja CARTELES (imagen de Drive y web de la edición); sin filas válidas no hay carteles (y la sección no se muestra). */
 function posters(carteles) {
   const fromSheet = (Array.isArray(carteles) ? carteles : [])
     .map((c) => ({ season: c.torneo, src: driveImg(c.imagen, 1200), web: safeUrl(c.web) }))
     .filter((c) => c.src);
-  return fromSheet.length ? fromSheet : POSTERS.map(([season, src]) => ({ season, src, web: '' }));
+  return fromSheet;
 }
 
 const nombreDe = (config) => String(config?.TORNEO_NOMBRE ?? '').trim() || 'Al-Ándalus';

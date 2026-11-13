@@ -19,7 +19,7 @@ import { parseMinuto } from './goals.js';
  *   minuto:{base:number, extra:number}|null, tipo:'GOL'|'PENAL'|'PROPIA'}} Gol
  * @typedef {{ciclo:string, curso:string, equipoId:string, equipo:string, jugador:string, goles:number}} Goleador
  * @typedef {{ciclo:string, curso:string, equipoId:string, equipo:string, jugador:string,
- *   trojas:number, tamarillas:number, justificacion:string}} Sancion
+ *   trojas:number, tamarillas:number, partidosSancionados:string}} Sancion
  * @typedef {{fecha:string, creditos:string, publicar:string, titulo:string, contenido:string,
  *   imagen:string, imagen2:string, imagen3:string, imagen4:string, imagen5:string}} Noticia
  * @typedef {{fecha:string, tipo:string, publicar:string, url:string, titulo:string, descripcion:string}} GaleriaItem
@@ -266,7 +266,7 @@ export function parseSanciones(rows, equipos) {
     if (!ciclo || !jugador) continue;
     out.push({
       ciclo, curso: get(r, 'CURSO'), ...equipoRef(r, equipos), jugador,
-      trojas: int0(get(r, 'TROJAS')), tamarillas: int0(get(r, 'TAMARILLAS')), justificacion: get(r, 'JUSTIFICACION'),
+      trojas: int0(get(r, 'TROJAS')), tamarillas: int0(get(r, 'TAMARILLAS')), partidosSancionados: get(r, 'PARTIDOS_SANCIONADOS') || get(r, 'JUSTIFICACION'),
     });
   }
   return out;
