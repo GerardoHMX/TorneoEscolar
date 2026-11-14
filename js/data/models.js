@@ -59,7 +59,7 @@ export function normalizeId(s) {
 
 /**
  * Versión con diagnóstico. Sin columna ID: id = normalizeId(curso). Con columna ID: debe ser
- * [A-Za-z0-9]{2,4} (se pasa a mayúsculas); inválido -> fila rechazada; duplicado -> se conserva
+ * [A-Z0-9]{2,4} tras normalizeId (mayúsculas, sin guiones ni espacios); inválido -> fila rechazada; duplicado -> se conserva
  * el primero. Ambos casos añaden un texto a `warnings`.
  * @returns {{equipos: Equipo[], warnings: string[]}}
  */
@@ -79,8 +79,10 @@ export function parseEquiposDetailed(rows) {
     let id;
     if (has(r, 'ID')) {
       const raw = get(r, 'ID');
-      if (!/^[A-Za-z0-9]{2,4}$/.test(raw)) { warnings.push(`ID inválido "${raw}" en ${label}: fila rechazada`); continue; }
-      id = raw.toUpperCase();
+      // Guiones, espacios y acentos se ignoran ('1-2B' -> '12B'), igual que normalizeId en el resto de hojas.
+      const norm = normalizeId(raw);
+      if (!/^[A-Z0-9]{2,4}$/.test(norm)) { warnings.push(`ID inválido "${raw}" en ${label}: fila rechazada`); continue; }
+      id = norm;
     } else {
       id = normalizeId(curso);
       if (!id) { warnings.push(`Sin curso ni ID en ${label}: fila rechazada`); continue; }
