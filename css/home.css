@@ -704,3 +704,4 @@
 
 .rules__download { margin-top: 1.5rem; text-align: center; }
 .slide__web { margin-top: 0.75rem; display: inline-flex; }
+.news-views { margin-bottom: clamp(1rem, 0.75rem + 1vw, 1.5rem); }

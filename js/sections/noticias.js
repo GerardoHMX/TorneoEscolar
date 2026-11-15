@@ -6,7 +6,7 @@ import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { openModal } from '../ui/modal.js';
 import { pickLatestDay, itemsForDay } from './dates.js';
-import { sectionTitle, emptyState, restoreFocus } from './common.js';
+import { sectionTitle, emptyState, restoreFocus, rememberFocus } from './common.js';
 import { feedGroup, feedDay, feedStep, dayNav, bindDayNav, feedDateLabel } from './feed.js';
 import { bindMediaFallback } from '../ui/media.js';
 
@@ -20,17 +20,24 @@ export function hasData(model) {
   return !!sectionVisibility(model)[id];
 }
 
-/** @param {AppModel} model @param {Date} [today] inyectable para tests/demo @returns {{dia: number|null}} */
+/** Vista por defecto: todas las noticias publicadas. «dia» = un día cada vez con navegación. */
+export const VISTAS = ['todas', 'dia'];
+
+/** @param {AppModel} model @param {Date} [today] inyectable para tests/demo @returns {{vista: string, dia: number|null}} */
 export function initialState(model, today = new Date()) {
-  return { dia: pickLatestDay(feedGroup(model?.noticias).days, today) };
+  return { vista: 'todas', dia: pickLatestDay(feedGroup(model?.noticias).days, today) };
 }
 
 /** Lo que se ve: día actual y noticias (las del día; si solo hay una, + hasta 2 anteriores). */
 export function newsView(model, state) {
   const group = feedGroup(model?.noticias);
   const day = feedDay(group, state?.dia);
-  const entries = itemsForDay(group, day);
-  return { group, day, entries, items: entries.map((e) => e.item) };
+  const all = state?.vista !== 'dia';
+  const entries = all
+    ? [...group.days].reverse().flatMap((d) => group.byDay.get(d).map((item) => ({ item, day: d, extra: false })))
+        .concat(group.undated.map((item) => ({ item, day: null, extra: false })))
+    : itemsForDay(group, day);
+  return { group, day, all, entries, items: entries.map((e) => e.item) };
 }
 
 /** Día al que lleva «anterior» (−1) / «siguiente» (+1). */
@@ -109,15 +116,22 @@ function card(entry, i, t, locale) {
   </article>`;
 }
 
+function viewToggle(all, t) {
+  const b = (v, key, fb) => html`<button type="button" class="chip" data-news-view="${v}" aria-pressed="${(v === 'todas') === all}">${t(key, fb)}</button>`;
+  return html`<div class="chip-row news-views reveal" role="group" aria-label="${t('news_view_label', 'Vista de noticias')}" data-focus-group>
+    ${b('todas', 'news_view_all', 'Todas')}${b('dia', 'news_view_day', 'Por día')}
+  </div>`;
+}
+
 /** @param {AppModel} model */
 export function render(model, state = {}, t) {
   const title = sectionTitle(t, ...TITLE);
-  const { group, day, entries } = newsView(model, state);
+  const { group, day, all, entries } = newsView(model, state);
   if (!entries.length) {
     return html`${title}${emptyState(t, ['msg_no_news', 'No hay noticias disponibles'], ['msg_no_news_description', 'Las noticias estarán disponibles pronto con las últimas noticias del torneo.'])}`;
   }
   const locale = t('date_locale', 'es-ES');
-  return html`${title}${dayNav(group, day, t, t('news_day_label', 'Noticias del día'))}
+  return html`${title}${group.days.length ? viewToggle(all, t) : ''}${all ? '' : dayNav(group, day, t, t('news_day_label', 'Noticias del día'))}
     <div class="news-grid${entries.length === 1 ? ' news-grid--single' : ''}">${entries.map((e, i) => card(e, i, t, locale))}</div>`;
 }
 
@@ -126,6 +140,13 @@ export function bind(root, ctx) {
   if (!root) return;
   const { group, items } = newsView(ctx.model, ctx.state);
   bindDayNav(root, ctx, id, group);
+  root.querySelectorAll('button[data-news-view]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const vista = btn.dataset.newsView;
+      rememberFocus(id, `button[data-news-view="${vista}"]`);
+      ctx.setState({ vista });
+    });
+  });
   root.querySelectorAll('button[data-news]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const n = items[Number(btn.dataset.news)];
