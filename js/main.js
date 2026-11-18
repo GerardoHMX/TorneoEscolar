@@ -8,7 +8,7 @@ import { createI18n, pickLang, storedLang } from './core/i18n.js';
 import { failureMemo, navigationType, safeDecodeHash, shouldBypassCache } from './core/boot.js';
 import { SECTIONS, diffSections, menuItems, noticeKind, sectionVisibility } from './core/visibility.js';
 import { translations } from './translations.js';
-import { loadAllWithStatus, loadOutcome, onUpdate } from './data/sheets.js';
+import { loadAllWithStatus, loadCachedAll, loadOutcome, onUpdate } from './data/sheets.js';
 import { buildModel, mergeRaw } from './data/buildModel.js';
 import { initLoader } from './ui/loader.js';
 import { initScrollProgress } from './ui/progress.js';
@@ -379,17 +379,35 @@ async function boot() {
     console.error('[main] el botón de actualizar falló:', err);
   }
   let first = null;
-  try {
-    // F5 / recargar: sin caché, para que quien acaba de editar la hoja vea el cambio al momento.
-    const res = await loadAllWithStatus(shouldBypassCache(navigationType()) ? { ttlMs: 0 } : {});
-    first = res.raw;
-    outcome = loadOutcome(res.failed);
-  } catch (err) {
-    console.error('[main] no se pudieron cargar los datos:', err);
+  // Stale-while-revalidate: con una copia local de todas las hojas se pinta al instante y se revalida después.
+  // En F5 se ignora (quien acaba de editar la hoja quiere ver el dato nuevo) y se espera a la red.
+  const bypass = shouldBypassCache(navigationType());
+  const stale = bypass ? null : loadCachedAll();
+  let revalidate = null;
+  if (stale) {
+    first = stale;
+    outcome = 'empty'; // hay copia completa: un fallo de red al revalidar no debe mostrar «no hemos podido cargar»
+    revalidate = loadAllWithStatus({ ttlMs: 0 });
+  } else {
+    try {
+      const res = await loadAllWithStatus(bypass ? { ttlMs: 0 } : {});
+      first = res.raw;
+      outcome = loadOutcome(res.failed);
+    } catch (err) {
+      console.error('[main] no se pudieron cargar los datos:', err);
+    }
   }
   app.replaceChildren(); // fuera el esqueleto provisional
   rebuild(first ?? {});
   app.setAttribute('aria-busy', 'false');
+  if (revalidate) {
+    // Cuando llegan los datos frescos se reconstruye solo si cambió algo (rebuild compara la firma).
+    revalidate.then((res) => {
+      outcome = loadOutcome(res.failed);
+      try { rebuild(res.raw); } catch (err) { console.error('[main] revalidación fallida:', err); }
+      if (notice && notice.dataset.kind !== outcome) updateNotice(false);
+    }).catch((err) => console.error('[main] no se pudo revalidar:', err));
+  }
   await loader.done();
   document.documentElement.classList.add('app-ready'); // el hero se revela en diagonal cuando el loader ya salió
   jumpToHash();

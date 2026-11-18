@@ -1,5 +1,8 @@
-// Caché de texto sobre sessionStorage con TTL. Testeable en Node (todo inyectable).
+// Caché de texto sobre localStorage (con respaldo a sessionStorage / memoria) con TTL. Testeable en Node (todo inyectable).
+// Dentro del TTL se sirve sin red; pasado el TTL, peekText() permite pintar al instante con la última copia
+// (hasta MAX_STALE_MS) mientras se revalida en segundo plano (stale-while-revalidate).
 export const DEFAULT_TTL_MS = 60000;
+export const MAX_STALE_MS = 7 * 24 * 60 * 60 * 1000;
 const memory = new Map();
 
 const memStorage = {
@@ -8,10 +11,12 @@ const memStorage = {
 };
 
 function defaultStorage() {
-  try {
-    const s = globalThis.sessionStorage;
-    if (s) return s;
-  } catch { /* acceso denegado */ }
+  for (const name of ['localStorage', 'sessionStorage']) {
+    try {
+      const s = globalThis[name];
+      if (s) return s;
+    } catch { /* acceso denegado */ }
+  }
   return memStorage;
 }
 
@@ -47,4 +52,12 @@ export async function cachedText(url, opts = {}) {
     if (cached) return cached.text;
     throw err;
   }
+}
+
+/** Última copia guardada (aunque haya caducado su TTL) si no supera `maxStaleMs`; null si no hay. Sin red. */
+export function peekText(url, opts = {}) {
+  const maxStaleMs = opts.maxStaleMs ?? MAX_STALE_MS;
+  const now = opts.now ?? Date.now;
+  const e = readEntry(opts.storage ?? defaultStorage(), `sheet:${url}`);
+  return e && now() - e.t <= maxStaleMs ? e.text : null;
 }

@@ -8,7 +8,7 @@ import { openModal } from '../ui/modal.js';
 import { pickLatestDay, itemsForDay } from './dates.js';
 import { sectionTitle, emptyState, restoreFocus, rememberFocus } from './common.js';
 import { feedGroup, feedDay, feedStep, dayNav, bindDayNav, feedDateLabel } from './feed.js';
-import { bindMediaFallback } from '../ui/media.js';
+import { bindMediaFallback, bindMediaFit } from '../ui/media.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel @typedef {import('../data/models.js').Noticia} Noticia */
 
@@ -92,7 +92,7 @@ export function newsDetail(n, t) {
   const fecha = feedDateLabel(n?.fecha, locale);
   return html`<h2 class="news-detail__title">${title}</h2>
     <p class="news-detail__meta">${fecha ? html`<span class="tag">${fecha}</span>` : ''}${n?.creditos ? html`<span class="news-detail__credits">${n.creditos}</span>` : ''}</p>
-    ${imgs.length ? html`<div class="news-detail__gallery" data-n="${Math.min(imgs.length, 5)}">${imgs.map((src, i) => html`<figure class="news-detail__fig" data-media><img src="${src}" alt="${i === 0 ? title : ''}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" referrerpolicy="no-referrer"></figure>`)}</div>` : ''}
+    ${imgs.length ? html`<div class="news-detail__gallery" data-n="${Math.min(imgs.length, 5)}">${imgs.map((src, i) => html`<figure class="news-detail__fig" data-media data-fit="contain"><img class="media-fill" src="${src}" alt="" aria-hidden="true" loading="lazy" decoding="async" referrerpolicy="no-referrer"><img class="media-main" src="${src}" alt="${i === 0 ? title : ''}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" referrerpolicy="no-referrer"></figure>`)}</div>` : ''}
     <div class="news-detail__text">${contentBlocks(n?.contenido).map((b) => (b.list
       ? html`<ul class="news-detail__list">${b.list.map((li) => html`<li>${li}</li>`)}</ul>`
       : html`<p class="news-detail__p">${b.p}</p>`))}</div>`;
@@ -100,13 +100,13 @@ export function newsDetail(n, t) {
 
 const TITLE = [['section_news_title', 'Noticias'], ['section_news_kicker', 'Actualidad']];
 
-function card(entry, i, t, locale) {
+function card(entry, i, t, locale, featured = false) {
   const n = entry.item;
-  const src = newsImages(n, 800)[0] ?? '';
+  const src = newsImages(n, featured ? 1400 : 800)[0] ?? '';
   const fecha = feedDateLabel(n.fecha, locale);
-  const resumen = excerpt(plainText(n.contenido));
-  return html`<article class="news-card reveal" style="--i:${i}">
-    <div class="news-card__media${src ? '' : ' is-broken'}" data-media>${src ? html`<img src="${src}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : ''}<span class="news-card__ph" aria-hidden="true">⚽</span></div>
+  const resumen = excerpt(plainText(n.contenido), featured ? 280 : 160);
+  return html`<article class="news-card${featured ? ' news-card--featured' : ''} reveal" style="--i:${i}">
+    <div class="news-card__media${src ? '' : ' is-broken'}" data-media data-fit="contain">${src ? html`<img class="media-fill" src="${src}" alt="" aria-hidden="true" loading="lazy" decoding="async" referrerpolicy="no-referrer"><img class="media-main" src="${src}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : ''}<span class="news-card__ph" aria-hidden="true">⚽</span></div>
     <div class="news-card__body">
       <p class="news-card__meta">${fecha ? html`<time>${fecha}</time>` : ''}${n.creditos ? html`<span class="news-card__credit">${n.creditos}</span>` : ''}</p>
       <h3 class="news-card__title"><button type="button" class="news-card__link" data-news="${i}">${n.titulo || t('noticia', 'Noticia')}</button></h3>
@@ -132,7 +132,7 @@ export function render(model, state = {}, t) {
   }
   const locale = t('date_locale', 'es-ES');
   return html`${title}${group.days.length ? viewToggle(all, t) : ''}${all ? '' : dayNav(group, day, t, t('news_day_label', 'Noticias del día'))}
-    <div class="news-grid${entries.length === 1 ? ' news-grid--single' : ''}">${entries.map((e, i) => card(e, i, t, locale))}</div>`;
+    <div class="news-grid${entries.length === 1 ? ' news-grid--single' : ''}">${entries.map((e, i) => card(e, i, t, locale, i === 0 && entries.length > 2))}</div>`;
 }
 
 /** @param {Element} root @param {{model: AppModel, state: any, setState: (patch: object) => void, t: Function}} ctx */
@@ -152,9 +152,12 @@ export function bind(root, ctx) {
       const n = items[Number(btn.dataset.news)];
       if (!n) return;
       openModal(newsDetail(n, ctx.t), { size: 'lg' });
-      bindMediaFallback(document.getElementById('modal-root'));
+      const modalRoot = document.getElementById('modal-root');
+      bindMediaFallback(modalRoot);
+      bindMediaFit(modalRoot);
     });
   });
   bindMediaFallback(root);
+  bindMediaFit(root);
   restoreFocus(root, id);
 }

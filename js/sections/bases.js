@@ -10,12 +10,13 @@ import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { createAccordion, accordionItem } from '../ui/accordion.js';
 import { sectionTitle } from './common.js';
+import { seasonShort } from './hero.js';
 import { bindMediaFallback } from '../ui/media.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel */
 
 // Logo del torneo: archivo local (siempre, como el del colegio).
-const LOGO_LOCAL = 'img/logo-torneo.png';
+const LOGO_LOCAL = 'img/logo-torneo.webp';
 
 /**
  * Texto con énfasis: los tramos entre *asteriscos* van en <strong>; todo se escapa.
@@ -82,7 +83,7 @@ function block(b) {
 }
 const body = (item) => html`${item.blocks.map(block)}`;
 
-/** Logo del torneo: archivo local img/logo-torneo.png (TORNEO_LOGO_URL y TORNEO_CARTEL_URL ya no se usan). */
+/** Logo del torneo: archivo local img/logo-torneo.webp (TORNEO_LOGO_URL y TORNEO_CARTEL_URL ya no se usan). */
 export function images() {
   return { logo: LOGO_LOCAL };
 }
@@ -245,7 +246,8 @@ export const bases = {
   /** @param {AppModel} model */
   render(model, state = {}, t) {
     const reglamento = pdfUrl(model?.config?.REGLAMENTO_TORNEO_URL);
-    return html`${sectionTitle(t, ['section_bases_title', 'Bases del Torneo'], ['section_bases_kicker', 'Reglamento'])}
+    const season = seasonShort(anioDe(model?.config));
+    return html`${season ? html`<span class="section-season" aria-hidden="true">${season}</span>` : ''}${sectionTitle(t, ['section_bases_title', 'Bases del Torneo'], ['section_bases_kicker', 'Reglamento'])}
     <div class="rules reveal">
       <div class="accordion" data-single data-accordion lang="es">
         ${BASES.map((b, i) => accordionItem(b.title, html`<div class="rules__body">${body(b)}</div>`, { open: i === 0, level: 3 }))}

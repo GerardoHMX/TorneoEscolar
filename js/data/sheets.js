@@ -1,6 +1,6 @@
 // Carga de las hojas publicadas de Google Sheets. Cambiar de libro = editar solo estas constantes.
 import { parseCSV } from '../core/csv.js';
-import { cachedText } from '../core/store.js';
+import { cachedText, peekText } from '../core/store.js';
 
 export const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRD7HCUFU5YZrxfs-8RMQM3omn8Cyt3yrep9vKRzq8v2nN-ilu69I7BZtbDmGqkMvNAPfv3TdykSTFP/pub';
 export const GIDS = {
@@ -32,6 +32,24 @@ export async function loadAllWithStatus(opts = {}) {
     if (!ok) failed.push(n);
   });
   return { raw, failed };
+}
+
+/**
+ * Última copia local de TODAS las hojas (sin red, aunque su TTL haya caducado), o null si falta alguna o no
+ * se puede leer. Sirve para pintar al instante y revalidar después con loadAllWithStatus({ ttlMs: 0 }).
+ */
+export function loadCachedAll(opts = {}) {
+  try {
+    const raw = {};
+    for (const n of Object.keys(GIDS)) {
+      const text = peekText(sheetUrl(n), opts);
+      if (text == null) return null;
+      raw[n] = parseCSV(text);
+    }
+    return raw;
+  } catch {
+    return null;
+  }
 }
 
 /** Carga todas las hojas; una hoja que falla queda como []. */

@@ -118,7 +118,7 @@ export function render(model, state = {}, t) {
         </div>
         <div class="hero__logos">
           <img class="hero__logo hero__logo--school" src="img/logo-colegio.svg" alt="${colegio || 'Colegio'}" width="213" height="237" decoding="async">
-          <img class="hero__logo hero__logo--tournament" src="img/logo-torneo.png" alt="${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')} ${nombre}" width="760" height="862" decoding="async">
+          <img class="hero__logo hero__logo--tournament" src="img/logo-torneo.webp" alt="${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')} ${nombre}" width="1000" height="1144" decoding="async" fetchpriority="high">
         </div>
       </div>
       ${s.equipos + s.jugados + s.goles > 0 ? html`<dl class="hero__stats reveal" style="--i:5">${stats.map(([key, fb, n], i) => html`<div class="hero__stat">
