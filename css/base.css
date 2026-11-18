@@ -14,13 +14,6 @@
   font-display: swap;
 }
 @font-face {
-  font-family: "LaLiga Headline Std";
-  src: url("../fonts/LALIGAHeadline-StdBold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: "LaLiga Text";
   src: url("../fonts/LALIGAText-Regular.woff2") format("woff2");
   font-weight: 400;
@@ -206,7 +199,8 @@ img { height: auto; }
   z-index: -1;
   padding-block: 2rem; /* margen arriba y abajo: el texto nunca toca el borde */
   text-align: center;
-  font: 700 min(34vw, 220px) / 1 "LaLiga Headline Std", "LaLiga Headline", sans-serif;
+  font: 700 min(34vw, 220px) / 1 "LaLiga Headline", sans-serif;
+  font-variation-settings: "wdth" 440; /* ancho Std de la variable (antes: LaLiga Headline Std Bold) */
   color: rgb(0 0 0 / 0.15);
   writing-mode: vertical-rl;
   transform: rotate(180deg);

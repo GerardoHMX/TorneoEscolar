@@ -110,7 +110,8 @@
   .st-total::after {
     content: attr(data-label);
     margin-top: 0.2rem;
-    font-family: var(--font-text);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
     font-size: calc(0.75rem * var(--fs-scale));
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -131,7 +132,8 @@
   }
   .standings__row .st::before {
     content: attr(data-label);
-    font-family: var(--font-text);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
     font-size: calc(0.75rem * var(--fs-scale));
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -163,7 +165,8 @@
     z-index: 2;
     padding-block: 0.85rem;
     background: var(--gold-900);
-    font-family: var(--font-text);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
     font-size: var(--fs-xs);
     font-weight: 700;
     letter-spacing: 0.1em;

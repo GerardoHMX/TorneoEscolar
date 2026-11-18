@@ -102,7 +102,8 @@
 .scorer-podium .podium__step { flex-direction: column; align-items: center; gap: 0.15rem; }
 .scorer-podium .podium__num { font-size: calc(2.4rem * var(--fs-scale)); font-variant-numeric: tabular-nums; }
 .podium__unit {
-  font-family: var(--font-text);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
   font-size: calc(0.75rem * var(--fs-scale));
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -219,7 +220,8 @@
   color: var(--gold-text);
 }
 .ro-num__unit {
-  font-family: var(--font-text);
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
   font-size: calc(0.75rem * var(--fs-scale));
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -310,7 +312,8 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     content: attr(data-label);
     flex-basis: 100%;
     text-align: center;
-    font-family: var(--font-text);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
     font-size: calc(0.75rem * var(--fs-scale));
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -341,7 +344,8 @@ td.ro-stat:not(.is-on) .card-ico { opacity: 0.35; box-shadow: none; }
     z-index: 2;
     padding-block: 0.85rem;
     background: var(--gold-900);
-    font-family: var(--font-text);
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 440; /* negrita real (antes: LaLiga Text 400 con negrita sintetizada) */
     font-size: var(--fs-xs);
     font-weight: 700;
     letter-spacing: 0.1em;

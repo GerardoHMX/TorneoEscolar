@@ -77,7 +77,7 @@
   pointer-events: none;
 }
 
-/* ===================== 5. Latido en «próximo partido» ===================== */
+/* ===================== 5. Punto en «próximo partido» (fijo: el sitio no es en directo) ===================== */
 .match--next .tag--red::before {
   content: "";
   flex: none;
@@ -85,12 +85,6 @@
   height: 0.55em;
   border-radius: 50%;
   background: #fff;
-  animation: next-pulse 1.8s ease-out infinite;
-}
-@keyframes next-pulse {
-  0%   { box-shadow: 0 0 0 0 rgb(255 255 255 / 0.75); }
-  70%  { box-shadow: 0 0 0 0.5em rgb(255 255 255 / 0); }
-  100% { box-shadow: 0 0 0 0 rgb(255 255 255 / 0); }
 }
 
 /* ===================== 7. Escudos con «pop» ===================== */
@@ -136,7 +130,6 @@
   }
   .crest { transition-duration: 200ms !important; }
   .crest:hover, .crest:active { scale: 1.08; rotate: none; }
-  .match--next .tag--red::before { animation: none; }
 }
 
 /* ===================== 8. Entrada en diagonal de las bandas rojas ===================== */

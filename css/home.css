@@ -21,7 +21,7 @@
 .hero__kicker {
   max-width: calc(100% - 92px); /* deja sitio al balón en móvil */
   font-family: var(--font-text);
-  font-size: calc(clamp(0.9375rem, 0.85rem + 0.4vw, 1.125rem) * var(--fs-scale));
+  font-size: calc(clamp(1.0625rem, 0.95rem + 0.45vw, 1.25rem) * var(--fs-scale));
   line-height: 1.3;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -50,7 +50,7 @@
 .hero__logos { display: flex; align-items: center; gap: clamp(0.9rem, 3vw, 1.5rem); }
 .hero__logo { width: auto; height: 64px; object-fit: contain; filter: drop-shadow(0 6px 10px rgb(60 0 5 / 0.35)); }
 .hero__logo--school { aspect-ratio: 213 / 237; }
-.hero__logo--tournament { aspect-ratio: 760 / 862; }
+.hero__logo--tournament { aspect-ratio: 1000 / 1144; }
 
 /* Balón flotante: arriba a la derecha en móvil; columna propia en PC */
 .hero__ball {
@@ -156,6 +156,104 @@
   .hero__logos { justify-content: center; }
   .hero__logo { height: clamp(88px, 9vw, 124px); }
   .hero__stats { grid-column: 1 / -1; }
+}
+
+/* ---- Hero «noche de partido»: cancha, foco de estadio y marcador (misma paleta, tipografías y logos) ---- */
+.hero {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - clamp(18px, 3.2vw, 56px)), 0 100%);
+  margin-bottom: calc(-1 * clamp(18px, 3.2vw, 56px));
+  padding-bottom: clamp(18px, 3.2vw, 56px);
+}
+/* Líneas de campo (círculo central, medio campo, áreas) y foco ámbar cálido */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60% 70% at 78% 38%, rgb(255 209 102 / 0.30), transparent 62%),
+    radial-gradient(45% 55% at 8% 100%, rgb(60 0 5 / 0.45), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700' fill='none' stroke='white' stroke-opacity='0.16' stroke-width='3'%3E%3Cpath d='M600 0v700'/%3E%3Ccircle cx='600' cy='350' r='130'/%3E%3Ccircle cx='600' cy='350' r='6' fill='white' fill-opacity='0.16'/%3E%3Cpath d='M0 170h150v360H0M1200 170h-150v360h150'/%3E%3Cpath d='M150 280a110 110 0 0 1 0 140M1050 280a110 110 0 0 0 0 140'/%3E%3C/svg%3E") center / cover no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  pointer-events: none;
+}
+.hero__inner { min-height: min(84vh, 780px); align-content: center; }
+.hero__title { text-shadow: 0 2px 0 rgb(108 9 14 / 0.55), 0 10px 30px rgb(60 0 5 / 0.45); }
+.hero__season {
+  width: fit-content;
+  padding: 0.35rem 0.9rem 0.35rem 0;
+  gap: 0.75rem;
+}
+.hero__season::before { content: ""; align-self: center; width: 44px; height: 3px; background: var(--grad-gold); box-shadow: var(--shadow-gold); }
+.hero__ctas > a { min-height: 52px; font-size: var(--fs-base); }
+
+/* Marcador: cifras grandes sobre cristal oscuro con filete ámbar */
+.hero__stats {
+  position: relative;
+  background: linear-gradient(180deg, rgb(60 0 5 / 0.38), rgb(60 0 5 / 0.55));
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-top: 3px solid var(--amber-400);
+  box-shadow: 0 18px 40px rgb(40 0 4 / 0.35);
+}
+.hero__stat-value { font-size: calc(clamp(2.25rem, 1.5rem + 3.4vw, 4.25rem) * var(--fs-scale)); font-variant-numeric: tabular-nums; text-shadow: 0 2px 12px rgb(60 0 5 / 0.4); }
+.hero__stat-label { color: #ffe08a; letter-spacing: 0.14em; }
+
+/* La temporada «26-27» ya no va en el hero: vive en Bases del torneo (.section-season) */
+.hero.band--gold::after { content: none; }
+@media (min-width: 1024px) {
+  .hero__title { font-size: calc(min(var(--fs-hero), 7.4vw) * var(--wordmark-boost)); }
+  .hero__inner { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+  /* Escenario del escudo: halo luminoso, balón a un lado y escudo del colegio como sello */
+  .hero__aside {
+    position: relative;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+    aspect-ratio: 1;
+    width: min(100%, 460px);
+    justify-self: center;
+  }
+  .hero__aside::before {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+    inset: 0;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.20), rgb(255 255 255 / 0.04) 70%, transparent);
+  }
+  .hero__logos { display: contents; }
+  .hero__logo--tournament { grid-area: 1 / 1; height: 66%; filter: drop-shadow(0 18px 26px rgb(60 0 5 / 0.5)); }
+  .hero__logo--school {
+    position: absolute;
+    right: 2%;
+    bottom: 6%;
+    height: 27%;
+    padding: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 10px 26px rgb(60 0 5 / 0.45);
+  }
+  .hero__ball { position: absolute; left: -2%; bottom: 2%; width: clamp(96px, 9.5vw, 150px); }
+}
+/* Pantallas pequeñas: textos del hero centrados (desde tableta, alineados a la izquierda) */
+@media (max-width: 767.98px) {
+  .hero__copy { align-items: center; text-align: center; }
+  .hero__kicker { max-width: none; }
+  .hero__season { justify-content: center; margin-inline: auto; padding-inline: 0; }
+  .hero__season::before { display: none; }
+  .hero__season { white-space: nowrap; }
+  .hero__tagline { margin-inline: auto; }
+  .hero__ctas { justify-content: center; width: 100%; }
+  .hero__logos { justify-content: center; }
+  .hero__aside { justify-content: space-evenly; }
+}
+@media (max-width: 1023.98px) {
+  .hero__inner { min-height: 0; }
+  .hero__logo { height: 84px; }
+  .hero__ball { width: 84px; }
 }
 
 /* ===================== Banner (carrusel) ===================== */
@@ -283,6 +381,27 @@
 .carousel__dot[aria-current="true"]::before { width: 20px; background: var(--gold-600); }
 .carousel__dot:focus-visible { outline-offset: -8px; border-radius: var(--radius-pill); }
 
+/* Temporada en grande, horizontal, a la derecha del título de Bases del torneo */
+#accordionSection { position: relative; }
+.section-season {
+  position: absolute;
+  top: calc(var(--space-section) - 0.25rem);
+  right: 0;
+  z-index: 0;
+  font: 700 min(24vw, 168px) / 0.9 "LaLiga Headline", sans-serif;
+  font-variation-settings: "wdth" 440;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--red);
+  opacity: 0.1;
+  pointer-events: none;
+  user-select: none;
+}
+#accordionSection > :not(.section-season) { position: relative; z-index: 1; }
+@media (max-width: 639.98px) {
+  .section-season { top: calc(var(--space-section) - 0.6rem); font-size: 60px; }
+}
+
 /* ===================== Bases (texto común a carrusel y acordeón) ===================== */
 .rules { display: grid; gap: 2rem; }
 .rules__body { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -363,7 +482,7 @@
 }
 @media (hover: hover) {
   .news-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); border-color: var(--gold-300); }
-  .news-card:hover .news-card__media img { transform: scale(1.04); }
+  .news-card:hover .news-card__media .media-main { transform: scale(1.03); }
 }
 .news-card:has(.news-card__link:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
 .news-card__media,
@@ -375,13 +494,39 @@
   background: var(--gold-50) url("../img/dots.png") repeat center / 220px auto;
 }
 .news-card__media { aspect-ratio: 16 / 10; border-bottom: 1px solid var(--line); }
-.news-card__media img,
+.news-card__media.is-broken .media-main { display: none; }
 .gal-tile__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--dur-slow) var(--ease-out);
 }
+
+/* Imágenes de noticias con cualquier proporción: la principal se ve entera (contain) sobre una copia
+   difuminada que rellena el marco; si casi encaja con el marco se recorta suave (cover). Nunca se estira. */
+.news-card__media,
+.news-detail__fig { position: relative; isolation: isolate; overflow: hidden; }
+.media-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(24px) saturate(1.15) brightness(0.95);
+  transform: scale(1.25);
+  pointer-events: none;
+}
+.media-main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+[data-fit="contain"] > .media-main { object-fit: contain; }
+[data-fit="cover"] > .media-fill { display: none; }
+.news-card__media.is-broken .media-fill { display: none; }
 .news-card__ph { display: none; font-size: 2.5rem; opacity: 0.45; }
 .news-card__media.is-broken img { display: none; }
 .news-card__media.is-broken .news-card__ph { display: block; }
@@ -399,7 +544,9 @@
 }
 .news-card__meta { flex-direction: column; }
 .news-card__credit { font-weight: 400; letter-spacing: 0; text-transform: none; font-size: var(--fs-sm); }
-.news-card__title { font-size: var(--fs-xl); line-height: 1.12; }
+.news-card__title { font-size: var(--fs-xl); line-height: 1.12; text-wrap: balance; }
+.news-card__meta time { color: var(--gold-text); }
+.news-card__body { gap: 0.7rem; }
 .news-card__link {
   padding: 0;
   border: 0;
@@ -423,8 +570,12 @@
   line-height: 1.55;
 }
 .news-card__more {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin-top: auto !important;
-  padding-top: 0.25rem;
+  padding-top: 0.85rem !important;
+  border-top: 1px solid var(--line);
   font-family: var(--font-display);
   font-variation-settings: "wdth" var(--display-wdth, 480);
   font-weight: 700;
@@ -434,13 +585,31 @@
   color: var(--gold-text);
 }
 
+@media (hover: hover) {
+  .news-card:hover .news-card__more { gap: 0.75rem; }
+}
+.news-card__more { transition: gap var(--dur-base) var(--ease-out); }
+.news-card__body { min-width: 0; }
+
+/* Noticia destacada: la más reciente ocupa toda la fila con imagen y texto lado a lado. */
+.news-card--featured { grid-column: 1 / -1; }
+.news-card__media .media-main { position: absolute; inset: 0; }
+.news-card--featured .news-card__title { font-size: var(--fs-2xl); line-height: 1.04; }
+.news-card--featured .news-card__excerpt { -webkit-line-clamp: 4; line-clamp: 4; font-size: var(--fs-lg); }
+@media (min-width: 900px) {
+  .news-card--featured { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .news-card--featured .news-card__media { aspect-ratio: auto; min-height: 380px; border-bottom: 0; border-right: 1px solid var(--line); }
+  .news-card--featured .news-card__body { justify-content: center; padding: clamp(1.5rem, 1rem + 2vw, 2.75rem); gap: 1rem; }
+  .news-card--featured .news-card__more { margin-top: 0.75rem !important; }
+}
+
 /* Detalle de la noticia (modal) */
 .news-detail__title { font-size: var(--fs-2xl); line-height: 1.05; }
 .news-detail__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.85rem; }
 .news-detail__credits { font-size: var(--fs-sm); color: var(--gray); }
 .news-detail__gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
-.news-detail__fig { margin: 0; overflow: hidden; border-radius: var(--radius-sm); background: var(--gold-50); aspect-ratio: 4 / 3; }
-.news-detail__fig:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+.news-detail__fig { margin: 0; border-radius: var(--radius-sm); background: var(--gold-50); aspect-ratio: 4 / 3; }
+.news-detail__fig:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; max-height: min(62vh, 560px); width: 100%; }
 .news-detail__gallery[data-n="2"] .news-detail__fig:first-child { grid-column: auto; aspect-ratio: 4 / 3; }
 .news-detail__gallery[data-n="4"] .news-detail__fig:last-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
 @media (min-width: 768px) {
@@ -449,7 +618,6 @@
   .news-detail__gallery[data-n="4"] .news-detail__fig:last-child { grid-column: auto; aspect-ratio: 4 / 3; }
   .news-detail__gallery[data-n="4"] .news-detail__fig:first-child { grid-column: 1 / -1; }
 }
-.news-detail__fig img { width: 100%; height: 100%; object-fit: cover; }
 .news-detail__fig.is-broken { display: none; }
 .news-detail__text { max-width: 68ch; }
 .news-detail__p { margin: 0 0 0.9rem; line-height: 1.7; color: var(--ink-soft); }
