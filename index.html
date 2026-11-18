@@ -27,10 +27,13 @@
     <!-- Fuentes autoalojadas (woff2) -->
     <link rel="preload" href="fonts/LALIGAHeadlineVF.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/Roboto-VF-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/LALIGAText-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Pattaya: solo la marca «Al-Ándalus» (cabecera, hero, pantalla de carga): visible en la primera pantalla -->
     <link rel="preload" href="fonts/Pattaya-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Logo del torneo (imagen principal del hero): descarga temprana para el LCP -->
+    <link rel="preload" href="img/logo-torneo.webp" as="image" type="image/webp" fetchpriority="high">
     <!-- Tailwind + tokens + base (npm run build-css) -->
-    <link rel="stylesheet" href="dist/output.css?v=20261108c">
+    <link rel="stylesheet" href="dist/output.css?v=20261118c">
     <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
     <link rel="preconnect" href="https://docs.google.com">
     <link rel="preconnect" href="https://drive.google.com">
