@@ -256,6 +256,150 @@
   .hero__ball { width: 84px; }
 }
 
+/* ===================== PROPUESTA 2: hero «titular» (.hero--titular) =====================
+ * Misma información que el hero anterior; cambia la composición y tres decisiones:
+ *  - «Al-Ándalus» sigue en Pattaya (.wordmark), a gran tamaño y con el filete ámbar de los títulos de sección.
+ *  - Los dos escudos pasan a ser una firma pequeña arriba; el protagonista es el titular (y el balón, en PC).
+ *  - El fondo es el rojo del resto del sitio (--red: menú activo, cabeceras de tabla), sin foco ámbar ni velo claro.
+ * PUNTO ÚNICO DE REVERSIÓN: quitar la clase `hero--titular` en js/sections/hero.js (este bloque queda inerte).
+ * El DOM no cambia: la rejilla recoloca rótulo, título, logos, balón y marcador. */
+.hero.hero--titular {
+  background-color: var(--red);
+  background-image: linear-gradient(180deg, var(--red) 0%, var(--red-600) 100%);
+}
+/* Solo las líneas de la cancha */
+.hero--titular::before {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700' fill='none' stroke='white' stroke-opacity='0.12' stroke-width='3'%3E%3Cpath d='M600 0v700'/%3E%3Ccircle cx='600' cy='350' r='130'/%3E%3Ccircle cx='600' cy='350' r='6' fill='white' fill-opacity='0.12'/%3E%3Cpath d='M0 170h150v360H0M1200 170h-150v360h150'/%3E%3Cpath d='M150 280a110 110 0 0 1 0 140M1050 280a110 110 0 0 0 0 140'/%3E%3C/svg%3E") center / cover no-repeat;
+}
+.hero--titular .hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(0.7rem, 0.55rem + 0.6vw, 1.1rem) clamp(1rem, 4vw, 4rem);
+  min-height: 0;
+  padding-block: clamp(1.5rem, 1rem + 2.5vw, 3.5rem) clamp(1.75rem, 1.25rem + 2.5vw, 3.5rem);
+  text-align: left;
+}
+.hero--titular .hero__copy { display: contents; }
+/* Logos y balón, juntos a la derecha (lejos del escudo del colegio de la cabecera, que va a la izquierda):
+   en móvil, una fila sobre el texto; desde tableta, columna propia con los logos arriba y el balón debajo. */
+.hero--titular .hero__aside {
+  grid-area: 1 / 1 / 2 / -1;
+  position: static;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  width: auto;
+  aspect-ratio: auto;
+}
+.hero--titular .hero__aside::before { content: none; }
+.hero--titular .hero__copy { text-align: left; } /* en móvil el hero anterior centraba los textos */
+.hero--titular .hero__copy > *,
+.hero--titular .hero__stats { grid-column: 1 / -1; justify-self: start; }
+.hero--titular .hero__logos { order: 0; }
+.hero--titular .hero__ball { order: 1; }
+.hero--titular .hero__kicker { grid-row: 2; max-width: none; }
+.hero--titular .hero__title { grid-row: 3; }
+.hero--titular .hero__season { grid-row: 4; }
+.hero--titular .hero__tagline { grid-row: 5; }
+.hero--titular .hero__ctas { grid-row: 6; }
+.hero--titular .hero__stats { grid-row: 7; justify-self: stretch; }
+
+/* Firma: escudo del colegio | escudo del torneo, pequeños y sin escenario */
+.hero--titular .hero__logos {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.85rem;
+}
+.hero--titular .hero__logo {
+  position: static;
+  height: clamp(64px, 3.2rem + 3.4vw, 108px); /* legibles: el texto de los escudos debe poder leerse */
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 4px 8px rgb(60 0 5 / 0.35));
+}
+.hero--titular .hero__logo--tournament {
+  box-sizing: content-box;
+  padding-left: 0.85rem;
+  border-left: 1px solid rgb(255 255 255 / 0.4);
+}
+
+/* Titular: «Al-Ándalus» en Pattaya con el filete ámbar de los títulos de sección */
+.hero--titular .hero__kicker { font-weight: 400; letter-spacing: 0.16em; }
+.hero--titular .hero__title {
+  max-width: 100%;
+  font-size: min(18vw, 10.5rem); /* Pattaya (.wordmark): una sola línea al ancho de la columna */
+  line-height: 1.12;
+  margin-top: 0.14em; /* la tilde de la «Á» sube por encima de la línea: que no toque el rótulo */
+  text-shadow: none;
+}
+.hero--titular .hero__title::after {
+  content: "";
+  display: block;
+  width: clamp(64px, 9vw, 120px);
+  height: clamp(5px, 0.7vw, 8px);
+  margin-top: clamp(0.35rem, 0.8vw, 0.75rem);
+  background: var(--grad-gold);
+  box-shadow: var(--shadow-gold);
+}
+.hero--titular .hero__season { margin-inline: 0; padding: 0; white-space: nowrap; }
+.hero--titular .hero__season::before { display: none; } /* el filete ya va bajo el titular */
+.hero--titular .hero__tagline { margin-inline: 0; }
+.hero--titular .hero__ctas { justify-content: flex-start; margin-top: 0.35rem; }
+
+/* Balón: junto a la firma en móvil; grande y a la derecha del texto en PC */
+.hero--titular .hero__ball { position: relative; inset: auto; width: 60px; }
+
+/* Marcador en línea: sin caja, cifra ámbar + rótulo, separado del texto por un filete */
+.hero--titular .hero__stats {
+  margin-top: clamp(0.75rem, 2vw, 1.75rem);
+  padding-top: clamp(0.9rem, 2vw, 1.5rem);
+  border: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.28);
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.hero--titular .hero__stat { padding: 0 0.75rem; text-align: left; }
+.hero--titular .hero__stat:first-child { padding-left: 0; }
+.hero--titular .hero__stat-value { text-shadow: none; }
+.hero--titular .hero__stat-label { color: #fff; }
+
+@media (min-width: 768px) {
+  .hero--titular .hero__copy > * { grid-column: 1; }
+  .hero--titular .hero__kicker { grid-row: 1; }
+  .hero--titular .hero__title { grid-row: 2; }
+  .hero--titular .hero__season { grid-row: 3; }
+  .hero--titular .hero__tagline { grid-row: 4; }
+  .hero--titular .hero__ctas { grid-row: 5; }
+  .hero--titular .hero__aside {
+    grid-area: 1 / 2 / 6 / 3;
+    align-self: stretch;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+  }
+  .hero--titular .hero__ball {
+    margin-block: auto; /* centrado en el alto que queda bajo los logos */
+    width: clamp(112px, 15.75vw, 225px); /* 3/4 del tamaño inicial de la propuesta */
+  }
+  .hero--titular .hero__title { font-size: min(13vw, 10.5rem, 24vh); }
+  .hero--titular .hero__stat {
+    flex-direction: row-reverse; /* cifra y rótulo en la misma línea */
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0 clamp(1rem, 2.5vw, 2rem);
+  }
+}
+
 /* ===================== Banner (carrusel) ===================== */
 .carousel { position: relative; }
 .carousel__viewport {
@@ -371,15 +515,132 @@
 @media (min-width: 768px) { .carousel__dot { width: var(--tap); } }
 .carousel__dot::before {
   content: "";
-  width: 8px;
+  width: 20px; /* ancho fijo de la píldora activa: el punto se recorta, no cambia de tamaño (sin reflujo) */
   height: 8px;
-  border-radius: 4px; /* punto redondo (píldora al activarse); no depende de --radius-pill */
+  border-radius: 4px; /* no depende de --radius-pill */
   background: var(--gray-300);
-  transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+  clip-path: inset(0 6px round 4px); /* inactivo: punto redondo de 8 px en el centro */
+  transition: clip-path var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
 }
 .carousel__dot:hover::before { background: var(--gold-400); }
-.carousel__dot[aria-current="true"]::before { width: 20px; background: var(--gold-600); }
+.carousel__dot[aria-current="true"]::before { clip-path: inset(0 0 round 4px); background: var(--gold-600); }
 .carousel__dot:focus-visible { outline-offset: -8px; border-radius: var(--radius-pill); }
+
+/* ---- Carteles con más carácter: mismas tarjetas y posiciones, solo tratamiento visual ----
+ * Tarjeta de marca: el rojo y la cancha del hero, escudo sobre halo (sin panel blanco) y filete ámbar.
+ * Carteles: rótulo + edición en dos niveles, etiqueta de la edición en curso, cartel enmarcado sobre
+ * un paspartú punteado (la sombra abraza el cartel, no su caja) y respuesta al pasar el ratón. */
+.carousel .carousel__viewport {
+  /* aire para que la sombra de las tarjetas no se corte en el borde del carril */
+  margin: -14px -12px 0;
+  padding: 14px 12px 1.75rem;
+  scroll-padding-inline: 12px;
+}
+.carousel .slide {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 6px 12px -2px rgb(0 0 0 / 0.1);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+@media (hover: hover) {
+  .carousel .slide--poster:hover {
+    transform: translateY(-3px);
+    border-color: var(--red-300);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.08), 0 10px 16px -4px rgb(0 0 0 / 0.2);
+  }
+  .carousel .slide--poster:hover .slide__media img { transform: scale(1.03); }
+}
+
+/* Carteles */
+.carousel .slide--poster { background: var(--surface); }
+.carousel .slide--poster .slide__title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.2rem 0.75rem;
+}
+.slide__kicker {
+  grid-column: 1 / -1;
+  font-family: var(--font-text);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  font-variation-settings: normal;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  color: var(--gold-text);
+}
+.slide__edition { font-size: var(--fs-2xl); line-height: 0.95; }
+.slide__tag {
+  align-self: center;
+  padding: 0.35rem 0.6rem;
+  background: var(--grad-gold);
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.carousel .slide__media--poster {
+  max-height: 400px;
+  padding: clamp(0.6rem, 1.5vw, 1rem);
+  overflow: hidden;
+  background: var(--gold-50) url("../img/dots.png") repeat center / 220px auto;
+}
+.carousel .slide__media--poster img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 368px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12), 0 12px 24px rgb(0 0 0 / 0.22);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.carousel .slide__web::after { content: "↗"; font-family: var(--font-body); font-weight: 400; }
+
+/* Tarjeta de marca */
+.carousel .slide--brand {
+  border-color: var(--red-600);
+  background-color: var(--red);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700' fill='none' stroke='white' stroke-opacity='0.12' stroke-width='3'%3E%3Cpath d='M600 0v700'/%3E%3Ccircle cx='600' cy='350' r='130'/%3E%3Ccircle cx='600' cy='350' r='6' fill='white' fill-opacity='0.12'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--red) 0%, var(--red-600) 100%);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.carousel .slide--brand .slide__title {
+  font-family: var(--font-text);
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: 0.16em;
+  color: #ffe08a;
+}
+.carousel .slide--brand .slide__media {
+  flex: none;
+  width: min(100%, 230px);
+  aspect-ratio: 1;
+  max-height: none;
+  padding: 0;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.05) 70%, transparent);
+  box-shadow: none;
+}
+.carousel .slide--brand .slide__media img {
+  width: auto;
+  height: 84%;
+  max-height: none;
+  filter: drop-shadow(0 12px 18px rgb(60 0 5 / 0.5));
+}
+.carousel .slide--brand .slide__brand::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 5px;
+  margin: 0.45rem auto 0;
+  background: var(--grad-gold);
+  box-shadow: var(--shadow-gold);
+}
+.carousel .slide--brand .slide__season { font-size: var(--fs-xl); color: var(--amber-400); }
+@media (prefers-reduced-motion: reduce) {
+  .carousel .slide, .carousel .slide__media--poster img { transition: none; }
+  .carousel .slide--poster:hover, .carousel .slide--poster:hover .slide__media img { transform: none; }
+}
 
 /* Temporada en grande, horizontal, a la derecha del título de Bases del torneo */
 #accordionSection { position: relative; }
