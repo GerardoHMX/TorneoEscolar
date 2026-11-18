@@ -123,8 +123,11 @@ function bannerSlides(config, t, carteles = []) {
     { kind: 'brand', title: t('footer_tournament_title', 'Torneo escolar de Fútbol Sala'), body: html`${media(logo, nombre, 'slide__media--logo')}<p class="slide__brand wordmark">${nombre}</p>${anio ? html`<p class="slide__season num">${anio}</p>` : ''}` },
     ...posters(carteles).map(({ season, src, web }) => {
       const title = `${t('banner_poster', 'Cartel del torneo')} ${season}`;
+      // Mismo texto que `title`, en dos niveles (rótulo + edición); la edición en curso lleva una etiqueta.
+      const actual = !!anio && String(season).trim() === anio;
+      const titleHtml = html`<span class="slide__kicker">${t('banner_poster', 'Cartel del torneo')}</span> <span class="slide__edition num">${season}</span>${actual ? html` <span class="slide__tag">${t('banner_current', 'Edición actual')}</span>` : ''}`;
       const link = web ? html`<a class="slide__web btn-ghost" href="${web}" target="_blank" rel="noopener noreferrer">${t('banner_old_site', 'Ver la web de esa edición')}</a>` : '';
-      return { kind: 'poster', title, body: html`${media(src, title, 'slide__media--poster')}${link}` };
+      return { kind: 'poster', title, titleHtml, body: html`${media(src, title, 'slide__media--poster')}${link}` };
     }),
   ];
 }
@@ -142,7 +145,7 @@ export const banner = {
     <div class="carousel reveal" role="region" aria-roledescription="${t('carousel_roledescription', 'carrusel')}" aria-label="${t('banner_label', 'Carteles del torneo')}" data-carousel>
       <div class="carousel__viewport" tabindex="0" data-carousel-track>
         ${slides.map((s, i) => html`<div class="carousel__slide slide slide--${s.kind}" role="group" aria-roledescription="${t('carousel_slide', 'diapositiva')}" aria-label="${i + 1} / ${n}: ${s.title}" data-slide="${i}"${s.lang ? html` lang="${s.lang}"` : ''}>
-          <h3 class="slide__title">${s.icon ? html`<span class="slide__icon" aria-hidden="true">${s.icon}</span>` : ''}${s.title}</h3>
+          <h3 class="slide__title">${s.icon ? html`<span class="slide__icon" aria-hidden="true">${s.icon}</span>` : ''}${s.titleHtml ?? s.title}</h3>
           <div class="slide__body">${s.body}</div>
         </div>`)}
       </div>

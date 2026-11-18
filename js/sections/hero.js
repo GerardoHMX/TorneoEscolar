@@ -102,7 +102,7 @@ export function render(model, state = {}, t) {
     ['hero_stat_played', 'Partidos jugados', s.jugados],
     ['hero_stat_goals', 'Goles', s.goles],
   ];
-  return html`<div class="hero band band--gold" data-season="${seasonShort(anio)}">
+  return html`<div class="hero hero--titular band band--gold" data-season="${seasonShort(anio)}">
     <div class="hero__inner">
       <div class="hero__copy">
         <p class="hero__kicker reveal" style="--i:0">${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')}</p>
