@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; frame-src https://drive.google.com https://script.google.com https://script.googleusercontent.com; form-action https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; media-src 'self' https://www.googleapis.com https://*.googleusercontent.com; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://www.google-analytics.com https://*.analytics.google.com https://*.google-analytics.com https://*.googletagmanager.com; frame-src https://drive.google.com https://script.google.com https://script.googleusercontent.com; form-action https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'self'">
     <title>Torneo Escolar - Al-Ándalus</title>
     <meta name="description" content="Torneo escolar de Fútbol Sala Al-Ándalus">
     <meta name="keywords" content="Torneo escolar, Fútbol Sala, Al-Ándalus, Colegio San Francisco de Asís">
@@ -33,7 +33,7 @@
     <!-- Logo del torneo (imagen principal del hero): descarga temprana para el LCP -->
     <link rel="preload" href="img/logo-torneo.webp" as="image" type="image/webp" fetchpriority="high">
     <!-- Tailwind + tokens + base (npm run build-css) -->
-    <link rel="stylesheet" href="dist/output.css?v=20261118k">
+    <link rel="stylesheet" href="dist/output.css?v=20261119d">
     <!-- Datos (CSV de Sheets), imágenes de Drive y el fondo del hero: conexiones y descarga tempranas -->
     <link rel="preconnect" href="https://docs.google.com">
     <link rel="preconnect" href="https://drive.google.com">

@@ -22,7 +22,7 @@ import { parseMinuto } from './goals.js';
  *   trojas:number, tamarillas:number, partidosSancionados:string}} Sancion
  * @typedef {{fecha:string, creditos:string, publicar:string, titulo:string, contenido:string,
  *   imagen:string, imagen2:string, imagen3:string, imagen4:string, imagen5:string}} Noticia
- * @typedef {{fecha:string, tipo:string, publicar:string, url:string, titulo:string, descripcion:string}} GaleriaItem
+ * @typedef {{fecha:string, tipo:string, publicar:string, url:string, titulo:string, descripcion:string, portada:string}} GaleriaItem
  * @typedef {{ciclo:string, posicion:number|null, avatarposiciones:string, seccion:string,
  *   nombre:string, menu:string, visible:string}} Otro
  * @typedef {{equipo:string, logo:string}} Puesto
@@ -291,6 +291,7 @@ export function parseGaleria(rows) {
   return tableFromRows(rows, ['FECHA', 'TIPO', 'PUBLICAR', 'URL']).map((r) => ({
     fecha: get(r, 'FECHA'), tipo: get(r, 'TIPO').toUpperCase(), publicar: get(r, 'PUBLICAR').toUpperCase(),
     url: get(r, 'URL'), titulo: get(r, 'TITULO'), descripcion: get(r, 'DESCRIPCION'),
+    portada: get(r, 'PORTADA'), // opcional: imagen que cubre un VIDEO antes de empezar y al terminar
   }));
 }
 

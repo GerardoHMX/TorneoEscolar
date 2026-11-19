@@ -942,6 +942,73 @@
   box-shadow: var(--shadow-1);
 }
 .gal-tile__frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+/* Vídeo propio (media/): sin reproductor; js/ui/clip.js fija la proporción real y gobierna los botones */
+.gal-clip { position: relative; background: var(--surface); }
+/* Portada (columna PORTADA o .jpg del mismo nombre): cubre el vídeo antes de empezar y al terminar; no intercepta el clic */
+.gal-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.gal-clip[data-state="playing"] .gal-cover,
+.gal-clip[data-state="paused"] .gal-cover { opacity: 0; }
+.gal-clip__tools { z-index: 2; }
+/* Vídeo de Drive con PORTADA: la imagen y el icono tapan el reproductor hasta el primer clic (js/ui/clip.js) */
+.gal-drive { position: relative; }
+.gal-drive__play {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.gal-drive__play::before {
+  content: "";
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgb(20 16 12 / 0.62) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 6.5v11l9-5.5z' fill='%23fff'/%3E%3C/svg%3E") center / 36px no-repeat;
+}
+.gal-drive.is-started .gal-cover,
+.gal-drive.is-started .gal-drive__play { display: none; }
+.gal-clip video { display: block; width: 100%; height: 100%; object-fit: contain; cursor: pointer; }
+/* Arriba a la derecha: la esquina que el tráiler deja libre (abajo lleva el nombre del colegio) */
+.gal-clip__tools { position: absolute; top: 0.6rem; right: 0.6rem; display: flex; gap: 0.4rem; }
+.gal-clip__btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--white);
+  background: rgb(20 16 12 / 0.62);
+  cursor: pointer;
+  transition: opacity var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+.gal-clip__btn:hover { background: rgb(20 16 12 / 0.82); }
+.gal-clip__i { display: none; width: 22px; height: 22px; }
+.gal-clip[data-state="idle"] .gal-clip__i--play,
+.gal-clip[data-state="paused"] .gal-clip__i--play,
+.gal-clip[data-state="playing"] .gal-clip__i--pause,
+.gal-clip[data-state="ended"] .gal-clip__i--replay,
+.gal-clip__btn[aria-pressed="false"] .gal-clip__i--muted,
+.gal-clip__btn[aria-pressed="true"] .gal-clip__i--sound { display: block; }
+/* Los botones solo se ven al pasar el ratón, al tocar el vídeo (.is-active, js/ui/clip.js) o con el foco del
+   teclado. Excepción: si el vídeo no ha podido arrancar solo (idle), el botón de reproducir queda a la vista. */
+.gal-clip:not([data-state="idle"]) .gal-clip__btn { opacity: 0; pointer-events: none; }
+.gal-clip.is-active .gal-clip__btn,
+.gal-clip:has(.gal-clip__btn:focus-visible) .gal-clip__btn { opacity: 1; pointer-events: auto; }
+@media (hover: hover) {
+  .gal-clip:hover .gal-clip__btn { opacity: 1; pointer-events: auto; }
+}
 .gal-tile__cap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.6rem; padding-inline: 0.2rem; }
 .gal-tile__cap-title {
   font-family: var(--font-display);

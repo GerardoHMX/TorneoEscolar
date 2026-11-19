@@ -27,8 +27,11 @@ export function rich(s) {
 }
 
 /**
- * Bases (ES; el sitio antiguo tampoco las traducía). Bloques: p (párrafo), list (viñetas),
- * h (subtítulo), facts ([etiqueta, valor]), prizes ([icono, texto]).
+ * Bases. Aquí vive el texto en ESPAÑOL (el original); el inglés está en js/translations.js con claves por
+ * posición (basesKey): `bases_<key>_title` y `bases_<key>_<bloque>` (+ `_<n>` en listas y premios, `_<n>_k` /
+ * `_<n>_v` en datos). Al cambiar un texto o una fecha aquí hay que cambiar también su clave en inglés; una
+ * clave que falte se muestra en español. Bloques: p (párrafo), list (viñetas), h (subtítulo),
+ * facts ([etiqueta, valor]), prizes ([icono, texto]).
  */
 export const BASES = [
   { key: 'descripcion', title: 'Descripción del torneo', icon: '🏫', blocks: [
@@ -40,10 +43,10 @@ export const BASES = [
     { h: 'Equipos' },
     { list: ['Hasta *seis jugadores* por equipo.'] },
     { h: 'Inscripción' },
-    { p: 'Entregar la hoja de inscripción al profesorado de Educación Física. La fecha límite de inscripción es el *6 de noviembre de 2026*.' },
+    { p: 'Entregar la hoja de inscripción al profesorado de Educación Física. La fecha límite de inscripción es el *13 de noviembre de 2026*.' },
   ] },
   { key: 'calendario', title: 'Calendario', icon: '📅', blocks: [
-    { facts: [['Inicio', '25 de noviembre de 2026'], ['Final', '19 de febrero de 2027'], ['Entrega de trofeos', '20 de febrero (Día de Andalucía)']] },
+    { facts: [['Inicio', '19 de noviembre de 2026'], ['Final', '19 de febrero de 2027'], ['Entrega de trofeos', '19 de febrero (Día de Andalucía)']] },
     { p: 'Partidos en los *recreos* (noviembre–febrero).' },
     { p: 'En caso de lluvia, las finales podrán posponerse a la primera semana posterior a Semana Blanca.', note: true },
   ] },
@@ -74,14 +77,19 @@ export const BASES = [
   ] },
 ];
 
-function block(b) {
-  if (b.h) return html`<h4 class="rules__h">${b.h}</h4>`;
-  if (b.list) return html`<ul class="rules__list">${b.list.map((li) => html`<li>${rich(li)}</li>`)}</ul>`;
-  if (b.facts) return html`<dl class="rules__facts">${b.facts.map(([k, v]) => html`<div><dt>${k}</dt><dd>${v}</dd></div>`)}</dl>`;
-  if (b.prizes) return html`<ul class="rules__prizes">${b.prizes.map(([icon, label]) => html`<li><span aria-hidden="true">${icon}</span>${label}</li>`)}</ul>`;
-  return html`<p class="${b.note ? 'rules__p rules__note' : 'rules__p'}">${rich(b.p)}</p>`;
+/** Clave de traducción de un texto de las bases: basesKey('calendario', 0, 1, 'v') -> 'bases_calendario_0_1_v'. */
+export const basesKey = (...parts) => `bases_${parts.join('_')}`;
+
+/** `tr(sufijos…, textoEnEspañol)` del bloque `i` del apartado `key`: el español es el texto de reserva. */
+function block(b, i, key, t) {
+  const tr = (...a) => t(basesKey(key, i, ...a.slice(0, -1)), a[a.length - 1]);
+  if (b.h) return html`<h4 class="rules__h">${tr(b.h)}</h4>`;
+  if (b.list) return html`<ul class="rules__list">${b.list.map((li, n) => html`<li>${rich(tr(n, li))}</li>`)}</ul>`;
+  if (b.facts) return html`<dl class="rules__facts">${b.facts.map(([k, v], n) => html`<div><dt>${tr(n, 'k', k)}</dt><dd>${tr(n, 'v', v)}</dd></div>`)}</dl>`;
+  if (b.prizes) return html`<ul class="rules__prizes">${b.prizes.map(([icon, label], n) => html`<li><span aria-hidden="true">${icon}</span>${tr(n, label)}</li>`)}</ul>`;
+  return html`<p class="${b.note ? 'rules__p rules__note' : 'rules__p'}">${rich(tr(b.p))}</p>`;
 }
-const body = (item) => html`${item.blocks.map(block)}`;
+const body = (item, t) => html`${item.blocks.map((b, i) => block(b, i, item.key, t))}`;
 
 /** Logo del torneo: archivo local img/logo-torneo.webp (TORNEO_LOGO_URL y TORNEO_CARTEL_URL ya no se usan). */
 export function images() {
@@ -252,8 +260,8 @@ export const bases = {
     const season = seasonShort(anioDe(model?.config));
     return html`${season ? html`<span class="section-season" aria-hidden="true">${season}</span>` : ''}${sectionTitle(t, ['section_bases_title', 'Bases del Torneo'], ['section_bases_kicker', 'Reglamento'])}
     <div class="rules reveal">
-      <div class="accordion" data-single data-accordion lang="es">
-        ${BASES.map((b, i) => accordionItem(b.title, html`<div class="rules__body">${body(b)}</div>`, { open: i === 0, level: 3 }))}
+      <div class="accordion" data-single data-accordion>
+        ${BASES.map((b, i) => accordionItem(t(basesKey(b.key, 'title'), b.title), html`<div class="rules__body">${body(b, t)}</div>`, { open: i === 0, level: 3 }))}
       </div>
       ${reglamento ? html`<p class="rules__download"><a class="btn-gold" href="${reglamento}" target="_blank" rel="noopener noreferrer" download>${t('bases_download', 'Descargar reglamento (PDF)')}</a></p>` : ''}
     </div>`;

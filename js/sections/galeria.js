@@ -1,9 +1,12 @@
 // Galería: solo filas con PUBLICAR = SI, un día cada vez con navegación anterior/siguiente (portado de
 // main.js: encontrarDiasRelevantesGaleria + filtrarGaleriaPorFecha y de ui.js: renderGalería +
 // mostrarDetalleGalería). TIPO IMAGEN (o vacío) -> miniatura que abre un visor (openModal) con
-// anterior/siguiente; TIPO VIDEO -> solo vídeos de https://drive.google.com, incrustados con /preview;
+// anterior/siguiente; TIPO VIDEO -> vídeo del propio sitio (URL «media/nombre.mp4»: sin reproductor, arranca
+// solo una vez, con PORTADA al principio y al final; js/ui/clip.js) o vídeo de https://drive.google.com
+// (con DRIVE_API_KEY en CONFIGURACION: igual que uno propio; sin clave: incrustado con /preview, PORTADA
+// solo al principio);
 // cualquier otro vídeo (YouTube, otros dominios) se omite.
-import { html } from '../core/dom.js';
+import { html, raw } from '../core/dom.js';
 import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { openModal } from '../ui/modal.js';
@@ -11,6 +14,7 @@ import { pickLatestDay, itemsForDay } from './dates.js';
 import { sectionTitle, emptyState, restoreFocus } from './common.js';
 import { feedGroup, feedDay, feedStep, dayNav, bindDayNav, feedDateLabel } from './feed.js';
 import { bindMediaFallback } from '../ui/media.js';
+import { bindClips, bindDriveCovers, fitDriveFrames, localImage, localVideo, posterFor } from '../ui/clip.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel @typedef {import('../data/models.js').GaleriaItem} GaleriaItem */
 
@@ -39,17 +43,41 @@ export function driveVideoEmbed(url) {
   return /^[a-zA-Z0-9_-]+$/.test(fid) ? `https://drive.google.com/file/d/${fid}/preview` : '';
 }
 
+/**
+ * Archivo de vídeo de Drive servido por la API oficial (Drive API v3, alt=media) para reproducirlo con el
+ * <video> del sitio, sin el reproductor de Drive. Necesita una clave de API (CONFIGURACION: DRIVE_API_KEY) y
+ * que el archivo sea público. Sin clave válida -> ''. (Los enlaces directos de Drive sin clave responden 403
+ * a cualquier petición hecha desde otra web.)
+ */
+export function driveVideoApi(url, key) {
+  const fid = driveVideoEmbed(url).match(/\/file\/d\/([a-zA-Z0-9_-]+)\/preview$/)?.[1];
+  const k = String(key ?? '').trim();
+  return fid && /^[A-Za-z0-9_-]{20,80}$/.test(k) ? `https://www.googleapis.com/drive/v3/files/${fid}?alt=media&key=${k}` : '';
+}
+
 const tipo = (g) => String(g?.tipo ?? '').trim().toUpperCase();
 
 /**
  * Elemento listo para pintar, o null si no se puede mostrar de forma segura.
- * @returns {{kind: 'image', src: string, full: string, g: GaleriaItem} | {kind: 'video', src: string, g: GaleriaItem} | null}
+ * @returns {{kind: 'image', src: string, full: string, g: GaleriaItem} | {kind: 'video', src: string, thumb: string, poster: string, g: GaleriaItem} | {kind: 'clip', src: string, poster: string, fallback?: string, thumb?: string, g: GaleriaItem} | null}
  */
-export function media(g) {
+export function media(g, driveKey = '') {
   const k = tipo(g);
   if (k === 'VIDEO') {
+    // PORTADA (opcional): imagen de Drive o del sitio (media/…) que cubre el vídeo al principio y al final.
+    const portada = localImage(g.portada) || driveImg(g.portada, 1200);
+    const local = localVideo(g.url);
+    if (local) return { kind: 'clip', src: local, poster: portada || posterFor(local), g };
+    // Drive solo se puede incrustar con su propio reproductor (Google rechaza con 403 servir el archivo a un
+    // <video> de otro sitio): la PORTADA lo tapa hasta el primer clic, pero no puede volver al terminar.
     const src = driveVideoEmbed(g.url);
-    return src ? { kind: 'video', src, g } : null;
+    if (!src) return null;
+    const thumb = driveImg(g.url, 400);
+    // Con DRIVE_API_KEY: mismo trato que un vídeo propio (arranca solo, sin reproductor, portada al principio y
+    // al final). Si la API falla (clave, cuota, archivo privado), js/ui/clip.js vuelve al iframe (fallback).
+    const api = driveVideoApi(g.url, driveKey);
+    if (api) return { kind: 'clip', src: api, poster: portada || driveImg(g.url, 1200), fallback: src, thumb, g };
+    return { kind: 'video', src, thumb, poster: portada, g };
   }
   if (k !== '' && k !== 'IMAGEN') return null;
   const full = driveImg(g.url);
@@ -60,7 +88,7 @@ export function media(g) {
 export function galeriaView(model, state) {
   const group = feedGroup(model?.galeria);
   const day = feedDay(group, state?.dia);
-  const shown = itemsForDay(group, day).map((e) => media(e.item)).filter(Boolean);
+  const shown = itemsForDay(group, day).map((e) => media(e.item, model?.config?.DRIVE_API_KEY)).filter(Boolean);
   return { group, day, shown, images: shown.filter((m) => m.kind === 'image') };
 }
 
@@ -97,12 +125,31 @@ export function lightbox(g, t, pos = { index: 0, total: 1 }) {
 
 const TITLE = [['section_gallery_title', 'Galería'], ['section_gallery_kicker', 'En imágenes']];
 
+// Iconos de los vídeos propios: el CSS muestra el que toca según data-state / aria-pressed.
+const svg = (cls, d) => html`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICON_TOGGLE = html`${svg('gal-clip__i gal-clip__i--play', 'M8 5.5v13l11-6.5z')}${svg('gal-clip__i gal-clip__i--pause', 'M8.5 5.5v13M15.5 5.5v13')}${svg('gal-clip__i gal-clip__i--replay', 'M4.5 12a7.5 7.5 0 1 0 2.4-5.5M4.5 4v3.5H8')}`;
+const ICON_SOUND = html`${svg('gal-clip__i gal-clip__i--muted', 'M4 9.5v5h3.5l4.5 4v-13l-4.5 4zM16 9.5l5 5M21 9.5l-5 5')}${svg('gal-clip__i gal-clip__i--sound', 'M4 9.5v5h3.5l4.5 4v-13l-4.5 4zM15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11')}`;
+
 function tile(m, i, imgIndex, t, locale) {
   const g = m.g;
+  if (m.kind === 'clip') {
+    const title = g.titulo || t('gallery_video', 'Vídeo del torneo');
+    return html`<figure class="gal-tile gal-tile--video reveal" style="--i:${i}">
+      <div class="gal-tile__frame gal-clip" data-clip data-state="idle"${m.fallback ? html` data-clip-fallback="${m.fallback}" data-drive-thumb="${m.thumb}"` : ''}>
+        <video src="${m.src}" poster="${m.poster}" muted playsinline preload="metadata" aria-label="${title}"></video>
+        <img class="gal-cover" src="${m.poster}" alt="" decoding="async" referrerpolicy="no-referrer">
+        <div class="gal-clip__tools">
+          <button type="button" class="gal-clip__btn" data-clip-sound aria-pressed="false">${ICON_SOUND}</button>
+          <button type="button" class="gal-clip__btn" data-clip-toggle>${ICON_TOGGLE}</button>
+        </div>
+      </div>
+      ${caption(g, locale, 'gal-tile__cap')}
+    </figure>`;
+  }
   if (m.kind === 'video') {
     const title = g.titulo || t('gallery_video', 'Vídeo del torneo');
     return html`<figure class="gal-tile gal-tile--video reveal" style="--i:${i}">
-      <div class="gal-tile__frame"><iframe src="${m.src}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <div class="gal-tile__frame${m.poster ? ' gal-drive' : ''}" data-drive-thumb="${m.thumb}"${m.poster ? raw(' data-drive-cover') : ''}>${m.poster ? html`<img class="gal-cover" src="${m.poster}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="gal-drive__play" aria-hidden="true"></span>` : ''}<iframe src="${m.src}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation allow-popups" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
       ${caption(g, locale, 'gal-tile__cap')}
     </figure>`;
   }
@@ -162,5 +209,10 @@ export function bind(root, ctx) {
     });
   });
   bindMediaFallback(root);
+  bindClips(root, ctx.t);
+  fitDriveFrames(root);
+  bindDriveCovers();
+  // Portada de Drive que no carga: se retira y queda el reproductor tal cual.
+  root.querySelectorAll('[data-drive-cover] .gal-cover').forEach((img) => img.addEventListener('error', () => img.closest('[data-drive-cover]')?.classList.add('is-started')));
   restoreFocus(root, id);
 }
