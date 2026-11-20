@@ -1,12 +1,12 @@
 // Orquestador del sitio (spec §4-§6, contratos R12/R14).
 // Arranque: loader -> loadAll -> buildModel -> visibilidad -> una <section id class="section reveal"> por
-// sección visible (orden de SECTIONS) -> nav, pie y CONFIGURACION -> loader.done() -> refresco periódico.
+// sección visible (orden según la fase del torneo: sectionOrder) -> nav, pie y CONFIGURACION -> loader.done() -> refresco periódico.
 // Cada sección guarda su estado; setState re-renderiza TODO su contenido y vuelve a llamar a bind.
 // Resiliencia: si no llegan datos se muestra Inicio + aviso; una sección que falla se registra y se omite.
 import { html, safeUrl, setHTML } from './core/dom.js';
 import { createI18n, pickLang, storedLang } from './core/i18n.js';
 import { failureMemo, navigationType, safeDecodeHash, shouldBypassCache } from './core/boot.js';
-import { SECTIONS, diffSections, menuItems, noticeKind, sectionVisibility } from './core/visibility.js';
+import { SECTIONS, diffSections, menuItems, noticeKind, sectionOrder, sectionVisibility, tournamentPhase } from './core/visibility.js';
 import { translations } from './translations.js';
 import { loadAllWithStatus, loadCachedAll, loadOutcome, onUpdate } from './data/sheets.js';
 import { buildModel, mergeRaw } from './data/buildModel.js';
@@ -55,6 +55,8 @@ let raw = null;
 let model = buildModel({});
 let notice = null;
 let navKey = null;
+/** Orden de página vigente (cambia con la fase del torneo: previa, sorteo, grupos, eliminatorias, final). */
+let order = sectionOrder('previa');
 /** 'failed' (alguna hoja no cargó) o 'empty' (todo cargó pero no hay nada publicado): elige el aviso. */
 let outcome = 'failed';
 /** Versión de los datos (sube cuando cambian): una sección que lanzó no se reintenta hasta otra versión o idioma. */
@@ -129,8 +131,8 @@ function unmount(id) {
 
 /** Nodo ante el que insertar `id`: la siguiente sección montada en orden de página, o el aviso. */
 function nextAnchor(id) {
-  const i = SECTIONS.findIndex((s) => s.id === id);
-  for (const s of SECTIONS.slice(i + 1)) if (mounted.has(s.id)) return mounted.get(s.id).wrap;
+  const i = order.indexOf(id);
+  for (const next of order.slice(i + 1)) if (mounted.has(next)) return mounted.get(next).wrap;
   return notice && notice.isConnected ? notice : null;
 }
 
@@ -147,11 +149,22 @@ function sync({ force = false } = {}) {
     console.error('[main] sectionVisibility falló:', err);
     vis = { inicio: true };
   }
+  let phase = 'previa';
+  try {
+    phase = tournamentPhase(model);
+  } catch (err) {
+    console.error('[main] tournamentPhase falló:', err);
+  }
+  const nextOrder = sectionOrder(phase);
+  const reordered = nextOrder.join(',') !== order.join(',');
+  order = nextOrder;
+  document.documentElement.dataset.fase = phase; // gancho para CSS / analítica
   const key = failKey();
   const want = Object.fromEntries(SECTIONS.map(({ id }) => [id, !!vis[id] && MODULES.has(id) && !failures.blocked(id, key)]));
   const have = Object.fromEntries([...mounted.keys()].map((id) => [id, true]));
-  const { added, removed, kept } = diffSections(have, want);
+  const { added, removed, kept } = diffSections(have, want, order);
   removed.forEach(unmount);
+  if (reordered) reorderMounted();
   for (const id of kept) {
     const entry = mounted.get(id);
     if (!entry) continue;
@@ -171,6 +184,21 @@ function sync({ force = false } = {}) {
   }
   added.forEach(mount);
   refreshChrome({ force });
+}
+
+/**
+ * Cambio de fase: recoloca las secciones ya montadas en el nuevo orden (sin re-crearlas, conservan su estado).
+ * Mover un nodo le quita el foco: si estaba dentro de una sección, se devuelve tras moverla.
+ */
+function reorderMounted() {
+  const anchor = notice && notice.isConnected ? notice : null;
+  for (const id of order) {
+    const entry = mounted.get(id);
+    if (!entry) continue;
+    const focus = captureFocus(entry.el);
+    app.insertBefore(entry.wrap, anchor);
+    restoreCapturedFocus(entry.el, focus);
+  }
 }
 
 /**
@@ -200,18 +228,18 @@ function restoreCapturedFocus(el, cap) {
 function refreshChrome({ force = false } = {}) {
   updateNotice(force);
   let n = 0;
-  for (const { id } of SECTIONS) {
+  for (const id of order) {
     const entry = mounted.get(id);
     if (!entry || id === 'inicio') continue;
     entry.wrap.classList.toggle('band--ivory', n % 2 === 0);
     n += 1;
   }
   const visible = Object.fromEntries([...mounted.keys()].map((id) => [id, true]));
-  const key = `${i18n.lang}|${SECTIONS.filter((s) => visible[s.id]).map((s) => s.id).join(',')}`;
+  const key = `${i18n.lang}|${order.filter((id) => visible[id]).join(',')}`;
   if (force || key !== navKey) {
     navKey = key;
     try {
-      renderNav(menuItems(visible), t);
+      renderNav(menuItems(visible, order), t);
     } catch (err) {
       console.error('[main] renderNav falló:', err);
     }

@@ -7,31 +7,21 @@
 // scrollIntoView y los saltos por ancla; las secciones no necesitan scroll-margin-top propio.
 // renderNav es idempotente: se puede volver a llamar al cambiar visibilidad o idioma.
 
-import { SECTIONS } from '../core/visibility.js';
 import { html, setHTML } from '../core/dom.js';
 import { inertOutside, lockScroll, prefersReducedMotion, trapTab, ut } from './focus.js';
 
-const PRIMARY_IDS = SECTIONS.filter((s) => s.mobilePrimary).map((s) => s.id);
 const WIDE_EXTRA = 2; // enlaces en línea adicionales a partir de 1400px
 
 /**
  * Reparte los elementos del menú entre la barra (primarias) y «Más».
- * Primarias = las `mobilePrimary` visibles; si faltan (p. ej. sin próximos partidos) se rellenan con
- * las siguientes visibles hasta `n`. Ambas listas conservan el orden de página.
+ * `items` llega ya en orden de importancia para la fase del torneo (menuItems + sectionOrder):
+ * primarias = las `n` primeras; el resto va a «Más». Ambas listas conservan el orden de página.
  * @param {{id:string, labelKey:string}[]} items @param {number} [n]
  * @returns {{primary: {id:string,labelKey:string}[], rest: {id:string,labelKey:string}[]}}
  */
 export function splitNavItems(items, n = 4) {
   const list = Array.isArray(items) ? items.filter((x) => x && x.id) : [];
-  const chosen = new Set(list.filter((x) => PRIMARY_IDS.includes(x.id)).slice(0, n).map((x) => x.id));
-  for (const x of list) {
-    if (chosen.size >= n) break;
-    chosen.add(x.id);
-  }
-  return {
-    primary: list.filter((x) => chosen.has(x.id)),
-    rest: list.filter((x) => !chosen.has(x.id)),
-  };
+  return { primary: list.slice(0, n), rest: list.slice(n) };
 }
 
 /**
@@ -74,8 +64,6 @@ function shortLabel(t, key) {
   return s && s !== `${key}.short` ? s : t(key);
 }
 
-const pageIndex = (id) => SECTIONS.findIndex((s) => s.id === id);
-const byPage = (a, b) => pageIndex(a.id) - pageIndex(b.id);
 
 /** En PC entre 1024 y 1279px el texto corto (si existe) cabe junto a logos e idioma; desde 1280px, el completo. */
 function deskLabel(t, key) {
@@ -106,7 +94,7 @@ export function renderNav(items, t) {
     offs.push(() => target.removeEventListener(type, fn));
   };
   const { primary, rest } = splitNavItems(items);
-  const all = [...primary, ...rest];
+  const all = [...primary, ...rest]; // ya en orden de página (el de la fase del torneo)
   const restIds = new Set(rest.map((x) => x.id));
   const label = (it) => t(it.labelKey);
   const moreLabel = ut('nav_more', 'Más');
@@ -117,7 +105,7 @@ export function renderNav(items, t) {
     const wide = rest.slice(0, WIDE_EXTRA);
     const onlyNarrow = rest.length <= WIDE_EXTRA; // a ≥1280px «Más» quedaría vacío
     const wideIds = new Set(wide.map((x) => x.id));
-    const inline = all.filter((x) => !restIds.has(x.id) || wideIds.has(x.id)).sort(byPage);
+    const inline = all.filter((x) => !restIds.has(x.id) || wideIds.has(x.id));
     setHTML(desk, html`<ul class="dnav" role="list">
   ${inline.map((it) => html`<li${wideIds.has(it.id) ? html` class="dnav__wide"` : ''}><a class="nav-link" href="#${it.id}" data-nav="${it.id}">${deskLabel(t, it.labelKey)}</a></li>`)}
   ${rest.length ? html`<li class="dnav__more${onlyNarrow ? ' dnav__more--narrow' : ''}">
@@ -256,7 +244,7 @@ export function renderNav(items, t) {
     moreBtn?.classList.toggle('is-active', inMore);
   }
 
-  const order = [...all].sort(byPage).map((x) => x.id);
+  const order = all.map((x) => x.id);
   let io = null;
   const inView = new Set();
   let held = false;

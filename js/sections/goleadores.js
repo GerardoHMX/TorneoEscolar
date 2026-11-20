@@ -1,9 +1,9 @@
 // Goleadores: ranking por ciclo desde model.scorers (scorersWithFallback: GOLES si hay, si no LIDERES).
 // Porta tablaLideresGoleadores (js/ui.js): filtros ciclo + curso, los 3 primeros de cada ciclo en un podio
 // animado (subida de escalones y contador de goles; avatares de OTROS por CICLO + POSICION con iniciales
-// de reserva) y el resto del ranking debajo (tarjetas en móvil, tabla en PC). Empates: misma posición.
+// de reserva; admiten GIF animado, con imagen fija si el usuario reduce el movimiento) y el resto del ranking debajo (tarjetas en móvil, tabla en PC). Empates: misma posición.
 import { html } from '../core/dom.js';
-import { driveImg } from '../core/drive.js';
+import { driveImg, driveOriginal } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { isTeamChoiceEnabled } from '../data/teamDisplay.js';
 import { crest, initials } from '../ui/matchCard.js';
@@ -60,11 +60,17 @@ const DELAY = { gold: 360, silver: 180, bronze: 0 };
 
 const golesLabel = (n, t) => (n === 1 ? t('goal_singular', 'gol') : t('goles_description', 'Goles').toLowerCase());
 
-/** Avatar de OTROS (foto) sobre las iniciales del jugador; con marcado de .crest para que bindCrests oculte la foto rota. */
+/**
+ * Avatar de OTROS (AVATARPOSICIONES) sobre las iniciales del jugador; con marcado de .crest para que bindCrests
+ * oculte la imagen rota. Se pide el archivo ORIGINAL de Drive para que un GIF se anime (la miniatura de Drive
+ * solo da el primer fotograma); con «reducir movimiento» se usa la miniatura, que es la imagen fija.
+ */
 function avatar(name, url) {
-  const src = driveImg(url).replace(/^(https:\/\/drive\.google\.com\/thumbnail\?[^#]*[?&]sz=)w\d+/, '$1w320');
+  const anim = driveOriginal(url);
+  const still = driveImg(url).replace(/^(https:\/\/drive\.google\.com\/thumbnail\?[^#]*[?&]sz=)w\d+/, '$1w320');
   return html`<span class="crest crest--avatar"><span class="crest__mono" aria-hidden="true">${initials(name)}</span>${
-    src ? html`<img class="crest__img" src="${src}" alt="" loading="lazy" decoding="async" width="160" height="160">` : ''
+    anim ? html`<picture>${still && still !== anim ? html`<source media="(prefers-reduced-motion: reduce)" srcset="${still}">` : ''
+    }<img class="crest__img" src="${anim}" alt="" loading="lazy" decoding="async" width="160" height="160"></picture>` : ''
   }</span>`;
 }
 
