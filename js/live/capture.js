@@ -120,6 +120,27 @@ async function save(next, { current = false } = {}) {
   renderPanel();
 }
 
+/**
+ * Reiniciar: borra el documento del partido. meta/indice registra el cambio para que el Apps Script deshaga lo
+ * que copió al libro, y si la tele seguía este partido (meta/actual) deja de hacerlo.
+ */
+async function resetMatch() {
+  if (!db || n == null) return;
+  const b = fs.writeBatch(db);
+  b.delete(fs.doc(db, 'marcador', String(n)));
+  b.set(fs.doc(db, 'meta', 'indice'), { cambios: { [String(n)]: fs.serverTimestamp() } }, { merge: true });
+  try {
+    const cur = await fs.getDoc(fs.doc(db, 'meta', 'actual'));
+    if (Number(cur.data()?.n) === n) b.set(fs.doc(db, 'meta', 'actual'), { n: null, actualizado: fs.serverTimestamp() });
+  } catch { /* sin red: la tele dejará de mostrarlo a los 15 min del final */ }
+  doc = null; draftDesempate = '';
+  renderPanel();
+  try { await b.commit(); writeError = ''; } catch (err) {
+    writeError = err?.code === 'permission-denied' ? `La cuenta ${user?.email ?? ''} no tiene permiso para anotar.` : `No se pudo reiniciar (${err?.code ?? err?.message ?? 'error'}).`;
+  }
+  renderPanel();
+}
+
 // ------------------------------------------------------------------ vistas
 
 function renderUser() {
@@ -141,13 +162,17 @@ async function renderList() {
   if (n != null) return; // se eligió un partido mientras cargaba
   const today = new Date();
   const tk = dayKey(today);
-  const pending = C.pendingMatches(model).filter((p) => estados.get(String(p.n)) !== 'FINAL');
-  const live = pending.filter((p) => estados.has(String(p.n)));
-  const rest = pending.filter((p) => !estados.has(String(p.n)));
+  // Todo partido que esté en el directo sale en la lista aunque la hoja ya diga JUGADO (p. ej. porque lo
+  // copió el propio Apps Script): si no, no habría forma de reiniciarlo y la sincronización lo volvería a escribir.
+  const enDirecto = (model.partidos ?? []).filter((p) => estados.has(String(p.n))).sort((a, b) => a.n - b.n);
+  const live = enDirecto.filter((p) => estados.get(String(p.n)) !== 'FINAL');
+  const rest = C.pendingMatches(model).filter((p) => !estados.has(String(p.n)));
   const hoy = rest.filter((p) => dayKey(p.fecha) === tk);
   const prox = rest.filter((p) => (dayKey(p.fecha) ?? -Infinity) > tk);
   const antes = rest.filter((p) => !hoy.includes(p) && !prox.includes(p));
   const next = hoy[0] ?? prox[0] ?? null;
+  // Terminados en el directo (para revisarlos o reiniciarlos tras una prueba)
+  const terminados = enDirecto.filter((p) => estados.get(String(p.n)) === 'FINAL');
   const item = (p, tag, cls = '') => {
     const { round } = C.phaseLabels(p);
     return html`<button type="button" class="pick ${cls}" data-pick="${p.n}">
@@ -160,7 +185,8 @@ async function renderList() {
     <section class="card"><h2>Partidos de hoy</h2>${hoy.length ? html`<div class="list">${hoy.map((p) => item(p, p === next ? 'Siguiente' : '', p === next ? 'pick--next' : ''))}</div>` : html`<p class="muted">Hoy no hay partidos pendientes.</p>`}</section>
     ${prox.length ? html`<section class="card"><h2>Próximos días</h2><div class="list">${prox.slice(0, 12).map((p) => item(p, p === next ? 'Siguiente' : '', p === next ? 'pick--next' : ''))}</div></section>` : ''}
     ${antes.length ? html`<section class="card"><details><summary>Pendientes de días anteriores (${antes.length})</summary><p class="muted">Partidos con fecha pasada que aún no tienen resultado en la hoja.</p><div class="list">${antes.map((p) => item(p, ''))}</div></details></section>` : ''}
-    <p class="muted">Los partidos ya jugados no aparecen: no se pueden volver a capturar.</p>`);
+    ${terminados.length ? html`<section class="card"><h2>Terminados en el directo</h2><p class="muted">Ábrelos para revisarlos o para reiniciarlos si fueron una prueba (al reiniciar, el libro se limpia en la siguiente sincronización).</p><div class="list">${terminados.map((p) => item(p, 'Final'))}</div></section>` : ''}
+    <p class="muted">Los partidos con ESTATUS = JUGADO en la hoja no aparecen (no se pueden capturar), salvo que estén en el directo.</p>`);
 }
 
 function goalsList(p) {
@@ -222,6 +248,7 @@ function actionsFor(p, L, V) {
       <p class="notice notice--ok">El resultado y los goles se copiarán al libro de Google Sheets en unos minutos (o al pulsar Marcador › Sincronizar ahora en el libro).</p>
       <div class="row"><button class="btn" data-act="goal" data-lado="local">+ Gol olvidado ${L.nombre}</button><button class="btn" data-act="goal" data-lado="visitante">+ Gol olvidado ${V.nombre}</button></div>
       <button class="btn btn--ghost" data-act="reopen">Reabrir el partido (error al terminar)</button>
+      <button class="btn btn--ghost" data-act="reset">Reiniciar partido (borrar todo, p. ej. tras una prueba)</button>
       <button class="btn" data-act="back">Elegir otro partido</button></section>`;
   }
   return '';
@@ -232,7 +259,8 @@ function renderPanel() {
   const p = C.findMatch(model, n);
   if (!p) { renderMessage('Partido no encontrado', html`<p>El partido ${n} no está en la hoja CLASIFICACION.</p>`, html`<button class="btn" data-act="back">Volver a la lista</button>`); return; }
   if (!doc && p.estatus === 'JUGADO') {
-    renderMessage('Partido ya jugado', html`<p>El partido ${n} ya tiene ESTATUS = JUGADO en la hoja y no se puede volver a capturar.</p>`, html`<button class="btn" data-act="back">Volver a la lista</button>`);
+    renderMessage('Partido ya jugado', html`<p>El partido ${n} tiene ESTATUS = JUGADO en la hoja CLASIFICACION y no se puede capturar.</p>
+      <p class="muted">Si lo acabas de reiniciar, el libro se limpia en la siguiente sincronización (como mucho 5 minutos, o al momento con Marcador › Sincronizar ahora). Después recarga esta página.</p>`, html`<button class="btn" data-act="back">Volver a la lista</button>`);
     return;
   }
   const L = C.teamView(model, p.local); const V = C.teamView(model, p.visitante);
@@ -248,12 +276,14 @@ function renderPanel() {
       <div><div class="score__n">${sc.visitante}</div><div class="score__team">${V.nombre}</div></div>
     </div>
     ${writeError ? html`<p class="notice" role="alert">${writeError}</p>` : ''}
+    ${doc && doc.estado !== 'FINAL' && p.estatus === 'JUGADO' ? html`<p class="notice" role="alert">La hoja ya tiene este partido como JUGADO (resultado puesto a mano). La tele muestra el resultado de la hoja y lo capturado aquí no se copiará al libro. Si esto era una prueba, reinicia el partido.</p>` : ''}
     ${actionsFor(p, L, V)}
     ${doc ? html`<section class="card"><h2>Goles</h2>${goalsList(p)}</section>` : ''}
     ${doc && doc.estado !== 'FINAL' ? html`<section class="card"><details><summary>Ajustes del partido</summary>
       <div class="field"><label class="lab" for="desSel2">Desempate</label>
         <select id="desSel2" data-act="desempate">${DESEMPATES.map((d) => html`<option value="${d}"${d === des ? html` selected` : ''}>${tiebreakLabel(d)}</option>`)}</select></div>
-      <button class="btn btn--ghost" data-act="finish">Terminar el partido ahora</button></details></section>` : ''}
+      <button class="btn btn--ghost" data-act="finish">Terminar el partido ahora</button>
+      <button class="btn btn--ghost" data-act="reset">Reiniciar partido (borrar todo)</button></details></section>` : ''}
     <p class="sync${writeError ? ' is-error' : pendingWrites ? ' is-pending' : ''}" role="status"><i></i>${writeError ? 'Sin guardar' : pendingWrites ? 'Guardando… (se enviará al recuperar la conexión)' : doc ? 'Guardado · la tele ya lo muestra' : 'Listo para empezar'}</p>`);
   tick();
 }
@@ -339,6 +369,10 @@ async function act(name, el) {
     case 'reopen':
       if (!(await confirmAsk('¿Reabrir el partido?', 'Vuelve al momento anterior al final, con el reloj detenido.', 'Reabrir', 'btn--amber'))) return;
       return save(S.reopen(doc));
+    case 'reset': {
+      if (!(await confirmAsk(`¿Reiniciar el partido ${n}?`, 'Se borra todo lo capturado: goles, reloj y penaltis. La tele vuelve a la previa y, si ya se había copiado al libro, el libro se limpia en la siguiente sincronización.', 'Sí, reiniciar'))) return;
+      return resetMatch();
+    }
     case 'del-goal': {
       const g = (doc?.goles ?? []).find((x) => x.id === el.dataset.id);
       if (!g || !(await confirmAsk('¿Borrar este gol?', `${goalTime(g)} · ${g.jugador || 'Sin nombre'}`, 'Borrar gol'))) return;

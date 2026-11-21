@@ -37,7 +37,8 @@ const statusEl = document.getElementById('status');
 let model = buildModel({});
 let loaded = false;
 let currentN = fixedN;
-let doc = null;
+let rawDoc = null; // documento tal como llega de Firestore
+let doc = null;    // el que se muestra (ver effectiveDoc)
 let docN = null;
 let firstSnap = true;
 let unsubMatch = null;
@@ -290,6 +291,16 @@ function renderPre(p) {
   tick();
 }
 
+/**
+ * El libro manda: si la hoja ya tiene el partido como JUGADO y el directo no terminó (una prueba a medias,
+ * por ejemplo), se ignora el directo y se muestra el resultado de la hoja.
+ */
+function effectiveDoc() {
+  const p = currentN != null ? C.findMatch(model, currentN) : null;
+  if (rawDoc && p?.estatus === 'JUGADO' && rawDoc.estado !== 'FINAL') return null;
+  return rawDoc;
+}
+
 function computeView() {
   const today = new Date();
   const p = currentN != null ? C.findMatch(model, currentN) : null;
@@ -304,6 +315,7 @@ function computeView() {
 }
 
 function render() {
+  doc = effectiveDoc();
   view = computeView();
   stage.dataset.kind = view.kind;
   if (view.kind === 'match') renderMatch(view.p);
@@ -445,10 +457,10 @@ function onDoc(n, d, meta) {
   const prev = doc;
   const first = firstSnap;
   firstSnap = false;
-  doc = d;
+  rawDoc = d;
   render();
   const p = C.findMatch(model, n);
-  if (!first && p && d && !meta?.hasPendingWrites) {
+  if (!first && p && d && doc && !meta?.hasPendingWrites) {
     const was = prev?.estado ?? 'PREVIA';
     if (d.estado === 'EN_JUEGO' && d.parte === 1 && was === 'PREVIA') playKickoff(p, false);
     else if (d.estado === 'EN_JUEGO' && was === 'DESCANSO') playKickoff(p, true);
@@ -462,7 +474,7 @@ function follow(n) {
   if (n === docN) return;
   unsubMatch?.();
   unsubMatch = null;
-  doc = null; docN = n; currentN = n ?? fixedN; firstSnap = true;
+  doc = null; rawDoc = null; docN = n; currentN = n ?? fixedN; firstSnap = true;
   render();
   if (n == null) return;
   watchMatch(n, (d, meta) => onDoc(n, d, meta), () => status('No se pudo conectar con el directo'))

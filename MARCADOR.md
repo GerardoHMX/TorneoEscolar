@@ -23,7 +23,22 @@ Móvil (captura.html) ──► Firebase Firestore ──► TV (marcador.html)
 
 En la tele, un clic o la tecla Enter la pone a pantalla completa. Si el televisor recorta los bordes, añade `&margen=5` a la dirección (o `?margen=5` si no hay otros parámetros).
 
-**La lista de la captura solo muestra partidos sin jugar.** No aparecen los que tienen `ESTATUS = JUGADO` en el libro ni los que ya se terminaron en el directo, así que un partido jugado no se puede volver a capturar. Si al terminar hubo un error, «Reabrir el partido» funciona mientras sigas en esa pantalla.
+**La hoja manda con `ESTATUS = JUGADO`.**
+- **Captura:** la lista del móvil no muestra los partidos con `ESTATUS = JUGADO` en **CLASIFICACION** ni los ya terminados en el directo, y no deja abrirlos para capturarlos.
+- **Resultado puesto a mano:** si alguien pone a mano en la hoja el resultado y `JUGADO`, el Apps Script no toca ni sus goles ni su resultado.
+- **Directo a medias:** si el directo de ese partido quedó sin terminar (una prueba), la tele muestra el resultado de la hoja.
+
+## Reiniciar un partido (por ejemplo, después de una demostración)
+
+Actualizar la hoja **no basta**: lo capturado vive en Firebase hasta que se borre. Para dejar un partido como nuevo:
+
+1. En el móvil (`captura.html`), abre el partido.
+   - Si ya está terminado, búscalo en **Terminados en el directo**, al final de la lista.
+2. Pulsa **Reiniciar partido** y confirma. Está en la tarjeta del final y en **Ajustes del partido**.
+3. Al momento, la tele vuelve a la previa de ese partido. Si estaba mostrando el partido en juego, pasa a «entre partidos».
+4. Si el libro ya había recibido la copia, se limpia solo en la siguiente sincronización: como mucho 5 minutos, o al momento con **Marcador › Sincronizar ahora**. Se borran sus goles en **GOLES** y `LSCORE`, `VSCORE`, `ESTATUS` (y `LPENALES`/`VPENALES`) en **CLASIFICACION**, pero solo lo que escribió el propio script. Luego recarga `captura.html` y el partido vuelve a aparecer en la lista.
+
+Consejo para la demostración: usa un partido de un día futuro y reinícialo al terminar.
 
 ## Puesta en marcha (una sola vez, unos 15 minutos)
 

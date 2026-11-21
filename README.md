@@ -197,6 +197,8 @@ Los datos del torneo (partidos, equipos, goleadores, etc.) se gestionan en un li
 - **Desempate:** se elige por partido (prórroga, penaltis o ambos); la tanda de penaltis es configurable y acaba en muerte súbita.
 - **Contexto en la TV:** clasificación del grupo en directo (fase de grupos), cuadro de eliminatorias (cuartos y semifinales) o camino a la final, más goleadores, próximos partidos y resultados.
 - **Animaciones:** al iniciar el partido y al marcar un gol.
+- **La hoja manda:** un partido con `ESTATUS = JUGADO` en CLASIFICACION no se puede capturar, y si su resultado se puso a mano, el Apps Script no lo toca.
+- **Reiniciar un partido** (p. ej. tras una demostración): botón «Reiniciar partido» en `captura.html`; el Apps Script deshace lo que había copiado al libro.
 - **Sin Firebase configurado**, la TV funciona solo con el libro: previa y, cuando el partido tiene `ESTATUS = JUGADO`, el resultado final.
 
 Puesta en marcha (Firebase, reglas, anotadores, Apps Script), límites del plan gratuito y detalles técnicos: **[MARCADOR.md](MARCADOR.md)**.
