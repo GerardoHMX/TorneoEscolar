@@ -1,0 +1,29 @@
+rules_version = '2';
+// Reglas de Firestore del marcador en vivo (pegar en Consola de Firebase › Firestore › Reglas › Publicar).
+// - Cualquiera puede LEER el directo (la tele, el sitio y el Apps Script que copia al libro).
+// - Solo pueden ESCRIBIR las cuentas de Google de config/anotadores (campo `emails`, una lista).
+// - La lista de anotadores solo la ven los propios anotadores y solo se edita desde la consola.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function anotador() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in get(/databases/$(database)/documents/config/anotadores).data.emails;
+    }
+
+    match /marcador/{partido} {
+      allow read: if true;
+      allow write: if anotador() && partido.matches('^[0-9]{1,4}$');
+    }
+
+    match /meta/{doc} {
+      allow read: if true;
+      allow write: if anotador() && doc in ['actual', 'indice'];
+    }
+
+    match /config/{doc} {
+      allow read: if anotador();
+      allow write: if false;
+    }
+  }
+}

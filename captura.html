@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Captura del marcador en vivo. Firebase: SDK desde www.gstatic.com; inicio de sesión con Google
+         (apis.google.com, ventana de *.firebaseapp.com / accounts.google.com); datos en firestore.googleapis.com. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://docs.google.com https://*.googleusercontent.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#a30f14">
+    <title>Captura del marcador · Al-Ándalus</title>
+    <link rel="preload" href="fonts/LALIGAHeadlineVF.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/captura.css?v=20261127">
+    <link rel="icon" href="img/logo-colegio.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="img/logo-192.png">
+</head>
+<body>
+    <header class="bar">
+        <img src="img/logo-torneo.webp" alt="" width="34" height="34">
+        <h1><small>Al-Ándalus · marcador en vivo</small>Captura</h1>
+        <div class="user" id="user"></div>
+    </header>
+    <main class="wrap" id="app" aria-live="polite"></main>
+    <dialog id="dlgGoal" aria-label="Anotar gol"></dialog>
+    <dialog id="dlgChoice" aria-label="Confirmar"></dialog>
+    <noscript><p class="wrap">Esta página necesita JavaScript.</p></noscript>
+    <script type="module" src="js/live/capture.js?v=20261127"></script>
+</body>
+</html>

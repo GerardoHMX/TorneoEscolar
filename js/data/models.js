@@ -11,8 +11,9 @@ import { parseMinuto } from './goals.js';
  * @typedef {{id:string, equipo:string, logo:string, score:number|null, res:'G'|'E'|'P'|''}} Lado
  * @typedef {{key:string, ciclo:string, ronda:'INICIAL'|'CUARTOS'|'SEMIFINAL'|'TERCERPUESTO'|'FINAL',
  *   grupo:string, n:number, fecha:Date|null, hora:string, local:Lado, visitante:Lado,
- *   estatus:'JUGADO'|'', interciclo:boolean, pasa:string}} Partido
+ *   estatus:'JUGADO'|'', interciclo:boolean, pasa:string, desempate:string}} Partido
  * pasa: equipo que avanza según la hoja (columna PASAN; GANA en las tablas de eliminatoria); '' si vacía.
+ * desempate: columna opcional DESEMPATE (marcador en vivo; ver js/live/rules.js); '' si no existe o está vacía.
  * @typedef {{ciclo:string, grupo:string, equipo:string, puntos:number, g:number, e:number, p:number,
  *   gf:number, gc:number, dg:number, fairplay:number, total:number}} FilaTabla
  * @typedef {{ciclo:string, n:number, equipoId:string, jugador:string,
@@ -166,6 +167,7 @@ export function parsePartidos(rows, equipos) {
       estatus: get(r, 'ESTATUS').toUpperCase() === 'JUGADO' ? 'JUGADO' : '',
       interciclo: ronda === 'FINAL' || ronda === 'TERCERPUESTO',
       pasa: get(r, 'PASAN', 'GANA'),
+      desempate: get(r, 'DESEMPATE'),
     });
   }
   return out;
