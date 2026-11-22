@@ -6,7 +6,7 @@
  *
  * Instalación (una sola vez):
  *   1. En el libro: Extensiones › Apps Script. Borra lo que haya en Código.gs y pega este archivo.
- * *   2. FIREBASE_PROJECT_ID y FIREBASE_API_KEY ya están puestos (los mismos de js/live/firebase-config.js). Guarda.
+ *   2. FIREBASE_PROJECT_ID y FIREBASE_API_KEY ya están puestos (los mismos de js/live/firebase-config.js). Guarda.
  *   3. Vuelve al libro y recárgalo: aparece el menú «Marcador».
  *   4. Marcador › Activar sincronización automática (pide permisos la primera vez).
  *
@@ -17,6 +17,10 @@
  *   - CLASIFICACION: al terminar el partido escribe LSCORE, VSCORE, ESTATUS = JUGADO y, en eliminatorias,
  *     LPENALES y VPENALES (la fórmula GANA decide quién pasa). Nunca sobrescribe una celda con fórmula.
  *   - Si un partido se reabre en el móvil, deshace el resultado que había escrito.
+ *   - Si un partido se REINICIA en el móvil (botón «Reiniciar partido»), borra los goles y el resultado que
+ *     este script había escrito, y el partido vuelve a quedar sin jugar.
+ *   - Respeta la hoja: si un partido ya tiene ESTATUS = JUGADO y NO lo escribió este script (resultado puesto
+ *     a mano), no toca ni sus goles ni su resultado.
  */
 const FIREBASE_PROJECT_ID = 'marcadortorneo';
 const FIREBASE_API_KEY = 'AIzaSyAdfBqnNwo7OYH_r1ZCSu3O3H6oEXv5NWo';
@@ -65,21 +69,86 @@ function sincronizar_(todo) {
     const props = PropertiesService.getScriptProperties();
     const indice = leerDoc_('meta/indice');
     if (!indice || !indice.cambios) return 'Todavía no hay partidos en el directo.';
-    const hechos = [];
+    const hechos = []; const reiniciados = []; const manuales = [];
     Object.keys(indice.cambios).forEach((n) => {
       const marca = String(indice.cambios[n]);
       if (!todo && props.getProperty('sync_' + n) === marca) return;
       const doc = leerDoc_('marcador/' + n);
-      if (!doc) return;
+      if (!doc) { // reiniciado desde el móvil: deshacer lo que escribió este script
+        if (reiniciar_(Number(n), props)) reiniciados.push(n);
+        props.setProperty('sync_' + n, marca);
+        return;
+      }
+      if (estatusHoja_(Number(n)) === 'JUGADO' && !props.getProperty('res_' + n)) { // resultado puesto a mano
+        manuales.push(n);
+        props.setProperty('sync_' + n, marca);
+        return;
+      }
       copiarGoles_(Number(n), doc);
+      props.setProperty('goles_' + n, '1');
       copiarResultado_(Number(n), doc, props);
       props.setProperty('sync_' + n, marca);
       hechos.push(n);
     });
-    return hechos.length ? 'Copiados al libro los partidos: ' + hechos.join(', ') : 'No hay cambios nuevos.';
+    const partes = [];
+    if (hechos.length) partes.push('Copiados al libro: ' + hechos.join(', '));
+    if (reiniciados.length) partes.push('Reiniciados: ' + reiniciados.join(', '));
+    if (manuales.length) partes.push('Sin tocar (ya JUGADO a mano en la hoja): ' + manuales.join(', '));
+    return partes.length ? partes.join(' · ') : 'No hay cambios nuevos.';
   } finally {
     lock.releaseLock();
   }
+}
+
+/** ESTATUS del partido en CLASIFICACION ('JUGADO' o ''), o '' si no se encuentra. */
+function estatusHoja_(n) {
+  const r = filaPartido_(n);
+  return r ? String(r.datos[r.c.ESTATUS] || '').toUpperCase().trim() : '';
+}
+
+/** Partido reiniciado: borra sus goles y su resultado SOLO si los escribió este script. */
+function reiniciar_(n, props) {
+  let algo = false;
+  if (props.getProperty('goles_' + n)) {
+    copiarGoles_(n, { goles: [], equipos: {} }); // deja vacías sus filas en GOLES
+    props.deleteProperty('goles_' + n);
+    algo = true;
+  }
+  if (props.getProperty('res_' + n)) {
+    copiarResultado_(n, { estado: 'REINICIADO' }, props); // estado distinto de FINAL: deshace el resultado
+    algo = true;
+  }
+  return algo;
+}
+
+/**
+ * Fila de un partido en CLASIFICACION con las columnas de SU bloque (cada bloque repite su cabecera y las
+ * eliminatorias tienen columnas propias: GANA, LPENALES, VPENALES). null si no existe.
+ * @returns {{sh, fila: number, datos: any[], c: Object<string, number>}|null}
+ */
+function filaPartido_(n) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(HOJA_CLASIFICACION);
+  if (!sh) throw new Error('No existe la hoja ' + HOJA_CLASIFICACION);
+  const c0 = cabecera_(sh);
+  exigir_(c0, ['RONDA', 'NPARTIDO'], HOJA_CLASIFICACION);
+  const primera = FILA_CABECERA + 1;
+  const ultima = sh.getLastRow();
+  if (ultima < primera) return null;
+  const datos = sh.getRange(primera, 1, ultima - primera + 1, sh.getLastColumn()).getValues();
+  const i = datos.findIndex((f) => String(f[c0.NPARTIDO]).replace(/\.0+$/, '').trim() === String(n));
+  if (i < 0) return null;
+  let c = c0;
+  for (let r = i - 1; r >= 0; r--) {
+    if (String(datos[r][c0.RONDA]).toUpperCase().trim() === 'RONDA') {
+      c = {};
+      datos[r].forEach((v, j) => {
+        const k = String(v).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[\s_]/g, '');
+        if (k && !(k in c)) c[k] = j;
+      });
+      break;
+    }
+  }
+  return { sh, fila: primera + i, datos: datos[i], c };
 }
 
 /** Documento de Firestore (API REST, lectura pública) como objeto JS; null si no existe. */
@@ -179,36 +248,15 @@ function copiarGoles_(n, doc) {
 }
 
 function copiarResultado_(n, doc, props) {
-  const sh = SpreadsheetApp.getActive().getSheetByName(HOJA_CLASIFICACION);
-  if (!sh) throw new Error('No existe la hoja ' + HOJA_CLASIFICACION);
-  const c0 = cabecera_(sh);
-  exigir_(c0, ['RONDA', 'NPARTIDO'], HOJA_CLASIFICACION);
-  const primera = FILA_CABECERA + 1;
-  const ultima = sh.getLastRow();
-  if (ultima < primera) return;
-  const datos = sh.getRange(primera, 1, ultima - primera + 1, sh.getLastColumn()).getValues();
-  const i = datos.findIndex((f) => String(f[c0.NPARTIDO]).replace(/\.0+$/, '').trim() === String(n));
-  if (i < 0) return;
-  // Cada bloque (grupos, cuartos, semifinales, 3.er puesto, final) repite su propia fila de cabecera y las
-  // eliminatorias tienen columnas distintas (GANA, LPENALES, VPENALES): se usa la cabecera más cercana por encima.
-  let c = c0;
-  for (let r = i - 1; r >= 0; r--) {
-    if (String(datos[r][c0.RONDA]).toUpperCase().trim() === 'RONDA') {
-      c = {};
-      datos[r].forEach((v, j) => {
-        const k = String(v).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[\s_]/g, '');
-        if (k && !(k in c)) c[k] = j;
-      });
-      break;
-    }
-  }
+  const r = filaPartido_(n);
+  if (!r) return;
+  const { sh, fila, c } = r;
   exigir_(c, ['LSCORE', 'VSCORE', 'ESTATUS'], HOJA_CLASIFICACION);
-  const fila = primera + i;
   const clave = 'res_' + n;
   const penales = 'LPENALES' in c && 'VPENALES' in c;
 
   if (doc.estado !== 'FINAL') {
-    if (props.getProperty(clave)) { // se reabrió: deshacer lo escrito
+    if (props.getProperty(clave)) { // se reabrió o se reinició: deshacer lo escrito
       poner_(sh, fila, c.LSCORE, ''); poner_(sh, fila, c.VSCORE, ''); poner_(sh, fila, c.ESTATUS, '');
       if (penales) { poner_(sh, fila, c.LPENALES, 0); poner_(sh, fila, c.VPENALES, 0); }
       props.deleteProperty(clave);
