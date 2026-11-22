@@ -1,10 +1,12 @@
-// Inicio (hero): nombre y temporada del torneo (CONFIGURACION: TORNEO_NOMBRE, TORNEO_ANIO), el balón
-// flotante (mismas siluetas que el loader) y contadores animados de equipos, partidos jugados y goles.
+// Inicio (hero «Cromo»): rótulo, nombre y temporada del torneo (CONFIGURACION: TORNEO_NOMBRE, TORNEO_ANIO),
+// lema, botones y contadores animados de equipos, partidos jugados y goles. El escudo del torneo va en un cromo
+// de álbum (marco dorado, dos dorsos detrás) sobre un campo rojo a rayas de camiseta (css/home.css: .cromo).
+// Entrada animada UNA sola vez por visita: el primer render lleva .cromo--intro y la animación arranca cuando el
+// loader sale (<html class="app-ready">); los re-render posteriores (refresco de datos, idioma) ya no la llevan.
 // Se renderiza con <h1> (es la cabecera de la página), no con el <h2 class="section-title"> del resto.
 // El <section id="inicio"> que crea el orquestador queda a sangre (css/home.css: #inicio.section).
 import { html } from '../core/dom.js';
 import { sectionVisibility } from '../core/visibility.js';
-import { BALL, BALL_PANELS } from '../ui/loader.js';
 import { bindCountUps } from '../ui/countUp.js';
 
 /** @typedef {import('../data/appModel.js').AppModel} AppModel */
@@ -59,28 +61,6 @@ const CTAS = [
   ['accordionSection', 'section_bases_title', 'Bases del Torneo'],
 ];
 
-function ball() {
-  const { x, y, r } = BALL;
-  const box = `${x - r - 1} ${y - r - 1} ${2 * r + 2} ${2 * r + 2}`;
-  return html`<svg class="hero__ball-svg" viewBox="${box}" focusable="false">
-    <defs>
-      <radialGradient id="heroBallBody" cx=".36" cy=".3" r=".85">
-        <stop offset="0" stop-color="#8a6210"></stop>
-        <stop offset=".55" stop-color="#634610"></stop>
-        <stop offset="1" stop-color="#3f2d0c"></stop>
-      </radialGradient>
-      <linearGradient id="heroBallGold" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#faefd2"></stop>
-        <stop offset=".45" stop-color="#eac871"></stop>
-        <stop offset="1" stop-color="#b07f14"></stop>
-      </linearGradient>
-    </defs>
-    <circle cx="${x}" cy="${y}" r="${r}" fill="url(#heroBallBody)"></circle>
-    <g fill="url(#heroBallGold)">${BALL_PANELS.map(([d]) => html`<path d="${d}"></path>`)}</g>
-    <circle cx="${x}" cy="${y}" r="${r - 1}" fill="none" stroke="#f3dea3" stroke-opacity=".35" stroke-width="2"></circle>
-  </svg>`;
-}
-
 /** Temporada abreviada para el fondo del hero: «2026-2027» -> «26-27»; si no son dos años, el texto tal cual. */
 export function seasonShort(anio) {
   const s = txt(anio);
@@ -88,12 +68,22 @@ export function seasonShort(anio) {
   return m ? `${m[1].slice(2)}-${m[2].slice(2)}` : s;
 }
 
+/** Siglas del colegio para la esquina del cromo: «Colegio San Francisco de Asís» -> «CSFA». */
+export function schoolInitials(nombre) {
+  const words = txt(nombre).split(/\s+/).filter((w) => w && !/^(de|del|la|las|los|el|y)$/i.test(w));
+  return words.map((w) => w[0].toLocaleUpperCase('es')).join('').slice(0, 5);
+}
+
+let introPlayed = false; // la entrada animada solo se ve una vez por visita
+
 /** @param {AppModel} model */
 export function render(model, state = {}, t) {
   const config = model?.config ?? {};
   const nombre = txt(config.TORNEO_NOMBRE) || 'Al-Ándalus';
   const anio = txt(config.TORNEO_ANIO);
   const colegio = txt(config.COLEGIO_NOMBRE);
+  const siglas = schoolInitials(colegio) || 'CSFA';
+  const temporada = seasonShort(anio).replace('-', '/');
   const vis = sectionVisibility(model ?? {});
   const ctas = CTAS.filter(([sid]) => vis[sid]).slice(0, 2);
   const s = heroStats(model); // todo 0 (sin datos o fallo de carga): sin tira de contadores, nunca «0 · 0 · 0»
@@ -102,28 +92,30 @@ export function render(model, state = {}, t) {
     ['hero_stat_played', 'Partidos jugados', s.jugados],
     ['hero_stat_goals', 'Goles', s.goles],
   ];
-  return html`<div class="hero hero--titular band band--gold" data-season="${seasonShort(anio)}">
-    <div class="hero__inner">
-      <div class="hero__copy">
-        <p class="hero__kicker reveal" style="--i:0">${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')}</p>
-        <h1 class="hero__title wordmark reveal" style="--i:1">${nombre}</h1>
-        ${anio ? html`<p class="hero__season reveal" style="--i:2"><span>${t('hero_season', 'Temporada')}</span> <span class="num">${anio}</span></p>` : ''}
-        <p class="hero__tagline reveal" style="--i:3">${t('hero_tagline', 'Más que una competición: inclusión, respeto y deporte en cada recreo.')}${colegio ? html` <span class="hero__school">${colegio}</span>` : ''}</p>
-        ${ctas.length ? html`<div class="hero__ctas reveal" style="--i:4">${ctas.map(([sid, key, fb], i) => html`<a class="${i === 0 ? 'btn-gold' : 'btn-ghost'}" href="#${sid}">${t(key, fb)}</a>`)}</div>` : ''}
-      </div>
-      <div class="hero__aside">
-        <div class="hero__ball" aria-hidden="true">
-          <div class="hero__ball-float">${ball()}</div>
-          <span class="hero__ball-shadow"></span>
-        </div>
-        <div class="hero__logos">
-          <img class="hero__logo hero__logo--school" src="img/logo-colegio.svg" alt="${colegio || 'Colegio'}" width="213" height="237" decoding="async">
-          <img class="hero__logo hero__logo--tournament" src="img/logo-torneo.webp" alt="${t('footer_tournament_title', 'Torneo escolar de Fútbol Sala')} ${nombre}" width="1000" height="1144" decoding="async" fetchpriority="high">
+  const torneo = t('footer_tournament_title', 'Torneo escolar de Fútbol Sala');
+  return html`<div class="cromo${introPlayed ? '' : ' cromo--intro'}">
+    <span class="cromo__gold" aria-hidden="true"></span>
+    <span class="cromo__field" aria-hidden="true"></span>
+    <div class="cromo__inner">
+      <div class="cromo__pack">
+        <span class="cromo__back cromo__back--a" aria-hidden="true"></span>
+        <span class="cromo__back cromo__back--b" aria-hidden="true"></span>
+        <div class="cromo__card">
+          <div class="cromo__card-top" aria-hidden="true"><span>${siglas}</span>${temporada ? html`<span>${temporada}</span>` : ''}</div>
+          <img class="cromo__logo" src="img/logo-torneo.webp" alt="${torneo} ${nombre}" width="1000" height="1144" decoding="async" fetchpriority="high">
+          <div class="cromo__card-foot" aria-hidden="true"><b class="wordmark">${nombre}</b><small>${t('hero_card_sport', 'Fútbol Sala')}</small></div>
         </div>
       </div>
-      ${s.equipos + s.jugados + s.goles > 0 ? html`<dl class="hero__stats reveal" style="--i:5">${stats.map(([key, fb, n], i) => html`<div class="hero__stat">
-        <dt class="hero__stat-label">${t(key, fb)}</dt>
-        <dd class="hero__stat-value"><span class="num" data-count-delay="${200 + i * 150}" data-count="${n}">${n}</span></dd>
+      <div class="cromo__copy">
+        <p class="cromo__kicker" style="--i:0">${torneo}</p>
+        <h1 class="cromo__title wordmark" style="--i:1">${nombre}</h1>
+        <p class="cromo__tagline" style="--i:2">${t('hero_tagline', 'Más que una competición: inclusión, respeto y deporte en cada recreo.')}${colegio ? html` <span class="cromo__school">${colegio}</span>` : ''}</p>
+        ${anio ? html`<p class="cromo__season" style="--i:3"><span>${t('hero_season', 'Temporada')}</span> <span class="num">${anio}</span></p>` : ''}
+        ${ctas.length ? html`<div class="cromo__ctas" style="--i:4">${ctas.map(([sid, key, fb], i) => html`<a class="${i === 0 ? 'btn-gold' : 'btn-ghost'}" href="#${sid}">${t(key, fb)}</a>`)}</div>` : ''}
+      </div>
+      ${s.equipos + s.jugados + s.goles > 0 ? html`<dl class="cromo__stats">${stats.map(([key, fb, n], i) => html`<div class="cromo__stat" style="--i:${i}">
+        <dt>${t(key, fb)}</dt>
+        <dd><span class="num" data-count-delay="${200 + i * 150}" data-count="${n}">${n}</span></dd>
       </div>`)}</dl>` : ''}
     </div>
   </div>`;
@@ -133,4 +125,15 @@ export function render(model, state = {}, t) {
 export function bind(root) {
   if (!root) return;
   bindCountUps(root);
+  // La entrada arranca con .app-ready (loader fuera); pasado su tiempo, los siguientes render ya no la repiten.
+  if (introPlayed || !root.querySelector('.cromo--intro')) return;
+  const html_ = document.documentElement;
+  const done = () => setTimeout(() => { introPlayed = true; }, 2500);
+  if (html_.classList.contains('app-ready')) { done(); return; }
+  const mo = new MutationObserver(() => {
+    if (!html_.classList.contains('app-ready')) return;
+    mo.disconnect();
+    done();
+  });
+  mo.observe(html_, { attributes: true, attributeFilter: ['class'] });
 }

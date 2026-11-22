@@ -4,6 +4,7 @@
 import { html } from '../core/dom.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { matchCard } from '../ui/matchCard.js';
+import { goldBall } from '../ui/goldBall.js';
 import { dayKey, matchDays, pickInitialDay, windowStart, dayWindow, stepDay, canStep, formatDay, formatDayRange } from './dates.js';
 import { sectionTitle, emptyState, chrono, bindCommon, rememberFocus } from './common.js';
 
@@ -37,7 +38,7 @@ export function render(model, state = {}, t) {
   const title = sectionTitle(t, ...TITLE);
   const list = pendientes(model).sort(chrono);
   if (!list.length) {
-    return html`${title}${emptyState(t, ['msg_no_matches', 'No hay partidos programados'], ['msg_no_matches_description', 'Los partidos se mostrarán automáticamente cuando estén programados.'])}`;
+    return html`<div class="upcoming-head"><div class="upcoming-head__main">${title}</div>${goldBall('upcoming-head__ball')}</div>${emptyState(t, ['msg_no_matches', 'No hay partidos programados'], ['msg_no_matches_description', 'Los partidos se mostrarán automáticamente cuando estén programados.'])}`;
   }
   const locale = t('date_locale', 'es-ES');
   const days = matchDays(list);
@@ -76,7 +77,8 @@ export function render(model, state = {}, t) {
     </div>`;
   };
 
-  return html`${title}${nav}
+  // Cabecera: título + navegación de días a la izquierda; el balón dorado a la derecha, ajustado al alto disponible
+  return html`<div class="upcoming-head"><div class="upcoming-head__main">${title}${nav}</div>${goldBall('upcoming-head__ball')}</div>
     <div class="days">${visible.map(dayBlock)}${sinFecha.length ? html`<div class="day">
       <h3 class="day__title reveal"><span class="day__dot" aria-hidden="true"></span>${t('date_to_confirm', 'Fecha por confirmar')}</h3>
       <div class="match-grid">${sinFecha.map(card)}</div></div>` : ''}</div>`;

@@ -78,7 +78,7 @@ html.has-overlay { overflow: hidden; }
 }
 .dnav__wide { display: none; }
 .dnav__more { position: relative; }
-@media (min-width: 1400px) {
+@media (min-width: 1560px) { /* escudo de cabecera grande (--school-logo-h): la sección extra entra en línea a partir de 1560px */
   .dnav__wide { display: list-item; }
   .dnav__narrow, .dnav__more--narrow { display: none; }
 }

@@ -93,25 +93,6 @@
 }
 .band--deep h1, .band--deep h2, .band--deep h3 { color: #fff; }
 
-/* Hero: rótulo en ámbar (acento), nombre en blanco, cifras clave en ámbar */
-/* ámbar claro: el rótulo es texto pequeño y debe cumplir 4,5:1 sobre el rojo (el ámbar fuerte queda para cifras grandes) */
-.hero__kicker { color: #ffe08a; font-weight: 700; }
-.hero__title { color: #fff; text-shadow: 0 3px 14px rgb(60 0 5 / 0.38); }
-/* «Temporada 2025-2026» en ámbar: la etiqueta pequeña en ámbar claro (cumple 4,5:1), la cifra grande en ámbar */
-.hero__season { color: #ffe08a; }
-.hero__season .num { color: var(--amber-400); }
-.hero__tagline, .hero__school { color: #fff; }
-.hero__stats {
-  border-color: rgb(255 255 255 / 0.28);
-  background: rgb(60 0 5 / 0.22);
-  box-shadow: none;
-}
-.hero__stat + .hero__stat { border-left-color: rgb(255 255 255 / 0.28); }
-.hero__stat-value { color: var(--amber-400); }
-.hero__stat-label { color: #fff; }
-.hero__ball-svg { filter: drop-shadow(0 14px 18px rgb(60 0 5 / 0.45)); }
-.hero__ball-shadow { background: radial-gradient(closest-side, rgb(60 0 5 / 0.45), transparent); }
-
 /* Botones: principal rojo con texto blanco; sobre el hero, blanco con texto rojo */
 .btn-gold {
   color: #fff;

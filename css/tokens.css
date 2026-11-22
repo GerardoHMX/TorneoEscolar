@@ -91,6 +91,8 @@
   --gutter: 16px;
   --max-w: 1200px;
   --space-section: clamp(3rem, 2rem + 5vw, 6rem);
+  /* Escudo del colegio en la cabecera: tamaño grande (el que tenía en el hero); la cabecera conserva su alto y el escudo sobresale por debajo */
+  --school-logo-h: clamp(64px, 3.2rem + 3.4vw, 108px);
   --header-h: 64px;
   --bottomnav-h: 64px;
   --tap: 44px;             /* objetivo táctil mínimo */
@@ -120,8 +122,8 @@
   --stagger: 70ms;
 
   /* ---- Capas ---- */
-  --z-header: 40;
   --z-bottomnav: 45;
+  --z-header: 50;         /* sobre la barra inferior: el escudo del colegio sobresale y debe verse encima de todo el contenido */
   --z-sheet: 60;
   --z-modal: 80;
   --z-loader: 100;

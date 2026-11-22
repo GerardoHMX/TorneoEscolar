@@ -298,13 +298,26 @@ img { height: auto; }
   line-height: 1.2;
 }
 .header-school {
-  display: inline-flex;
-  align-items: center;
+  --logo-h: var(--school-logo-h);
+  position: relative;
+  z-index: 4; /* por encima del filo de la cabecera y de la barra de progreso (.scroll-progress, z 3) */
+  align-self: flex-start; /* anclado arriba: el escudo sobresale de la barra hacia abajo, sin cambiar su alto */
   flex-shrink: 0;
+  width: calc(var(--logo-h) * 213 / 237); /* reserva el ancho real del escudo en la fila */
   min-width: var(--tap);
-  min-height: var(--tap);
+  height: var(--header-h);
 }
-.header-school img { width: auto; height: 60px; aspect-ratio: 213 / 237; object-fit: contain; } /* escudo vectorial 213×237; único logo de la cabecera */
+.header-school img {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: auto;
+  height: var(--logo-h);
+  aspect-ratio: 213 / 237; /* proporción fija: no se deforma */
+  max-width: none;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.12));
+} /* escudo vectorial 213×237; único logo de la cabecera */
 .header-tools {
   position: relative; /* ancla del mensaje de «Compartir» */
   margin-left: auto;
@@ -318,7 +331,7 @@ img { height: auto; }
   .header-tools { gap: 0; }
   .brand { gap: 0.4rem; }
   /* Con el botón de compartir hay un icono más: se compactan escudo, idioma e iconos (objetivos táctiles ≥ 36px) */
-  .header-school img { height: 48px; }
+  .header-school { --logo-h: 48px; }
   .lang-switch button { min-width: 36px; padding: 0 0.35rem; }
   .header-tools .icon-btn { width: 38px; height: 38px; }
   .brand__name { font-size: 1.1rem; }
@@ -326,7 +339,7 @@ img { height: auto; }
 }
 @media (max-width: 349.98px) { /* 320px */
   .header-bar { gap: 0.25rem; }
-  .header-school img { height: 40px; }
+  .header-school { --logo-h: 40px; }
   .brand { gap: 0.25rem; }
   .brand__name { font-size: 0.9rem; }
   .brand__name .wordmark { font-size: calc(0.9rem * var(--wordmark-boost)); }
@@ -342,7 +355,6 @@ img { height: auto; }
     margin-inline: auto;
   }
   .header-tools { margin-left: 0; }
-  .header-school img { height: 68px; }
 }
 
 .lang-switch {

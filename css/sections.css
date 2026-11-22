@@ -387,6 +387,42 @@
 }
 
 /* ===================== Próximos partidos ===================== */
+/* Cabecera: título + navegación de días a la izquierda y el balón dorado a la derecha.
+ * El balón toma el alto de esa columna (título + navegación), con un tope por ancho de pantalla. */
+.upcoming-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+}
+.upcoming-head__main { min-width: 0; }
+.upcoming-head__main > :last-child { margin-bottom: 0; }
+.upcoming-head__ball { width: clamp(57px, 3rem + 6vw, 142px); } /* 3/4 del tamaño anterior */
+
+.gold-ball { pointer-events: none; }
+.gold-ball__float { animation: gold-ball-float 6.5s var(--ease-in-out) infinite; }
+.gold-ball__svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 12px 14px rgb(63 45 12 / 0.32)); }
+.gold-ball__shadow {
+  display: block;
+  width: 62%;
+  height: 10px;
+  margin: 10px auto 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(63 45 12 / 0.32), transparent);
+  animation: gold-ball-shadow 6.5s var(--ease-in-out) infinite;
+}
+@keyframes gold-ball-float {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-12px) rotate(10deg); }
+}
+@keyframes gold-ball-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50% { transform: scaleX(0.78); opacity: 0.6; }
+}
+@media (max-width: 479.98px) {
+  .gold-ball__shadow { height: 7px; margin-top: 6px; }
+}
 .daynav {
   display: grid;
   grid-template-columns: var(--tap) minmax(0, 1fr) var(--tap);

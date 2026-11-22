@@ -136,7 +136,7 @@ function goalItem({ gol, side, lado }, t) {
  *   tag: etiqueta extra (p. ej. «Próximo partido»); alert: variante .card--alert.
  *   today: «hoy» (inyectable en tests). Los partidos de hoy enlazan su marcador en vivo (marcador.html):
  *   previa si aún no empezó, directo mientras se juega y pantalla de final cuando termina.
- *   link: enlaza también al marcador (previa) aunque no sea hoy (sección Próximos partidos).
+ *   link: enlaza también al marcador aunque no sea hoy (Próximos partidos: previa; Resultados: final).
  */
 export function matchCard(p, g, t, opts = {}) {
   const { idPrefix = 'm', index = 0, tag = '', alert = false, locale = t('date_locale', 'es-ES'), showDate = true, today = new Date(), link = false } = opts;

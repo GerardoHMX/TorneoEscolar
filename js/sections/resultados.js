@@ -40,7 +40,7 @@ export function render(model, state = {}, t) {
     const shown = open ? ps : ps.slice(0, LIMITE);
     return html`<section class="cycle-block${extraClass}" aria-labelledby="${id}-${key}">
       <h3 class="cycle-block__title reveal" id="${id}-${key}" tabindex="-1"><span class="cycle-block__badge${key === 'final' ? ' cycle-block__badge--gold' : ''}">${badge}</span>${name}</h3>
-      <div class="match-grid">${shown.map((p, k) => matchCard(p, goals.get(p.key), t, { idPrefix: id, index: k, locale }))}</div>
+      <div class="match-grid">${shown.map((p, k) => matchCard(p, goals.get(p.key), t, { idPrefix: id, index: k, locale, link: true }))}</div>
       ${open ? '' : html`<div class="more-row"><button type="button" class="btn-ghost more-btn" data-expand="${key}">${t('results_show_all', 'Ver todos')} (${ps.length})</button></div>`}
     </section>`;
   };
