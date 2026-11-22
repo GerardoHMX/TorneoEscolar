@@ -131,14 +131,15 @@ function goalItem({ gol, side, lado }, t) {
  * @param {Partido} p
  * @param {MatchGoals|undefined} g
  * @param {T} t
- * @param {{idPrefix?: string, index?: number, tag?: unknown, alert?: boolean, locale?: string, showDate?: boolean, today?: Date}} [opts]
+ * @param {{idPrefix?: string, index?: number, tag?: unknown, alert?: boolean, locale?: string, showDate?: boolean, today?: Date, link?: boolean}} [opts]
  *   idPrefix: evita ids repetidos si el mismo partido aparece en dos secciones; index: escalonado (--i);
  *   tag: etiqueta extra (p. ej. «Próximo partido»); alert: variante .card--alert.
  *   today: «hoy» (inyectable en tests). Los partidos de hoy enlazan su marcador en vivo (marcador.html):
  *   previa si aún no empezó, directo mientras se juega y pantalla de final cuando termina.
+ *   link: enlaza también al marcador (previa) aunque no sea hoy (sección Próximos partidos).
  */
 export function matchCard(p, g, t, opts = {}) {
-  const { idPrefix = 'm', index = 0, tag = '', alert = false, locale = t('date_locale', 'es-ES'), showDate = true, today = new Date() } = opts;
+  const { idPrefix = 'm', index = 0, tag = '', alert = false, locale = t('date_locale', 'es-ES'), showDate = true, today = new Date(), link = false } = opts;
   const played = p.estatus === 'JUGADO';
   const fecha = dayKey(p.fecha) !== null ? p.fecha : null;
   const cicloTxt = p.interciclo || !p.ciclo ? '' : `${p.ciclo} · `;
@@ -150,7 +151,8 @@ export function matchCard(p, g, t, opts = {}) {
   // Eliminatoria igualada en el marcador: mostrar quién pasa (si la hoja lo dice); el marcador manda si no hay empate.
   const { local: outLocal, visit: outVisit, pasaName } = matchOutcome(p);
   const [advA, advB = ''] = t('match_advances', 'Pasa: {team}').split('{team}');
-  const liveLink = fecha !== null && dayKey(fecha) === dayKey(today) && Number.isInteger(p.n);
+  const isToday = fecha !== null && dayKey(fecha) === dayKey(today);
+  const liveLink = (isToday || link) && Number.isInteger(p.n);
 
   const center = played
     ? html`<p class="match__score num" aria-label="${scoreTxt(p.local?.score)} – ${scoreTxt(p.visitante?.score)}"><span>${scoreTxt(p.local?.score)}</span><span class="match__sep" aria-hidden="true">–</span><span>${scoreTxt(p.visitante?.score)}</span></p>`
@@ -172,15 +174,15 @@ export function matchCard(p, g, t, opts = {}) {
 
   return html`<article class="match card reveal${alert ? ' card--alert match--next' : ''}${played ? ' is-played' : ' is-pending'}" data-match="${p.key}" style="--i:${Math.min(Math.max(index, 0), 8)}">
     <header class="match__meta">
-      <span class="match__tags"><span class="tag">${cicloTxt}${phaseLabel(p, t)}</span>${tag ? html`<span class="tag tag--red">${tag}</span>` : ''}${liveLink ? html`<span class="tag tag--live">${t('live_scoreboard_tag', 'Marcador en vivo')}</span>` : ''}</span>
+      <span class="match__tags"><span class="tag">${cicloTxt}${phaseLabel(p, t)}</span>${tag ? html`<span class="tag tag--red">${tag}</span>` : ''}${isToday && liveLink ? html`<span class="tag tag--live">${t('live_scoreboard_tag', 'Marcador en vivo')}</span>` : ''}</span>
       ${showDate && fecha ? html`<span class="match__when"><time datetime="${isoDay(fecha)}">${formatDay(fecha.getTime(), locale, 'card')}</time>${played && hora ? html` · ${hora}` : ''}</span>` : ''}
     </header>
     ${liveLink
-    ? html`<a class="match__board match__board--link" href="marcador.html?partido=${p.n}">
+    ? html`<a class="match__board match__board--link" href="marcador.html?partido=${p.n}" target="_blank" rel="noopener">
       ${team(p.local, 'local', outLocal, t)}
       ${center}
       ${team(p.visitante, 'visit', outVisit, t)}
-      <span class="sr-only">${t('live_scoreboard_open', 'Abrir el marcador en vivo de este partido')}</span>
+      <span class="sr-only">${t('live_scoreboard_open', 'Abrir el marcador en vivo de este partido')} (${t('opens_new_tab', 'se abre en otra pestaña')})</span>
     </a>`
     : html`<div class="match__board">
       ${team(p.local, 'local', outLocal, t)}

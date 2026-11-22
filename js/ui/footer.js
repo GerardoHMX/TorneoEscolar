@@ -1,7 +1,8 @@
 // Pie de página (#site-footer), portado del <footer> de index.html antiguo (466da58, l.483-533): logo del
 // colegio (archivo local img/logo-colegio.svg) y sus datos desde CONFIGURACION, nombre y temporada del torneo, Instagram y el crédito
 // «Realizado por Gerardo Huizar Castro» con la licencia CC BY-NC-SA 4.0. Junto a Instagram, el icono
-// «Compartir este sitio» ([data-share]; lo cablea js/ui/share.js tras cada repintado del pie).
+// «Compartir este sitio» ([data-share]; lo cablea js/ui/share.js tras cada repintado del pie) y el enlace
+// «Anotar marcador» a captura.html (página de quien anota el directo; pide iniciar sesión), en otra pestaña.
 // Seguridad: todo pasa por `html` (escape); enlaces por safeUrl (solo https);
 // tel: solo con dígitos; mailto: solo con un email de forma válida; enlaces externos con noopener noreferrer.
 import { html, safeUrl } from '../core/dom.js';
@@ -29,6 +30,7 @@ const ICON = {
   pin: html`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 5.2-7 13-7 13S5 14.2 5 9a7 7 0 0 1 7-7Zm0 4.5A2.5 2.5 0 1 0 12 11.5 2.5 2.5 0 0 0 12 6.5Z" fill="currentColor"/></svg>`,
   web: html`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm6.9 6a8 8 0 0 0-3.4-3.3c.6 1 1.1 2.1 1.4 3.3h2Zm-4.1 0C14.3 6.2 13.3 4.6 12 4c-1.3.6-2.3 2.2-2.8 4h5.6ZM4.9 14h2.4a17 17 0 0 1 0-4H4.9a8 8 0 0 0 0 4Zm.2 2a8 8 0 0 0 3.4 3.3c-.6-1-1.1-2.1-1.4-3.3h-2Zm4.1 0c.5 1.8 1.5 3.4 2.8 4 1.3-.6 2.3-2.2 2.8-4H9.2Zm5.9-2h-6.2a15 15 0 0 1 0-4h6.2a15 15 0 0 1 0 4Zm1.6 0h2.4a8 8 0 0 0 0-4h-2.4a17 17 0 0 1 0 4Zm-1.2 5.3a8 8 0 0 0 3.4-3.3h-2c-.3 1.2-.8 2.3-1.4 3.3ZM5.1 8h2c.3-1.2.8-2.3 1.4-3.3A8 8 0 0 0 5.1 8Z" fill="currentColor"/></svg>`,
   share: html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="2.6"></circle><circle cx="6" cy="12" r="2.6"></circle><circle cx="18" cy="19" r="2.6"></circle><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"></path></svg>`,
+  score: html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M12 5v14M7 10v4M16 10h2v2h-2v2h2"></path></svg>`,
   insta: html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="0.6" fill="currentColor"></circle></svg>`,
 };
 
@@ -86,6 +88,7 @@ export function renderFooter(config, t, opts = {}) {
         ${anio ? html`<p class="footer__season num">${anio}</p>` : ''}
         <div class="footer__links">
           ${insta ? html`<a class="footer__social" href="${insta}" target="_blank" rel="${EXT}">${ICON.insta}<span>Instagram</span></a>` : ''}
+          <a class="footer__social" href="${base}captura.html" target="_blank" rel="noopener">${ICON.score}<span>${t('footer_capture', 'Anotar marcador')}</span><span class="sr-only"> (${t('opens_new_tab', 'se abre en otra pestaña')})</span></a>
           <button type="button" class="footer__share" data-share aria-label="${share}" title="${share}">${ICON.share}</button>
         </div>
         <p class="footer__share-status" role="status" aria-live="polite" data-share-status></p>

@@ -51,7 +51,7 @@ export function render(model, state = {}, t) {
   const card = (p) => {
     const isNext = next && p.key === next.key;
     return matchCard(p, undefined, t, {
-      idPrefix: id, index: i++, locale, alert: !!isNext, showDate: false, // la fecha ya está en el título del día
+      idPrefix: id, index: i++, locale, alert: !!isNext, showDate: false, link: true, // la fecha ya está en el título del día; enlaza a la previa del marcador
       tag: isNext ? t('next_match_tag', 'Próximo partido') : '',
     });
   };
