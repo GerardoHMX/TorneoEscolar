@@ -1,10 +1,9 @@
 // Vídeos alojados en el propio sitio (carpeta media/) dentro de la galería: sin controles nativos, para que
-// no parezcan un reproductor. Arrancan solos, con sonido si el navegador lo permite, y UNA sola vez al entrar en pantalla; al terminar
-// se cubren con la portada (columna PORTADA de la hoja o, por convenio, el .jpg del mismo nombre). Un botón
-// (oculto salvo al pasar el ratón, tocar el vídeo o llegar con el teclado) discreto pausa / reanuda / repite y otro activa el sonido.
-// Con prefers-reduced-motion no arrancan solos: se ve la portada y el botón de reproducir.
+// no parezcan un reproductor. NO arrancan solos: se ve la portada (columna PORTADA de la hoja o, por convenio,
+// el .jpg del mismo nombre) con el botón de reproducir, y al tocarlo suenan con sonido. Solo suena un vídeo a
+// la vez: al reproducir uno se pausan los demás. Al terminar vuelve la portada. Un botón (oculto salvo al pasar
+// el ratón, tocar el vídeo o llegar con el teclado) pausa / reanuda / repite y otro silencia.
 // El marco [data-clip] toma la proporción real del vídeo (sin franjas). Estilos en css/home.css.
-import { prefersReducedMotion } from './focus.js';
 
 /**
  * Ruta local de un vídeo del sitio: «media/nombre.mp4» (o .webm), sola o al final de una URL completa.
@@ -27,9 +26,9 @@ export function localImage(url) {
 /** Portada por convenio: mismo nombre con .jpg (media/trailer.mp4 -> media/trailer.jpg). */
 export const posterFor = (src) => src.replace(/\.[^.]+$/, '.jpg');
 
-/** Vídeos que ya se reprodujeron solos: un repintado de la sección (idioma, datos) no los relanza. */
-const autoPlayed = new Set();
 const bound = new WeakSet();
+/** Vídeo que está sonando ahora: al reproducir otro se pausa este. */
+let current = null;
 
 /** @param {Element} root @param {(key: string, fallback: string) => string} t */
 export function bindClips(root, t) {
@@ -41,7 +40,6 @@ export function bindClips(root, t) {
     const sound = frame.querySelector('[data-clip-sound]');
     if (!video || !toggle) return;
     bound.add(frame);
-    const key = video.getAttribute('src');
 
     const setState = (state) => {
       if (!frame.hasAttribute('data-clip')) return; // ya sustituido por el reproductor de Drive
@@ -64,36 +62,17 @@ export function bindClips(root, t) {
     const fit = () => {
       if (video.videoWidth && video.videoHeight) frame.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
     };
-    // Sonido: activado por defecto. Los navegadores no dejan que un vídeo arranque solo CON sonido si la
-    // persona aún no ha tocado nada en la página: en ese caso arranca en silencio y el sonido entra con su
-    // primer clic, toque o tecla. Si alguien lo silencia con el botón (userMuted), se respeta.
+    // Sonido activado por defecto: el vídeo solo arranca con un clic/toque de la persona, así que el navegador
+    // lo deja sonar. Si alguien lo silencia con el botón (userMuted), se respeta.
     let userMuted = false;
     const failed = () => setState(video.ended ? 'ended' : video.currentTime > 0 ? 'paused' : 'idle');
-    const unmuteOnGesture = () => {
-      const on = (ev) => {
-        if (ev.target instanceof Element && ev.target.closest('.gal-clip__tools') && frame.contains(ev.target)) return;
-        document.removeEventListener('pointerdown', on, true);
-        document.removeEventListener('keydown', on, true);
-        if (!frame.isConnected || userMuted || video.paused || video.ended) return;
-        video.muted = false;
-        setSound();
-      };
-      document.addEventListener('pointerdown', on, true);
-      document.addEventListener('keydown', on, true);
-    };
     const play = () => {
+      if (current && current !== video && !current.paused) current.pause();
+      current = video;
       video.muted = userMuted;
       setSound();
       const p = video.play();
-      if (!p || typeof p.catch !== 'function') return;
-      p.catch(() => {
-        if (video.muted) { failed(); return; }
-        video.muted = true; // bloqueado con sonido: en silencio hasta la primera interacción
-        setSound();
-        const q = video.play();
-        if (q && typeof q.catch === 'function') q.catch(failed);
-        unmuteOnGesture();
-      });
+      if (p && typeof p.catch === 'function') p.catch(failed);
     };
     const onToggle = () => {
       if (video.paused || video.ended) play(); else video.pause();
@@ -126,18 +105,9 @@ export function bindClips(root, t) {
     sound?.addEventListener('click', () => { activate(); video.muted = !video.muted; userMuted = video.muted; setSound(); });
 
     fit();
-    // Ya se vio una vez: tras un repintado queda la portada (el fotograma final) con «Ver de nuevo».
-    setState(autoPlayed.has(key) ? 'ended' : 'idle');
+    setState('idle');
+    video.muted = userMuted;
     setSound();
-
-    if (autoPlayed.has(key) || prefersReducedMotion() || typeof IntersectionObserver !== 'function') return;
-    const io = new IntersectionObserver((entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      autoPlayed.add(key);
-      play();
-    }, { threshold: 0.6 });
-    io.observe(frame);
   });
 }
 
