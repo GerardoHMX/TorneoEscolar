@@ -1,4 +1,5 @@
-// Galería: solo filas con PUBLICAR = SI, un día cada vez con navegación anterior/siguiente (portado de
+// Galería: solo filas con PUBLICAR = SI; vista «Todas» (por defecto, de la más reciente a la más antigua) o
+// «Por día», un día cada vez con navegación anterior/siguiente, como Noticias (portado de
 // main.js: encontrarDiasRelevantesGaleria + filtrarGaleriaPorFecha y de ui.js: renderGalería +
 // mostrarDetalleGalería). TIPO IMAGEN (o vacío) -> miniatura que abre un visor (openModal) con
 // anterior/siguiente; TIPO VIDEO -> vídeo del propio sitio (URL «media/nombre.mp4»: sin reproductor, arranca al tocarlo,
@@ -11,7 +12,7 @@ import { driveImg } from '../core/drive.js';
 import { sectionVisibility } from '../core/visibility.js';
 import { openModal } from '../ui/modal.js';
 import { pickLatestDay, itemsForDay } from './dates.js';
-import { sectionTitle, emptyState, restoreFocus } from './common.js';
+import { sectionTitle, emptyState, restoreFocus, rememberFocus } from './common.js';
 import { feedGroup, feedDay, feedStep, dayNav, bindDayNav, feedDateLabel } from './feed.js';
 import { bindMediaFallback } from '../ui/media.js';
 import { bindClips, bindDriveCovers, fitDriveFrames, localImage, localVideo, posterFor } from '../ui/clip.js';
@@ -25,9 +26,12 @@ export function hasData(model) {
   return !!sectionVisibility(model)[id];
 }
 
-/** @param {AppModel} model @param {Date} [today] @returns {{dia: number|null}} */
+/** Vista por defecto: toda la galería publicada. «dia» = un día cada vez con navegación (como Noticias). */
+export const VISTAS = ['todas', 'dia'];
+
+/** @param {AppModel} model @param {Date} [today] @returns {{vista: string, dia: number|null}} */
 export function initialState(model, today = new Date()) {
-  return { dia: pickLatestDay(feedGroup(model?.galeria).days, today) };
+  return { vista: 'todas', dia: pickLatestDay(feedGroup(model?.galeria).days, today) };
 }
 
 /**
@@ -84,12 +88,16 @@ export function media(g, driveKey = '') {
   return full ? { kind: 'image', src: driveImg(g.url, 900), full, g } : null;
 }
 
-/** Lo que se ve: día actual y elementos mostrables. */
+/** Lo que se ve: día actual, si es la vista «Todas» y los elementos mostrables. */
 export function galeriaView(model, state) {
   const group = feedGroup(model?.galeria);
   const day = feedDay(group, state?.dia);
-  const shown = itemsForDay(group, day).map((e) => media(e.item, model?.config?.DRIVE_API_KEY)).filter(Boolean);
-  return { group, day, shown, images: shown.filter((m) => m.kind === 'image') };
+  const all = state?.vista !== 'dia';
+  const items = all
+    ? [...group.days].reverse().flatMap((d) => group.byDay.get(d)).concat(group.undated)
+    : itemsForDay(group, day).map((e) => e.item);
+  const shown = items.map((g) => media(g, model?.config?.DRIVE_API_KEY)).filter(Boolean);
+  return { group, day, all, shown, images: shown.filter((m) => m.kind === 'image') };
 }
 
 export const stepGaleria = (model, dia, dir) => feedStep(feedGroup(model?.galeria), dia, dir);
@@ -124,6 +132,13 @@ export function lightbox(g, t, pos = { index: 0, total: 1 }) {
 }
 
 const TITLE = [['section_gallery_title', 'Galería'], ['section_gallery_kicker', 'En imágenes']];
+
+function viewToggle(all, t) {
+  const b = (v, key, fb) => html`<button type="button" class="chip" data-gal-view="${v}" aria-pressed="${(v === 'todas') === all}">${t(key, fb)}</button>`;
+  return html`<div class="chip-row news-views reveal" role="group" aria-label="${t('gallery_view_label', 'Vista de la galería')}" data-focus-group>
+    ${b('todas', 'gallery_view_all', 'Todas')}${b('dia', 'gallery_view_day', 'Por día')}
+  </div>`;
+}
 
 // Iconos de los vídeos propios: el CSS muestra el que toca según data-state / aria-pressed.
 const svg = (cls, d) => html`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -165,13 +180,13 @@ function tile(m, i, imgIndex, t, locale) {
 /** @param {AppModel} model */
 export function render(model, state = {}, t) {
   const title = sectionTitle(t, ...TITLE);
-  const { group, day, shown } = galeriaView(model, state);
+  const { group, day, all, shown } = galeriaView(model, state);
   if (!shown.length) {
     return html`${title}${emptyState(t, ['msg_no_gallery', 'No hay imágenes en la galería'], ['msg_no_gallery_description', 'La galería estará disponible pronto con imágenes y videos del torneo.'])}`;
   }
   const locale = t('date_locale', 'es-ES');
   let img = 0;
-  return html`${title}${dayNav(group, day, t, t('gallery_day_label', 'Galería del día'))}
+  return html`${title}${group.days.length ? viewToggle(all, t) : ''}${all ? '' : dayNav(group, day, t, t('gallery_day_label', 'Galería del día'))}
     <div class="gal-grid${shown.length === 1 ? ' gal-grid--single' : ''}">${shown.map((m, i) => tile(m, i, m.kind === 'image' ? img++ : -1, t, locale))}</div>`;
 }
 
@@ -202,6 +217,13 @@ export function bind(root, ctx) {
   if (!root) return;
   const { group, images } = galeriaView(ctx.model, ctx.state);
   bindDayNav(root, ctx, id, group);
+  root.querySelectorAll('button[data-gal-view]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const vista = btn.dataset.galView;
+      rememberFocus(id, `button[data-gal-view="${vista}"]`);
+      ctx.setState({ vista });
+    });
+  });
   root.querySelectorAll('button[data-gal]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const i = Number(btn.dataset.gal);
