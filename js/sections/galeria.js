@@ -1,8 +1,8 @@
 // Galería: solo filas con PUBLICAR = SI, un día cada vez con navegación anterior/siguiente (portado de
 // main.js: encontrarDiasRelevantesGaleria + filtrarGaleriaPorFecha y de ui.js: renderGalería +
 // mostrarDetalleGalería). TIPO IMAGEN (o vacío) -> miniatura que abre un visor (openModal) con
-// anterior/siguiente; TIPO VIDEO -> vídeo del propio sitio (URL «media/nombre.mp4»: sin reproductor, arranca
-// solo una vez, con PORTADA al principio y al final; js/ui/clip.js) o vídeo de https://drive.google.com
+// anterior/siguiente; TIPO VIDEO -> vídeo del propio sitio (URL «media/nombre.mp4»: sin reproductor, arranca al tocarlo,
+// uno a la vez, con PORTADA al principio y al final; js/ui/clip.js) o vídeo de https://drive.google.com
 // (con DRIVE_API_KEY en CONFIGURACION: igual que uno propio; sin clave: incrustado con /preview, PORTADA
 // solo al principio);
 // cualquier otro vídeo (YouTube, otros dominios) se omite.
@@ -73,7 +73,7 @@ export function media(g, driveKey = '') {
     const src = driveVideoEmbed(g.url);
     if (!src) return null;
     const thumb = driveImg(g.url, 400);
-    // Con DRIVE_API_KEY: mismo trato que un vídeo propio (arranca solo, sin reproductor, portada al principio y
+    // Con DRIVE_API_KEY: mismo trato que un vídeo propio (arranca al tocarlo, sin reproductor, portada al principio y
     // al final). Si la API falla (clave, cuota, archivo privado), js/ui/clip.js vuelve al iframe (fallback).
     const api = driveVideoApi(g.url, driveKey);
     if (api) return { kind: 'clip', src: api, poster: portada || driveImg(g.url, 1200), fallback: src, thumb, g };
