@@ -834,7 +834,7 @@
 .gal-clip__btn[aria-pressed="false"] .gal-clip__i--muted,
 .gal-clip__btn[aria-pressed="true"] .gal-clip__i--sound { display: block; }
 /* Los botones solo se ven al pasar el ratón, al tocar el vídeo (.is-active, js/ui/clip.js) o con el foco del
-   teclado. Excepción: si el vídeo no ha podido arrancar solo (idle), el botón de reproducir queda a la vista. */
+   teclado. Excepción: antes de reproducirlo (idle), el botón de reproducir queda a la vista. */
 .gal-clip:not([data-state="idle"]) .gal-clip__btn { opacity: 0; pointer-events: none; }
 .gal-clip.is-active .gal-clip__btn,
 .gal-clip:has(.gal-clip__btn:focus-visible) .gal-clip__btn { opacity: 1; pointer-events: auto; }
